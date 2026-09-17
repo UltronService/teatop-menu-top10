@@ -1,26 +1,454 @@
 {
   "version": 1,
-  "regions": ["central","central-smart","mrt-tamsui","north","north-smart","south","ximen"],
+  "regions": [
+    "central",
+    "central-smart",
+    "mrt-tamsui",
+    "north",
+    "north-smart",
+    "south",
+    "ximen"
+  ],
   "items": [
-    {"id":"qingcha-3q","nameZh":"青茶3Q","nameEn":"","image":"images/drinks/青茶3Q.jpg","regions":{"central":{"rank":1,"priceL":55},"south":{"rank":1,"priceL":55},"north":{"rank":1,"priceL":55},"central-smart":{"rank":1,"priceL":55},"north-smart":{"rank":1,"priceL":55},"mrt-tamsui":{"rank":7,"priceL":55},"ximen":{"rank":3,"priceL":55}}},
-    {"id":"hongdou-fenguo-xiannai","nameZh":"紅豆粉粿鮮奶","nameEn":"","image":"images/drinks/紅豆粉粿鮮奶.jpg","regions":{"central":{"rank":2,"priceL":90},"south":{"rank":2,"priceL":90},"north":{"rank":2,"priceL":90},"central-smart":{"rank":2,"priceL":90},"north-smart":{"rank":2,"priceL":90},"mrt-tamsui":{"rank":10,"priceL":90},"ximen":{"rank":9,"priceL":95}}},
-    {"id":"baixiang-qq","nameZh":"百香QQ","nameEn":"","image":"images/drinks/百香QQ.jpg","regions":{"central":{"rank":3,"priceL":70},"south":{"rank":3,"priceL":70},"north":{"rank":3,"priceL":75},"north-smart":{"rank":3,"priceL":75},"mrt-tamsui":{"rank":3,"priceL":75},"central-smart":{"rank":3,"priceL":70},"ximen":{"rank":10,"priceL":80}}},
-    {"id":"beixiang-fenjiao-jinxuan","nameZh":"焙香粉角金萱","nameEn":"","image":"images/drinks/焙香粉角金萱.jpg","regions":{"central":{"rank":4,"priceL":50},"south":{"rank":4,"priceL":50},"central-smart":{"rank":4,"priceL":50},"north":{"rank":4,"priceL":55},"north-smart":{"rank":4,"priceL":55}}},
-    {"id":"hongcha-xiannaicha","nameZh":"紅茶鮮奶茶","nameEn":"","image":"images/drinks/紅茶鮮奶茶.jpg","regions":{"central":{"rank":5,"priceL":65},"south":{"rank":5,"priceL":65},"north":{"rank":5,"priceL":70}}},
-    {"id":"liucheng-lu","nameZh":"柳橙綠","nameEn":"","image":"images/drinks/柳橙綠.jpg","regions":{"central":{"rank":6,"priceL":70},"south":{"rank":6,"priceL":70},"north":{"rank":6,"priceL":70},"central-smart":{"rank":6,"priceL":70},"north-smart":{"rank":6,"priceL":70},"ximen":{"rank":7,"priceL":75}}},
-    {"id":"dangdai-shuangq","nameZh":"當代雙Q","nameEn":"","image":"images/drinks/當代雙Q.jpg","regions":{"central":{"rank":7,"priceL":65},"south":{"rank":7,"priceL":65},"central-smart":{"rank":7,"priceL":65},"north":{"rank":7,"priceL":70},"north-smart":{"rank":7,"priceL":70},"mrt-tamsui":{"rank":4,"priceL":70},"ximen":{"rank":5,"priceL":70}}},
-    {"id":"xianzha-108","nameZh":"仙楂108","nameEn":"","image":"images/drinks/仙楂108.jpg","regions":{"central":{"rank":8,"priceL":50},"south":{"rank":8,"priceL":50},"central-smart":{"rank":8,"priceL":50},"north":{"rank":8,"priceL":55},"north-smart":{"rank":8,"priceL":55}}},
-    {"id":"qiaomai-fenguo","nameZh":"蕎麥粉粿","nameEn":"","image":"images/drinks/蕎麥粉粿.jpg","regions":{"central":{"rank":9,"priceL":60},"south":{"rank":9,"priceL":60},"north":{"rank":9,"priceL":60},"central-smart":{"rank":9,"priceL":60},"north-smart":{"rank":9,"priceL":60}}},
-    {"id":"hongmi-cha","nameZh":"轟蜜茶","nameEn":"","image":"images/drinks/轟蜜茶.jpg","regions":{"central":{"rank":10,"priceL":60},"south":{"rank":10,"priceL":60},"north":{"rank":10,"priceL":65}}},
-    {"id":"riyuetan-xiannaicha","nameZh":"日月潭鮮奶茶","nameEn":"","image":"images/drinks/日月潭鮮奶茶.jpg","regions":{"central-smart":{"rank":5,"priceL":65},"north-smart":{"rank":5,"priceL":70}}},
-    {"id":"hongmi-cha-108","nameZh":"轟蜜茶108","nameEn":"","image":"images/drinks/轟蜜茶108.jpg","regions":{"central-smart":{"rank":10,"priceL":60},"north-smart":{"rank":10,"priceL":70},"ximen":{"rank":8,"priceL":70}}},
-    {"id":"heiting-zhenzhu-xiannai","nameZh":"黑糖珍珠鮮奶","nameEn":"","image":"images/drinks/黑糖珍珠鮮奶.jpg","regions":{"mrt-tamsui":{"rank":1,"priceL":85},"ximen":{"rank":4,"priceL":85}}},
-    {"id":"zhaopai-gaoshanqing","nameZh":"招牌高山青","nameEn":"","image":"images/drinks/招牌高山青.jpg","regions":{"mrt-tamsui":{"rank":2,"priceL":40},"ximen":{"rank":1,"priceL":40}}},
-    {"id":"donggua-ningmeng","nameZh":"冬瓜檸檬","nameEn":"","image":"images/drinks/冬瓜檸檬.jpg","regions":{"mrt-tamsui":{"rank":5,"priceL":60}}},
-    {"id":"108-beiwulong-naicha","nameZh":"108焙烏龍奶茶","nameEn":"","image":"images/drinks/108焙烏龍奶茶.jpg","regions":{"mrt-tamsui":{"rank":6,"priceL":65}}},
-    {"id":"riyuetan-hongcha","nameZh":"日月潭紅茶","nameEn":"","image":"images/drinks/日月潭紅茶.jpg","regions":{"mrt-tamsui":{"rank":8,"priceL":40}}},
-    {"id":"ganzhe-qingliao","nameZh":"甘蔗青了","nameEn":"","image":"images/drinks/甘蔗青了.jpg","regions":{"mrt-tamsui":{"rank":9,"priceL":65}}},
-    {"id":"108-chawang","nameZh":"108茶王","nameEn":"","image":"images/drinks/108茶王.jpg","regions":{"ximen":{"rank":2,"priceL":50}}},
-    {"id":"guihua-dong-108","nameZh":"桂花凍108","nameEn":"","image":"images/drinks/桂花凍108.jpg","regions":{"ximen":{"rank":6,"priceL":70}}}
+    {
+      "id": "qingcha-3q",
+      "nameZh": "青茶3Q",
+      "nameEn": "Light Oolong Tea w/ Bubble, Coconut Jelly & Green Tea Jelly",
+      "image": "images/drinks/青茶3Q.jpg",
+      "regions": {
+        "central": {
+          "rank": 1,
+          "priceL": 55
+        },
+        "south": {
+          "rank": 1,
+          "priceL": 55
+        },
+        "north": {
+          "rank": 1,
+          "priceL": 55
+        },
+        "central-smart": {
+          "rank": 1,
+          "priceL": 55
+        },
+        "north-smart": {
+          "rank": 1,
+          "priceL": 55
+        },
+        "mrt-tamsui": {
+          "rank": 7,
+          "priceL": 55
+        },
+        "ximen": {
+          "rank": 3,
+          "priceL": 55
+        }
+      }
+    },
+    {
+      "id": "hongdou-fenguo-xiannai",
+      "nameZh": "紅豆粉粿鮮奶",
+      "nameEn": "Brown Sugar Fresh Milk with Red Bean & Jelly",
+      "image": "images/drinks/紅豆粉粿鮮奶.jpg",
+      "regions": {
+        "central": {
+          "rank": 2,
+          "priceL": 90
+        },
+        "south": {
+          "rank": 2,
+          "priceL": 90
+        },
+        "north": {
+          "rank": 2,
+          "priceL": 90
+        },
+        "central-smart": {
+          "rank": 2,
+          "priceL": 90
+        },
+        "north-smart": {
+          "rank": 2,
+          "priceL": 90
+        },
+        "mrt-tamsui": {
+          "rank": 10,
+          "priceL": 90
+        },
+        "ximen": {
+          "rank": 9,
+          "priceL": 95
+        }
+      }
+    },
+    {
+      "id": "baixiang-qq",
+      "nameZh": "百香QQ",
+      "nameEn": "Passion Fruit Green Tea with Bubble & Coconut Jelly",
+      "image": "images/drinks/百香QQ.jpg",
+      "regions": {
+        "central": {
+          "rank": 3,
+          "priceL": 70
+        },
+        "south": {
+          "rank": 3,
+          "priceL": 70
+        },
+        "north": {
+          "rank": 3,
+          "priceL": 75
+        },
+        "north-smart": {
+          "rank": 3,
+          "priceL": 75
+        },
+        "mrt-tamsui": {
+          "rank": 3,
+          "priceL": 75
+        },
+        "central-smart": {
+          "rank": 3,
+          "priceL": 70
+        },
+        "ximen": {
+          "rank": 10,
+          "priceL": 80
+        }
+      }
+    },
+    {
+      "id": "beixiang-fenjiao-jinxuan",
+      "nameZh": "焙香粉角金萱",
+      "nameEn": "Roasted Jin Xuan with Taro Balls",
+      "image": "images/drinks/焙香粉角金萱.jpg",
+      "regions": {
+        "central": {
+          "rank": 4,
+          "priceL": 50
+        },
+        "south": {
+          "rank": 4,
+          "priceL": 50
+        },
+        "central-smart": {
+          "rank": 4,
+          "priceL": 50
+        },
+        "north": {
+          "rank": 4,
+          "priceL": 55
+        },
+        "north-smart": {
+          "rank": 4,
+          "priceL": 55
+        }
+      }
+    },
+    {
+      "id": "hongcha-xiannaicha",
+      "nameZh": "紅茶鮮奶茶",
+      "nameEn": "Black Tea Fresh Milk Tea",
+      "image": "images/drinks/紅茶鮮奶茶.jpg",
+      "regions": {
+        "central": {
+          "rank": 5,
+          "priceL": 65
+        },
+        "south": {
+          "rank": 5,
+          "priceL": 65
+        },
+        "north": {
+          "rank": 5,
+          "priceL": 70
+        }
+      }
+    },
+    {
+      "id": "liucheng-lu",
+      "nameZh": "柳橙綠",
+      "nameEn": "Fresh Orange Green Tea",
+      "image": "images/drinks/柳橙綠.jpg",
+      "regions": {
+        "central": {
+          "rank": 6,
+          "priceL": 70
+        },
+        "south": {
+          "rank": 6,
+          "priceL": 70
+        },
+        "north": {
+          "rank": 6,
+          "priceL": 70
+        },
+        "central-smart": {
+          "rank": 6,
+          "priceL": 70
+        },
+        "north-smart": {
+          "rank": 6,
+          "priceL": 70
+        },
+        "ximen": {
+          "rank": 7,
+          "priceL": 75
+        }
+      }
+    },
+    {
+      "id": "dangdai-shuangq",
+      "nameZh": "當代雙Q",
+      "nameEn": "Bubble Milk Tea with Taro Balls",
+      "image": "images/drinks/當代雙Q.jpg",
+      "regions": {
+        "central": {
+          "rank": 7,
+          "priceL": 65
+        },
+        "south": {
+          "rank": 7,
+          "priceL": 65
+        },
+        "central-smart": {
+          "rank": 7,
+          "priceL": 65
+        },
+        "north": {
+          "rank": 7,
+          "priceL": 70
+        },
+        "north-smart": {
+          "rank": 7,
+          "priceL": 70
+        },
+        "mrt-tamsui": {
+          "rank": 4,
+          "priceL": 70
+        },
+        "ximen": {
+          "rank": 5,
+          "priceL": 70
+        }
+      }
+    },
+    {
+      "id": "xianzha-108",
+      "nameZh": "仙楂108",
+      "nameEn": "108 Roasted Oolong with Hawthorn",
+      "image": "images/drinks/仙楂108.jpg",
+      "regions": {
+        "central": {
+          "rank": 8,
+          "priceL": 50
+        },
+        "south": {
+          "rank": 8,
+          "priceL": 50
+        },
+        "central-smart": {
+          "rank": 8,
+          "priceL": 50
+        },
+        "north": {
+          "rank": 8,
+          "priceL": 55
+        },
+        "north-smart": {
+          "rank": 8,
+          "priceL": 55
+        }
+      }
+    },
+    {
+      "id": "qiaomai-fenguo",
+      "nameZh": "蕎麥粉粿",
+      "nameEn": "Buckwheat Jelly Drink",
+      "image": "images/drinks/蕎麥粉粿.jpg",
+      "regions": {
+        "central": {
+          "rank": 9,
+          "priceL": 60
+        },
+        "south": {
+          "rank": 9,
+          "priceL": 60
+        },
+        "north": {
+          "rank": 9,
+          "priceL": 60
+        },
+        "central-smart": {
+          "rank": 9,
+          "priceL": 60
+        },
+        "north-smart": {
+          "rank": 9,
+          "priceL": 60
+        }
+      }
+    },
+    {
+      "id": "hongmi-cha",
+      "nameZh": "轟蜜茶",
+      "nameEn": "Honey Tea",
+      "image": "images/drinks/轟蜜茶.jpg",
+      "regions": {
+        "central": {
+          "rank": 10,
+          "priceL": 60
+        },
+        "south": {
+          "rank": 10,
+          "priceL": 60
+        },
+        "north": {
+          "rank": 10,
+          "priceL": 65
+        }
+      }
+    },
+    {
+      "id": "riyuetan-xiannaicha",
+      "nameZh": "日月潭鮮奶茶",
+      "nameEn": "Sun Moon Lake Fresh Milk Tea",
+      "image": "images/drinks/日月潭鮮奶茶.jpg",
+      "regions": {
+        "central-smart": {
+          "rank": 5,
+          "priceL": 65
+        },
+        "north-smart": {
+          "rank": 5,
+          "priceL": 70
+        }
+      }
+    },
+    {
+      "id": "hongmi-cha-108",
+      "nameZh": "轟蜜茶108",
+      "nameEn": "Honey 108 Roasted Oolong Tea with Tea Jelly",
+      "image": "images/drinks/轟蜜茶108.jpg",
+      "regions": {
+        "central-smart": {
+          "rank": 10,
+          "priceL": 60
+        },
+        "north-smart": {
+          "rank": 10,
+          "priceL": 70
+        },
+        "ximen": {
+          "rank": 8,
+          "priceL": 70
+        }
+      }
+    },
+    {
+      "id": "heiting-zhenzhu-xiannai",
+      "nameZh": "黑糖珍珠鮮奶",
+      "nameEn": "Brown Sugar Fresh Milk with Bubble",
+      "image": "images/drinks/黑糖珍珠鮮奶.jpg",
+      "regions": {
+        "mrt-tamsui": {
+          "rank": 1,
+          "priceL": 85
+        },
+        "ximen": {
+          "rank": 4,
+          "priceL": 85
+        }
+      }
+    },
+    {
+      "id": "zhaopai-gaoshanqing",
+      "nameZh": "招牌高山青",
+      "nameEn": "Taiwan Light Oolong Tea",
+      "image": "images/drinks/招牌高山青.jpg",
+      "regions": {
+        "mrt-tamsui": {
+          "rank": 2,
+          "priceL": 40
+        },
+        "ximen": {
+          "rank": 1,
+          "priceL": 40
+        }
+      }
+    },
+    {
+      "id": "donggua-ningmeng",
+      "nameZh": "冬瓜檸檬",
+      "nameEn": "Winter Melon Lemon Tea",
+      "image": "images/drinks/冬瓜檸檬.jpg",
+      "regions": {
+        "mrt-tamsui": {
+          "rank": 5,
+          "priceL": 60
+        }
+      }
+    },
+    {
+      "id": "108-beiwulong-naicha",
+      "nameZh": "108焙烏龍奶茶",
+      "nameEn": "108 Roasted Oolong Milk Tea",
+      "image": "images/drinks/108焙烏龍奶茶.jpg",
+      "regions": {
+        "mrt-tamsui": {
+          "rank": 6,
+          "priceL": 65
+        }
+      }
+    },
+    {
+      "id": "riyuetan-hongcha",
+      "nameZh": "日月潭紅茶",
+      "nameEn": "Sun Moon Lake Black Tea",
+      "image": "images/drinks/日月潭紅茶.jpg",
+      "regions": {
+        "mrt-tamsui": {
+          "rank": 8,
+          "priceL": 40
+        }
+      }
+    },
+    {
+      "id": "ganzhe-qingliao",
+      "nameZh": "甘蔗青了",
+      "nameEn": "Sugarcane Green Tea",
+      "image": "images/drinks/甘蔗青了.jpg",
+      "regions": {
+        "mrt-tamsui": {
+          "rank": 9,
+          "priceL": 65
+        }
+      }
+    },
+    {
+      "id": "108-chawang",
+      "nameZh": "108茶王",
+      "nameEn": "108 Roasted Oolong Tea",
+      "image": "images/drinks/108茶王.jpg",
+      "regions": {
+        "ximen": {
+          "rank": 2,
+          "priceL": 50
+        }
+      }
+    },
+    {
+      "id": "guihua-dong-108",
+      "nameZh": "桂花凍108",
+      "nameEn": "108 Roasted Oolong with Osmanthus Jelly",
+      "image": "images/drinks/桂花凍108.jpg",
+      "regions": {
+        "ximen": {
+          "rank": 6,
+          "priceL": 70
+        }
+      }
+    }
   ]
 }
