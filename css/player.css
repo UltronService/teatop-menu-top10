@@ -16,6 +16,12 @@ body, html {
   box-sizing: border-box;
 }
 
+/* Restore north/Ximen height chain: body → player-root → .animation → .Rrow 10% */
+#player-root {
+  height: 100%;
+  width: 100%;
+}
+
 .animation {
   display: flex;
   width: 100%;
@@ -129,6 +135,8 @@ body, html {
 
 .R {
   flex: 7;
+  height: 100%;
+  overflow: hidden;
 }
 .R .Rrow01, .R .Rrow03, .R .Rrow05 {
   background-color: #ec6f09;
@@ -169,7 +177,16 @@ body, html {
   align-items: center;
   width: 100%;
   height: 10%;
+  max-height: 10%;
   padding: 0px 15px 0px 15px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.R .Rrow h1,
+.R .Rrow h4,
+.R .Rrow p {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .R .Rrow .Number {
   display: flex;
@@ -903,12 +920,14 @@ body, html {
   color: #7a5c45;
 }
 
-/* Drink JPGs in the cup slot (replace original PNG cups) */
+/* Drink JPGs in the cup slot — smaller than north PNG 75% so cup body + names fit */
 .L .Ltopimg .Ltea01,
 .L .Ltopimg .Ltea02,
 .L .Ltopimg .Ltea03,
 .L .Ltopimg .Ltea04,
 .L .Ltopimg .Ltea05 {
+  width: 48%;
+  max-height: 52%;
+  height: auto;
   object-fit: contain;
-  max-height: 70%;
 }
