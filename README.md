@@ -1,6 +1,6 @@
 # teatop-menu-top10
 
-TEATOP TOP10 electronic menu — one shared player shell, seven region URLs.
+TEATOP TOP10 electronic menu — original Ximen/north visual shell, seven region URLs, data-driven content only.
 
 ## Clone
 https://github.com/UltronService/teatop-menu-top10
@@ -26,26 +26,17 @@ npx --yes serve -l 4173
 # or: python -m http.server 4173
 ```
 
-Then open:
-
-- http://127.0.0.1:4173/regions/central/
-- http://127.0.0.1:4173/regions/central-smart/
-- http://127.0.0.1:4173/regions/mrt-tamsui/
-- http://127.0.0.1:4173/regions/north/
-- http://127.0.0.1:4173/regions/north-smart/
-- http://127.0.0.1:4173/regions/south/
-- http://127.0.0.1:4173/regions/ximen/
+Then open e.g. http://127.0.0.1:4173/regions/ximen/
 
 ## Architecture
-- **Data:** `data/menu.json` (filter by region id)
-- **Shell:** `css/player.css` + `js/player.js`
-- **Regions:** `regions/<id>/index.html` sets `data-region` and loads the shared shell
-- **Images:** `images/drinks/*.jpg` (Chinese filenames; `轟蜜茶.jpg` and `轟蜜茶108.jpg` are separate)
-- **Carousel:** JS `setInterval` + watchdog (not CSS `animationend`-only restart)
-- **No CDN / jQuery / Bootstrap / Imgur**
-- **Image `onerror`:** cup placeholder; name + price still shown
+- **Data:** `data/menu.json` (filter by region id) — images, names, ranks, prices, `nameEn`
+- **Visual shell:** ported from [teatop_north](https://github.com/yixuantang623/teatop_north) / [Ximen live](https://yixuantang623.github.io/teatop_Ximen/)
+  - `css/player.css` ← `style.css` (logo, orange circles, leaf/cup rotate+float timelines, left TOP+cup+zh+en, right bilingual rows with `01 /` + `$` `L` prices)
+  - `js/player.js` mounts that DOM, injects menu.json **without stripping animation classes**, then restarts dense timelines on `animationend` (north `script.js` loop)
+- **Regions:** `regions/<id>/index.html` sets `data-region` + `data-asset-root` and loads the shared shell
+- **Images:** drink cups from `images/drinks/*.jpg`; decorative logo/leaves remain the original assets used by the north shell
 - **Unknown region:** Chinese-friendly error in-player + root `404.html` for GitHub Pages
 
 ## Notes
-- Reference only: `yixuantang623/teatop_north`
+- Stakeholder baseline: dense Ximen/north animation — not the simplified carousel player
 - Contract: `docs/menu.schema.md` + `data/menu.schema.json`

@@ -1,8 +1,8 @@
 /**
- * TEATOP TOP10 formal player
- * - Single data source: data/menu.json
- * - Region from data-region on #player-root, or URL /regions/<id>/
- * - Carousel driven by setInterval + watchdog (not animationend-only)
+ * TEATOP TOP10 player — original Ximen/north visual shell
+ * Ported from yixuantang623/teatop_north (index.html + script.js)
+ * Content only: data/menu.json (images, names, ranks, prices)
+ * Animation class names are preserved; we never strip them after mount.
  */
 (function () {
   "use strict";
@@ -27,11 +27,18 @@
     ximen: "西門",
   };
 
-  var SLIDE_MS = 5500;
-  var WATCHDOG_MS = 7000;
+  // Decorative leaf pairs from original teatop_north (not data-driven)
+  var LEAF_PAIRS = [
+    ["https://i.imgur.com/R7brK8S.png", "https://i.imgur.com/VQoiPLZ.png"],
+    ["https://i.imgur.com/Y3DDstp.png", "https://i.imgur.com/20VAs4D.png"],
+    ["https://i.imgur.com/qrYlB89.png", "https://i.imgur.com/WdBACx1.png"],
+    ["https://i.imgur.com/piFJe3D.png", "https://i.imgur.com/DVVeo5S.png"],
+    ["https://i.imgur.com/j4oDo4K.png", "https://i.imgur.com/4PcTEKD.png"],
+  ];
+
+  var LOGO_URL = "https://i.imgur.com/m7xnqEo.png";
 
   function assetRoot() {
-    // Region pages live at regions/<id>/ → repo root is ../..
     var el = document.getElementById("player-root");
     if (el && el.getAttribute("data-asset-root")) {
       return el.getAttribute("data-asset-root").replace(/\/?$/, "/");
@@ -52,37 +59,6 @@
     return "";
   }
 
-  function showError(title, detail, showLinks) {
-    var screen = document.getElementById("state-screen");
-    if (!screen) return;
-    screen.classList.remove("hidden");
-    screen.innerHTML =
-      "<h1>" +
-      escapeHtml(title) +
-      "</h1><p>" +
-      escapeHtml(detail) +
-      "</p>" +
-      (showLinks
-        ? '<p><a href="' +
-          assetRoot() +
-          '">返回區域列表</a></p><ul style="text-align:left;margin:1em auto;max-width:16em;color:#7a5c45">' +
-          KNOWN_REGIONS.map(function (r) {
-            return (
-              '<li><a href="' +
-              assetRoot() +
-              "regions/" +
-              r +
-              '/">' +
-              (REGION_LABELS[r] || r) +
-              "（" +
-              r +
-              "）</a></li>"
-            );
-          }).join("") +
-          "</ul>"
-        : "");
-  }
-
   function escapeHtml(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -91,10 +67,29 @@
       .replace(/"/g, "&quot;");
   }
 
+  function formatEnHtml(nameEn) {
+    var s = escapeHtml(nameEn || "");
+    // Allow intentional line breaks from data ("a\nb") or soft-break long lines
+    if (s.indexOf("\n") >= 0) {
+      return s.replace(/\n/g, "<br/>");
+    }
+    if (s.length > 42) {
+      var cut = s.lastIndexOf(" ", 36);
+      if (cut > 12) {
+        return s.slice(0, cut) + "<br/>" + s.slice(cut + 1);
+      }
+    }
+    return s;
+  }
+
   function imageUrl(rel) {
     if (!rel) return "";
     if (/^https?:\/\//i.test(rel) || rel.charAt(0) === "/") return rel;
     return assetRoot() + rel.replace(/^\.\//, "");
+  }
+
+  function pad2(n) {
+    return String(n).padStart(2, "0");
   }
 
   function itemsForRegion(menu, regionId) {
@@ -117,188 +112,474 @@
     return list;
   }
 
-  function bindImageFallback(img) {
-    img.addEventListener("error", function onErr() {
-      img.removeEventListener("error", onErr);
-      img.style.display = "none";
-      var ph = document.createElement("div");
-      ph.className = "placeholder-cup";
-      ph.textContent = "TEATOP";
-      ph.setAttribute("aria-hidden", "true");
-      if (img.parentNode) {
-        img.parentNode.insertBefore(ph, img);
-      }
+  function showError(title, detail, showLinks) {
+    var screen = document.getElementById("state-screen");
+    if (!screen) return;
+    screen.classList.remove("hidden");
+    screen.innerHTML =
+      "<h1>" +
+      escapeHtml(title) +
+      "</h1><p>" +
+      escapeHtml(detail) +
+      "</p>" +
+      (showLinks
+        ? '<p><a href="' +
+          assetRoot() +
+          '">返回區域列表</a></p><ul class="region-links">' +
+          KNOWN_REGIONS.map(function (r) {
+            return (
+              '<li><a href="' +
+              assetRoot() +
+              "regions/" +
+              r +
+              '/">' +
+              (REGION_LABELS[r] || r) +
+              "（" +
+              r +
+              "）</a></li>"
+            );
+          }).join("") +
+          "</ul>"
+        : "");
+  }
+
+  function buildShellHtml(ranked) {
+    var byRank = {};
+    ranked.forEach(function (it) {
+      byRank[it.rank] = it;
+    });
+
+    var left = "";
+    for (var i = 1; i <= 5; i++) {
+      var item = byRank[i] || {
+        nameZh: "",
+        nameEn: "",
+        image: "",
+        rank: i,
+      };
+      var nn = pad2(i);
+      var leaves = LEAF_PAIRS[i - 1];
+      left +=
+        '<div class="L' +
+        nn +
+        '">' +
+        '<h1 class="Ltop Ltop' +
+        nn +
+        '">TOP' +
+        i +
+        "</h1>" +
+        '<div class="Ltopimg Ltop' +
+        nn +
+        'img">' +
+        '<img class="Lleaf' +
+        nn +
+        '" src="' +
+        leaves[0] +
+        '" alt=""/>' +
+        '<img class="Ltea' +
+        nn +
+        '" src="' +
+        escapeHtml(imageUrl(item.image)) +
+        '" alt="' +
+        escapeHtml(item.nameZh) +
+        '"/>' +
+        '<img class="Rleaf' +
+        nn +
+        '" src="' +
+        leaves[1] +
+        '" alt=""/>' +
+        "</div>" +
+        '<h3 class="LCname L' +
+        nn +
+        'Cname">' +
+        escapeHtml(item.nameZh) +
+        "</h3>" +
+        '<p class="LEname L' +
+        nn +
+        'Ename">' +
+        formatEnHtml(item.nameEn) +
+        "</p>" +
+        "</div>";
+    }
+
+    var right = "";
+    for (var r = 1; r <= 10; r++) {
+      var row = byRank[r] || {
+        nameZh: "",
+        nameEn: "",
+        priceL: null,
+        rank: r,
+      };
+      var rn = pad2(r);
+      var price =
+        row.priceL != null && row.priceL !== "" ? String(row.priceL) : "—";
+      right +=
+        '<div class="Rrow Rrow' +
+        rn +
+        '">' +
+        '<div class="Number">' +
+        '<h1 class="Rno R' +
+        rn +
+        'no">' +
+        rn +
+        "<span> /</span></h1>" +
+        "</div>" +
+        '<div class="Name">' +
+        '<h4 class="RCname R' +
+        rn +
+        'Cname">' +
+        escapeHtml(row.nameZh) +
+        "</h4>" +
+        '<p class="REname R' +
+        rn +
+        'Ename">' +
+        formatEnHtml(row.nameEn) +
+        "</p>" +
+        "</div>" +
+        '<div class="Price">' +
+        '<div class="smalltext">' +
+        '<p class="moneysign R' +
+        rn +
+        'moneysign">$</p>' +
+        '<p class="large R' +
+        rn +
+        'large">L</p>' +
+        "</div>" +
+        '<h1 class="Rprice R' +
+        rn +
+        'price">' +
+        escapeHtml(price) +
+        "</h1>" +
+        "</div>" +
+        "</div>";
+    }
+
+    return (
+      '<div class="animation">' +
+      '<div class="L">' +
+      '<img class="logo" src="' +
+      LOGO_URL +
+      '" alt="TEATOP"/>' +
+      '<div class="Mcircle"></div>' +
+      '<div class="Lcircle"></div>' +
+      '<div class="Rcircle"></div>' +
+      left +
+      "</div>" +
+      '<div class="R">' +
+      right +
+      "</div>" +
+      "</div>"
+    );
+  }
+
+  /** Restart dense timelines — ported from teatop_north/script.js */
+  function bindAnimationLoop() {
+    var endEl = document.querySelector(".L05Ename");
+    if (!endEl) return;
+
+    endEl.addEventListener("animationend", function (event) {
+      if (event.animationName !== "fadeOut") return;
+
+      setTimeout(function () {
+        var animationElements = document.querySelectorAll(".animation *");
+        animationElements.forEach(function (element) {
+          element.style.animation = "none";
+          void element.offsetWidth;
+        });
+
+        var q = function (sel) {
+          return document.querySelector(sel);
+        };
+        var set = function (sel, value) {
+          var el = q(sel);
+          if (el) el.style.animation = value;
+        };
+
+        set(
+          ".Ltop01",
+          "slideIn 0.5s 1 linear 0s forwards , slideOut 0.5s 1 linear 5s forwards"
+        );
+        set(
+          ".Ltea01",
+          "rotate01 1s 1 ease-out 0s forwards , rotate02 1s 1 ease-out 5s forwards"
+        );
+        set(
+          ".Lleaf01",
+          "drop 0.5s 1 ease-in 1s forwards , float04 1s infinite linear 1.5s , fadeOut 0.1s 1 linear 4.9s forwards"
+        );
+        set(
+          ".Rleaf01",
+          "drop 0.5s 1 ease-in 1s forwards , float03 1s infinite linear 1.5s , fadeOut 0.1s 1 linear 4.9s forwards"
+        );
+        set(
+          ".L01Cname",
+          "fadeIn 0.3s 1 linear 1.7s forwards , fadeOut 0.3s 1 linear 4.7s forwards"
+        );
+        set(
+          ".L01Ename",
+          "fadeIn 0.3s 1 linear 2s forwards , fadeOut 0.3s 1 linear 5s forwards"
+        );
+
+        set(
+          ".Ltop02",
+          "slideIn 0.5s 1 linear 5.5s forwards , slideOut 0.5s 1 linear 10.5s forwards"
+        );
+        set(
+          ".Ltea02",
+          "rotate01 1s 1 ease-out 5.5s forwards , rotate02 1s 1 ease-out 10.5s forwards"
+        );
+        set(
+          ".Lleaf02",
+          "drop 0.5s 1 ease-in 6.5s forwards , float03 1s infinite linear 7s , fadeOut 0.1s 1 linear 10.4s forwards"
+        );
+        set(
+          ".Rleaf02",
+          "drop 0.5s 1 ease-in 6.5s forwards , float04 1s infinite linear 7s , fadeOut 0.1s 1 linear 10.4s forwards"
+        );
+        set(
+          ".L02Cname",
+          "fadeIn 0.3s 1 linear 7.2s forwards , fadeOut 0.3s 1 linear 10.2s forwards"
+        );
+        set(
+          ".L02Ename",
+          "fadeIn 0.3s 1 linear 7.5s forwards , fadeOut 0.3s 1 linear 10.5s forwards"
+        );
+
+        set(
+          ".Ltop03",
+          "slideIn 0.5s 1 linear 11s forwards , slideOut 0.5s 1 linear 16s forwards"
+        );
+        set(
+          ".Ltea03",
+          "rotate01 1s 1 ease-out 11s forwards , rotate02 1s 1 ease-out 16s forwards"
+        );
+        set(
+          ".Lleaf03",
+          "drop 0.5s 1 ease-in 12s forwards , float04 1s infinite linear 12.5s , fadeOut 0.1s 1 linear 15.9s forwards"
+        );
+        set(
+          ".Rleaf03",
+          "drop 0.5s 1 ease-in 12s forwards , float03 1s infinite linear 12.5s , fadeOut 0.1s 1 linear 15.9s forwards"
+        );
+        set(
+          ".L03Cname",
+          "fadeIn 0.3s 1 linear 12.7s forwards , fadeOut 0.3s 1 linear 15.7s forwards"
+        );
+        set(
+          ".L03Ename",
+          "fadeIn 0.3s 1 linear 13s forwards , fadeOut 0.3s 1 linear 16s forwards"
+        );
+
+        set(
+          ".Ltop04",
+          "slideIn 0.5s 1 linear 16.5s forwards , slideOut 0.5s 1 linear 21.5s forwards"
+        );
+        set(
+          ".Ltea04",
+          "rotate01 1s 1 ease-out 16.5s forwards , rotate02 1s 1 ease-out 21.5s forwards"
+        );
+        set(
+          ".Lleaf04",
+          "drop 0.5s 1 ease-in 17.5s forwards , float04 1s infinite linear 18s , fadeOut 0.1s 1 linear 21.4s forwards"
+        );
+        set(
+          ".Rleaf04",
+          "drop 0.5s 1 ease-in 17.5s forwards , float03 1s infinite linear 18s , fadeOut 0.1s 1 linear 21.4s forwards"
+        );
+        set(
+          ".L04Cname",
+          "fadeIn 0.3s 1 linear 18.2s forwards , fadeOut 0.3s 1 linear 21.2s forwards"
+        );
+        set(
+          ".L04Ename",
+          "fadeIn 0.3s 1 linear 18.5s forwards , fadeOut 0.3s 1 linear 21.5s forwards"
+        );
+
+        set(
+          ".Ltop05",
+          "slideIn 0.5s 1 linear 22s forwards , slideOut 0.5s 1 linear 27s forwards"
+        );
+        set(
+          ".Ltea05",
+          "rotate01 1s 1 ease-out 22s forwards , rotate02 1s 1 ease-out 27s forwards"
+        );
+        set(
+          ".Lleaf05",
+          "drop 0.5s 1 ease-in 23s forwards , float03 1s infinite linear 23.5s , fadeOut 0.1s 1 linear 26.9s forwards"
+        );
+        set(
+          ".Rleaf05",
+          "drop 0.5s 1 ease-in 23s forwards , float04 1s infinite linear 23.5s , fadeOut 0.1s 1 linear 26.9s forwards"
+        );
+        set(
+          ".L05Cname",
+          "fadeIn 0.3s 1 linear 23.7s forwards , fadeOut 0.3s 1 linear 26.7s forwards"
+        );
+        set(
+          ".L05Ename",
+          "fadeIn 0.3s 1 linear 24s forwards , fadeOut 0.3s 1 linear 27s forwards"
+        );
+
+        set(".Lcircle", "float01 1s infinite linear 0s");
+        set(".Rcircle", "float02 1s infinite linear 0s");
+
+        set(
+          ".Rrow01",
+          "bgcolorlof 0.1s linear 0.5s 1 forwards , bgcolorof 0.1s linear 5.3s 1 reverse forwards"
+        );
+        set(
+          ".Rrow01 .large",
+          "bgcolorbo 0.1s linear 0.5s 1 forwards , bgcolorbo 0.1s linear 5.3s 1 reverse forwards"
+        );
+        set(
+          ".Rrow02",
+          "bgcolorlof 0.1s linear 6s 1 forwards , bgcolorlof 0.1s linear 10.8s 1 reverse forwards"
+        );
+        set(
+          ".Rrow02 .large",
+          "bgcolorbo 0.1s linear 6s 1 forwards , bgcolorbo 0.1s linear 10.8s 1 reverse forwards"
+        );
+        set(
+          ".Rrow03",
+          "bgcolorof 0.1s linear 11.5s 1 forwards , bgcolorof 0.1s linear 16.3s 1 reverse forwards"
+        );
+        set(
+          ".Rrow03 .large",
+          "bgcolorbo 0.1s linear 11.5s 1 forwards , bgcolorbo 0.1s linear 16.3s 1 reverse forwards"
+        );
+        set(
+          ".Rrow04",
+          "bgcolorlof 0.1s linear 17s 1 forwards , bgcolorlof 0.1s linear 21.8s 1 reverse forwards"
+        );
+        set(
+          ".Rrow04 .large",
+          "bgcolorbo 0.1s linear 17s 1 forwards , bgcolorbo 0.1s linear 21.8s 1 reverse forwards"
+        );
+        set(
+          ".Rrow05",
+          "bgcolorof 0.1s linear 22.5s 1 forwards , bgcolorof 0.1s linear 27.3s 1 reverse forwards"
+        );
+        set(
+          ".Rrow05 .large",
+          "bgcolorbo 0.1s linear 22.5s 1 forwards , bgcolorbo 0.1s linear 27.3s 1 reverse forwards"
+        );
+
+        set(
+          ".R01no",
+          "colorfo 0.1s linear 0.5s 1 forwards , colorfo 0.1s linear 5.3s 1 reverse forwards"
+        );
+        set(
+          ".R01price",
+          "colorfo 0.1s linear 0.5s 1 forwards , colorfo 0.1s linear 5.3s 1 reverse forwards"
+        );
+        set(
+          ".R01moneysign",
+          "colorbo 0.1s linear 0.5s 1 forwards , colorbo 0.1s linear 5.3s 1 reverse forwards"
+        );
+        set(
+          ".R01Cname",
+          "filtero 0.1s linear 0.5s 1 forwards, filtero 0.1s linear 5.3s 1 reverse forwards"
+        );
+        set(
+          ".R01Ename",
+          "filtero 0.1s linear 0.5s 1 forwards, filtero 0.1s linear 5.3s 1 reverse forwards"
+        );
+
+        set(
+          ".R02no",
+          "colorfo 0.1s linear 6s 1 forwards , colorfo 0.1s linear 10.8s 1 reverse forwards"
+        );
+        set(
+          ".R02price",
+          "colorfo 0.1s linear 6s 1 forwards , colorfo 0.1s linear 10.8s 1 reverse forwards"
+        );
+        set(
+          ".R02moneysign",
+          "colorbo 0.1s linear 6s 1 forwards , colorbo 0.1s linear 10.8s 1 reverse forwards"
+        );
+        set(
+          ".R02Cname",
+          "filtero 0.1s linear 6s 1 forwards, filtero 0.1s linear 10.8s 1 reverse forwards"
+        );
+        set(
+          ".R02Ename",
+          "filtero 0.1s linear 6s 1 forwards, filtero 0.1s linear 10.8s 1 reverse forwards"
+        );
+
+        set(
+          ".R03no",
+          "colorfo 0.1s linear 11.5s 1 forwards , colorfo 0.1s linear 16.3s 1 reverse forwards"
+        );
+        set(
+          ".R03price",
+          "colorfo 0.1s linear 11.5s 1 forwards , colorfo 0.1s linear 16.3s 1 reverse forwards"
+        );
+        set(
+          ".R03moneysign",
+          "colorbo 0.1s linear 11.5s 1 forwards , colorbo 0.1s linear 16.3s 1 reverse forwards"
+        );
+        set(
+          ".R03Cname",
+          "filtero 0.1s linear 11.5s 1 forwards, filtero 0.1s linear 16.3s 1 reverse forwards"
+        );
+        set(
+          ".R03Ename",
+          "filtero 0.1s linear 11.5s 1 forwards, filtero 0.1s linear 16.3s 1 reverse forwards"
+        );
+
+        set(
+          ".R04no",
+          "colorfo 0.1s linear 17s 1 forwards , colorfo 0.1s linear 21.8s 1 reverse forwards"
+        );
+        set(
+          ".R04price",
+          "colorfo 0.1s linear 17s 1 forwards , colorfo 0.1s linear 21.8s 1 reverse forwards"
+        );
+        set(
+          ".R04moneysign",
+          "colorbo 0.1s linear 17s 1 forwards , colorbo 0.1s linear 21.8s 1 reverse forwards"
+        );
+        set(
+          ".R04Cname",
+          "filtero 0.1s linear 17s 1 forwards, filtero 0.1s linear 21.8s 1 reverse forwards"
+        );
+        set(
+          ".R04Ename",
+          "filtero 0.1s linear 17s 1 forwards, filtero 0.1s linear 21.8s 1 reverse forwards"
+        );
+
+        set(
+          ".R05no",
+          "colorfo 0.1s linear 22.5s 1 forwards , colorfo 0.1s linear 27.3s 1 reverse forwards"
+        );
+        set(
+          ".R05price",
+          "colorfo 0.1s linear 22.5s 1 forwards , colorfo 0.1s linear 27.3s 1 reverse forwards"
+        );
+        set(
+          ".R05moneysign",
+          "colorbo 0.1s linear 22.5s 1 forwards , colorbo 0.1s linear 27.3s 1 reverse forwards"
+        );
+        set(
+          ".R05Cname",
+          "filtero 0.1s linear 22.5s 1 forwards, filtero 0.1s linear 27.3s 1 reverse forwards"
+        );
+        set(
+          ".R05Ename",
+          "filtero 0.1s linear 22.5s 1 forwards, filtero 0.1s linear 27.3s 1 reverse forwards"
+        );
+      }, 500);
     });
   }
 
-  function buildUI(regionId, ranked) {
+  function mount(regionId, ranked) {
     var root = document.getElementById("player-root");
-    var state = document.getElementById("state-screen");
-    if (state) state.classList.add("hidden");
-
-    var top5 = ranked.filter(function (x) {
-      return x.rank >= 1 && x.rank <= 5;
-    });
-
-    root.innerHTML =
-      '<div class="stage-wrap"><div class="stage" role="application" aria-label="TEATOP TOP10">' +
-      '<section class="panel-left">' +
-      '<div class="brand"><div class="brand-mark">TEATOP</div>' +
-      '<div class="brand-sub">TOP 10 MENU</div></div>' +
-      '<div class="decor-circle main" aria-hidden="true"></div>' +
-      '<div class="decor-circle left" aria-hidden="true"></div>' +
-      '<div class="decor-circle right" aria-hidden="true"></div>' +
-      '<div class="carousel" id="carousel"></div>' +
-      '<div class="slide-dots" id="slide-dots" role="tablist" aria-label="TOP1–5"></div>' +
-      "</section>" +
-      '<section class="panel-right">' +
-      '<div class="list-header"><h2>TOP 10</h2>' +
-      '<span class="region-label">' +
-      escapeHtml(REGION_LABELS[regionId] || regionId) +
-      "</span></div>" +
-      '<ol class="price-list" id="price-list"></ol>' +
-      "</section></div></div>";
-
-    var carousel = document.getElementById("carousel");
-    var dots = document.getElementById("slide-dots");
-    var list = document.getElementById("price-list");
-
-    top5.forEach(function (item, i) {
-      var slide = document.createElement("div");
-      slide.className = "slide" + (i === 0 ? " is-active" : "");
-      slide.setAttribute("data-rank", String(item.rank));
-      slide.setAttribute("role", "tabpanel");
-
-      var rankEl = document.createElement("h1");
-      rankEl.className = "slide-rank";
-      rankEl.textContent = "TOP" + item.rank;
-
-      var img = document.createElement("img");
-      img.className = "slide-cup";
-      img.alt = item.nameZh;
-      img.decoding = "async";
-      img.src = imageUrl(item.image);
-      bindImageFallback(img);
-
-      var nameEl = document.createElement("h3");
-      nameEl.className = "slide-name";
-      nameEl.textContent = item.nameZh;
-
-      slide.appendChild(rankEl);
-      slide.appendChild(img);
-      slide.appendChild(nameEl);
-      carousel.appendChild(slide);
-
-      var dot = document.createElement("button");
-      dot.type = "button";
-      dot.setAttribute("aria-label", "TOP" + item.rank);
-      if (i === 0) dot.className = "is-active";
-      dot.addEventListener("click", function () {
-        goTo(i, true);
-      });
-      dots.appendChild(dot);
-    });
-
-    ranked.forEach(function (item) {
-      var li = document.createElement("li");
-      li.className = "price-row";
-      li.setAttribute("data-rank", String(item.rank));
-      if (item.rank >= 1 && item.rank <= 5 && item.rank === top5[0].rank) {
-        li.classList.add("is-highlight");
-      }
-
-      var rankSpan = document.createElement("span");
-      rankSpan.className = "rank";
-      rankSpan.textContent = String(item.rank).padStart(2, "0");
-
-      var nameSpan = document.createElement("span");
-      nameSpan.className = "name";
-      nameSpan.textContent = item.nameZh;
-
-      var priceSpan = document.createElement("span");
-      priceSpan.className = "price";
-      var cur = document.createElement("span");
-      cur.className = "currency";
-      cur.textContent = "$";
-      priceSpan.appendChild(cur);
-      priceSpan.appendChild(
-        document.createTextNode(
-          item.priceL != null ? String(item.priceL) : "—"
-        )
-      );
-      var unit = document.createElement("span");
-      unit.className = "unit";
-      unit.textContent = "L";
-      priceSpan.appendChild(unit);
-
-      li.appendChild(rankSpan);
-      li.appendChild(nameSpan);
-      li.appendChild(priceSpan);
-      list.appendChild(li);
-    });
-
-    var index = 0;
-    var timer = null;
-    var lastAdvance = Date.now();
-    var slides = carousel.querySelectorAll(".slide");
-    var dotBtns = dots.querySelectorAll("button");
-    var rows = list.querySelectorAll(".price-row");
-
-    function highlightRank(rank) {
-      rows.forEach(function (row) {
-        row.classList.toggle(
-          "is-highlight",
-          Number(row.getAttribute("data-rank")) === rank
-        );
-      });
-    }
-
-    function goTo(next, fromUser) {
-      if (!slides.length) return;
-      index = ((next % slides.length) + slides.length) % slides.length;
-      slides.forEach(function (s, i) {
-        s.classList.toggle("is-active", i === index);
-      });
-      dotBtns.forEach(function (d, i) {
-        d.classList.toggle("is-active", i === index);
-      });
-      var rank = Number(slides[index].getAttribute("data-rank"));
-      highlightRank(rank);
-      lastAdvance = Date.now();
-      if (fromUser) restartTimer();
-    }
-
-    function advance() {
-      goTo(index + 1, false);
-    }
-
-    function restartTimer() {
-      if (timer) clearInterval(timer);
-      timer = setInterval(advance, SLIDE_MS);
-      lastAdvance = Date.now();
-    }
-
-    // Watchdog: if the interval somehow stalls, force an advance
-    setInterval(function () {
-      if (!slides.length) return;
-      if (Date.now() - lastAdvance > WATCHDOG_MS) {
-        advance();
-        restartTimer();
-      }
-    }, 1000);
-
-    if (top5.length) {
-      restartTimer();
-      // Visibility: pause when hidden, resume with watchdog reset
-      document.addEventListener("visibilitychange", function () {
-        if (document.hidden) {
-          if (timer) clearInterval(timer);
-          timer = null;
-        } else {
-          restartTimer();
-        }
-      });
-    }
+    if (!root) return;
+    // Replace loading state with shell; classes match north CSS timelines
+    root.innerHTML = buildShellHtml(ranked);
+    document.title =
+      "TEATOP TOP10 · " + (REGION_LABELS[regionId] || regionId);
+    bindAnimationLoop();
   }
 
   function boot() {
@@ -338,8 +619,7 @@
           );
           return;
         }
-        document.title = "TEATOP TOP10 · " + (REGION_LABELS[regionId] || regionId);
-        buildUI(regionId, ranked);
+        mount(regionId, ranked);
       })
       .catch(function (err) {
         showError(
