@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>找不到頁面 · TEATOP TOP10</title>
+  <style>
+    body{margin:0;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:#fff8f0;color:#2a1a0f}
+    main{max-width:40rem;margin:0 auto;padding:2.5rem 1.25rem;text-align:center}
+    h1{color:#ec6f09}
+    a{color:#d45f00;font-weight:700}
+    ul{text-align:left;display:inline-block;line-height:1.9}
+  </style>
+</head>
+<body>
+<main>
+  <h1>找不到此頁面</h1>
+  <p>網址可能有誤，或不存在對應的區域播放器。</p>
+  <p><a href="./">返回首頁</a></p>
+  <ul>
+    <li><a href="./regions/central/">中部（central）</a></li>
+    <li><a href="./regions/central-smart/">中部智慧店（central-smart）</a></li>
+    <li><a href="./regions/mrt-tamsui/">捷運淡水（mrt-tamsui）</a></li>
+    <li><a href="./regions/north/">北部（north）</a></li>
+    <li><a href="./regions/north-smart/">北部智慧店（north-smart）</a></li>
+    <li><a href="./regions/south/">南部（south）</a></li>
+    <li><a href="./regions/ximen/">西門（ximen）</a></li>
+  </ul>
+</main>
+<script>
+/* If someone hits /regions/<unknown>/ and Pages serves 404.html from root,
+   also try to boot the shared player for a richer in-shell error when path looks like a region. */
+(function () {
+  var m = location.pathname.match(/\/regions\/([^/]+)\/?$/);
+  if (!m) return;
+  var known = ["central","central-smart","mrt-tamsui","north","north-smart","south","ximen"];
+  if (known.indexOf(m[1]) !== -1) {
+    /* Valid region but 404 — likely Pages path issue; redirect to trailing-slash index if needed */
+    if (!/\/$/.test(location.pathname)) {
+      location.replace(location.pathname + "/" + location.search + location.hash);
+    }
+  }
+})();
+</script>
+</body>
+</html>
