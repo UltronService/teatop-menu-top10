@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TeatopMenuTop10",
+  "type": "object",
+  "required": ["version", "regions", "items"],
+  "properties": {
+    "version": { "type": "integer" },
+    "regions": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["central","central-smart","mrt-tamsui","north","north-smart","south","ximen"] }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "nameZh", "image", "regions"],
+        "properties": {
+          "id": { "type": "string" },
+          "nameZh": { "type": "string" },
+          "nameEn": { "type": "string" },
+          "image": { "type": "string" },
+          "regions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "rank": { "type": ["integer", "null"], "minimum": 1, "maximum": 10 },
+                "priceL": { "type": ["number", "null"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
