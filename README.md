@@ -1,6 +1,6 @@
 # teatop-menu-top10
 
-TEATOP TOP10 electronic menu — original Ximen/north visual shell, seven region URLs, data-driven content only.
+TEATOP TOP10 electronic menu — **exact** Ximen visual shell (`index.html` DOM/classes + `style.css` + `script.js` timeline), seven region URLs, data-driven content only.
 
 ## Clone
 https://github.com/UltronService/teatop-menu-top10
@@ -29,14 +29,15 @@ npx --yes serve -l 4173
 Then open e.g. http://127.0.0.1:4173/regions/ximen/
 
 ## Architecture
-- **Data:** `data/menu.json` (filter by region id) — images, names, ranks, prices, `nameEn`
-- **Visual shell:** ported from [teatop_north](https://github.com/yixuantang623/teatop_north) / [Ximen live](https://yixuantang623.github.io/teatop_Ximen/)
-  - `css/player.css` ← `style.css` (logo, orange circles, leaf/cup rotate+float timelines, left TOP+cup+zh+en, right bilingual rows with `01 /` + `$` `L` prices)
-  - `js/player.js` mounts that DOM, injects menu.json **without stripping animation classes**, then restarts dense timelines on `animationend` (north `script.js` loop)
-- **Regions:** `regions/<id>/index.html` sets `data-region` + `data-asset-root` and loads the shared shell
-- **Images:** drink cups from `images/drinks/*.jpg`; decorative logo/leaves remain the original assets used by the north shell
-- **Unknown region:** Chinese-friendly error in-player + root `404.html` for GitHub Pages
+- **Data:** `data/menu.json` (filter by region id) — images, zh/en names, ranks, L prices
+- **Visual shell (verbatim from [teatop_Ximen](https://github.com/yixuantang623/teatop_Ximen)):**
+  - `regions/<id>/index.html` — exact Ximen DOM/classes (`.animation`, `.L`, `.R`, `.L0N`, `.Rrow0N`, leaf/cup nodes)
+  - `css/style.css` — exact Ximen `style.css`
+  - `js/script.js` — exact Ximen timeline loop (`animationend` → restart)
+  - `js/inject.js` — **only** injects `menu.json` into that DOM (does not rebuild the shell)
+- **Images:** drink cups from `images/drinks/*.jpg`; logo at `images/logo.png` (from Ximen); decorative leaves remain original CDN assets
+- **Unknown region:** Chinese-friendly error overlay + root `404.html` for GitHub Pages
 
 ## Notes
-- Stakeholder baseline: dense Ximen/north animation — not the simplified carousel player
+- Stakeholder baseline: exact Ximen shell — not a rewritten `#player-root` player
 - Contract: `docs/menu.schema.md` + `data/menu.schema.json`

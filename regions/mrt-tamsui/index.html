@@ -1,19 +1,216 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8">
   <title>TEATOP TOP10 · mrt-tamsui</title>
-  <link rel="stylesheet" href="../../css/player.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css'><link rel="stylesheet" href="../../css/style.css">
+
 </head>
 <body>
-  <div id="player-root" data-region="mrt-tamsui" data-asset-root="../../">
-    <div id="state-screen" class="state-screen">
-      <h1>載入中…</h1>
-      <p>正在讀取選單資料</p>
+<!-- partial:index.partial.html -->
+<div class="animation" data-region="mrt-tamsui" data-asset-root="../../" style="visibility:hidden">
+  <div class="L"><img class="logo" src="../../images/logo.png" alt=""/>
+    <div class="Mcircle"></div>
+    <div class="Lcircle"></div>
+    <div class="Rcircle"></div>
+    <div class="L01">
+      <h1 class="Ltop Ltop01">TOP1</h1>
+      <div class="Ltopimg Ltop01img"><img class="Lleaf01" src="https://i.imgur.com/R7brK8S.png" alt=""/><img class="Ltea01" src="https://i.imgur.com/7YoJGXP.png" alt=""/><img class="Rleaf01" src="https://i.imgur.com/VQoiPLZ.png" alt=""/></div>
+      <h3 class="LCname L01Cname">招牌高山青</h3>
+      <p class="LEname L01Ename">Taiwan Light Oolong Tea</p>
+    </div>
+    <div class="L02">
+      <h1 class="Ltop Ltop02">TOP2</h1>
+      <div class="Ltopimg Ltop02img"><img class="Lleaf02" src="https://i.imgur.com/Y3DDstp.png" alt=""/><img class="Ltea02" src="https://i.imgur.com/ZvIPmGZ.png" alt=""/><img class="Rleaf02" src="https://i.imgur.com/20VAs4D.png" alt=""/></div>
+      <h3 class="LCname L02Cname">108茶王</h3>
+      <p class="LEname L02Ename">108 Roasted Oolong Tea</p>
+    </div>
+    <div class="L03">
+      <h1 class="Ltop Ltop03">TOP3</h1>
+      <div class="Ltopimg Ltop03img"><img class="Lleaf03" src="https://i.imgur.com/qrYlB89.png" alt=""/><img class="Ltea03" src="https://i.imgur.com/XvkAzkq.png" alt=""/><img class="Rleaf03" src="https://i.imgur.com/WdBACx1.png" alt=""/></div>
+      <h3 class="LCname L03Cname">青茶3Q</h3>
+      <p class="LEname L03Ename">Light Oolong Tea<br/> w/ Bubble, Coconut Jelly & Green Tea Jelly</p>
+    </div>
+    <div class="L04">
+      <h1 class="Ltop Ltop04">TOP4</h1>
+      <div class="Ltopimg Ltop04img"><img class="Lleaf04" src="https://i.imgur.com/piFJe3D.png" alt=""/><img class="Ltea04" src="https://i.imgur.com/UQElilL.png" alt=""/><img class="Rleaf04" src="https://i.imgur.com/DVVeo5S.png" alt=""/></div>
+      <h3 class="LCname L04Cname">黑糖珍珠鮮奶</h3>
+      <p class="LEname L04Ename">Brown Sugar Fresh Milk with Bubble</p>
+    </div>
+    <div class="L05">
+      <h1 class="Ltop Ltop05">TOP5</h1>
+      <div class="Ltopimg Ltop05img"><img class="Lleaf05" src="https://i.imgur.com/j4oDo4K.png" alt=""/><img class="Ltea05" src="https://i.imgur.com/UTPFuE9.png" alt=""/><img class="Rleaf05" src="https://i.imgur.com/4PcTEKD.png" alt=""/></div>
+      <h3 class="LCname L05Cname">當代雙Q</h3>
+      <p class="LEname L05Ename">Bubble Milk Tea with Taro Balls</p>
     </div>
   </div>
-  <script src="../../js/player.js" defer></script>
+  <div class="R">
+    <div class="Rrow Rrow01">
+      <div class="Number">
+        <h1 class="Rno R01no">01<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R01Cname">招牌高山青</h4>
+        <p class="REname R01Ename">Taiwan Light Oolong Tea</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R01moneysign">$</p>
+          <p class="large R01large">L</p>
+        </div>
+        <h1 class="Rprice R01price">40</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow02">
+      <div class="Number">
+        <h1 class="Rno R02no">02<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R02Cname">108茶王</h4>
+        <p class="REname R02Ename">108 Roasted Oolong Tea</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R02moneysign">$</p>
+          <p class="large R02large">L</p>
+        </div>
+        <h1 class="Rprice R02price">50</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow03">
+      <div class="Number">
+        <h1 class="Rno R03no">03<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R03Cname">青茶3Q</h4>
+        <p class="REname R03Ename">Light Oolong Tea w/<br/>Bubble, Coconut Jelly & Green Tea Jelly</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R03moneysign">$</p>
+          <p class="large R03large">L</p>
+        </div>
+        <h1 class="Rprice R03price">55</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow04">
+      <div class="Number">
+        <h1 class="Rno R04no">04<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R04Cname">黑糖珍珠鮮奶</h4>
+        <p class="REname R04Ename">Brown Sugar Fresh Milk with Bubble</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R04moneysign">$</p>
+          <p class="large R04large">L</p>
+        </div>
+        <h1 class="Rprice R04price">85</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow05">
+      <div class="Number">
+        <h1 class="Rno R05no">05<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R05Cname">當代雙Q</h4>
+        <p class="REname R05Ename">Bubble Milk Tea with Taro Balls</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R05moneysign">$</p>
+          <p class="large R05large">L</p>
+        </div>
+        <h1 class="Rprice R05price">70</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow06">
+      <div class="Number">
+        <h1 class="Rno R06no">06<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R06Cname">桂花凍108</h4>
+        <p class="REname R06Ename">108 Roasted Oolong with Osmanthus Jelly</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R06moneysign">$</p>
+          <p class="large R06large">L</p>
+        </div>
+        <h1 class="Rprice R06price">70</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow07">
+      <div class="Number">
+        <h1 class="Rno R07no">07<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R07Cname">柳橙綠</h4>
+        <p class="REname R07Ename">Fresh Orange Green Tea</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R07moneysign">$</p>
+          <p class="large R07large">L</p>
+        </div>
+        <h1 class="Rprice R07price">75</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow08">
+      <div class="Number">
+        <h1 class="Rno R08no">08<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R08Cname">轟蜜茶108</h4>
+        <p class="REname R08Ename">Honey 108 Roasted Oolong Tea with Tea Jelly</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R08moneysign">$</p>
+          <p class="large R08large">L</p>
+        </div>
+        <h1 class="Rprice R08price">70</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow09">
+      <div class="Number">
+        <h1 class="Rno R09no">09<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R09Cname">紅豆粉粿鮮奶</h4>
+        <p class="REname R09Ename">Brown Sugar Fresh Milk with Red Bean & Jelly</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R09moneysign">$</p>
+          <p class="large R09large">L</p>
+        </div>
+        <h1 class="Rprice R09price">95</h1>
+      </div>
+    </div>
+    <div class="Rrow Rrow10">
+      <div class="Number">
+        <h1 class="Rno R10no">10<span/> /</h1>
+      </div>
+      <div class="Name">
+        <h4 class="RCname R10Cname">百香QQ</h4>
+        <p class="REname R10Ename">Passion Fruit Green Tea<br/>with Bubble & Coconut Jelly</p>
+      </div>
+      <div class="Price">
+        <div class="smalltext">
+          <p class="moneysign R10moneysign">$</p>
+          <p class="large R10large">L</p>
+        </div>
+        <h1 class="Rprice R10price">80</h1>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js'></script><script src="../../js/inject.js"></script>
+<script src="../../js/script.js"></script>
+
 </body>
 </html>
