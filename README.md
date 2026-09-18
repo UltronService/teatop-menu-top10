@@ -35,7 +35,7 @@ Then open e.g. http://127.0.0.1:4173/regions/ximen/
   - `css/style.css` — exact Ximen `style.css`
   - `js/script.js` — exact Ximen timeline loop (`animationend` → restart)
   - `js/inject.js` — **only** injects `menu.json` into that DOM (does not rebuild the shell)
-- **Images:** drink cups from `images/drinks/*.jpg`; logo at `images/logo.png` (from Ximen); decorative leaves remain original CDN assets
+- **Images:** drink cups from `images/drinks/*.png`; logo at `images/logo.png` (from Ximen); decorative leaves remain original CDN assets
 - **Unknown region:** Chinese-friendly error overlay + root `404.html` for GitHub Pages
 
 ## Notes
