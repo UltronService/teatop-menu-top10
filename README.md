@@ -1,6 +1,6 @@
 # teatop-menu-top10
 
-TEATOP TOP10 electronic menu — **exact** Ximen visual shell (`index.html` DOM/classes + `style.css` + `script.js` timeline), seven region URLs, data-driven content only.
+TEATOP TOP10 electronic menu — one shared player shell, seven region URLs.
 
 ## Clone
 https://github.com/UltronService/teatop-menu-top10
@@ -26,18 +26,26 @@ npx --yes serve -l 4173
 # or: python -m http.server 4173
 ```
 
-Then open e.g. http://127.0.0.1:4173/regions/ximen/
+Then open:
+
+- http://127.0.0.1:4173/regions/central/
+- http://127.0.0.1:4173/regions/central-smart/
+- http://127.0.0.1:4173/regions/mrt-tamsui/
+- http://127.0.0.1:4173/regions/north/
+- http://127.0.0.1:4173/regions/north-smart/
+- http://127.0.0.1:4173/regions/south/
+- http://127.0.0.1:4173/regions/ximen/
 
 ## Architecture
-- **Data:** `data/menu.json` (filter by region id) — images, zh/en names, ranks, L prices
-- **Visual shell (verbatim from [teatop_Ximen](https://github.com/yixuantang623/teatop_Ximen)):**
-  - `regions/<id>/index.html` — exact Ximen DOM/classes (`.animation`, `.L`, `.R`, `.L0N`, `.Rrow0N`, leaf/cup nodes)
-  - `css/style.css` — exact Ximen `style.css`
-  - `js/script.js` — exact Ximen timeline loop (`animationend` → restart)
-  - `js/inject.js` — **only** injects `menu.json` into that DOM (does not rebuild the shell)
-- **Images:** drink cups from `images/drinks/*.png`; logo at `images/logo.png` (from Ximen); decorative leaves remain original CDN assets
-- **Unknown region:** Chinese-friendly error overlay + root `404.html` for GitHub Pages
+- **Data:** `data/menu.json` (filter by region id)
+- **Shell:** `css/player.css` + `js/player.js`
+- **Regions:** `regions/<id>/index.html` sets `data-region` and loads the shared shell
+- **Images:** `images/drinks/*.jpg` (Chinese filenames; `轟蜜茶.jpg` and `轟蜜茶108.jpg` are separate)
+- **Carousel:** JS `setInterval` + watchdog (not CSS `animationend`-only restart)
+- **No CDN / jQuery / Bootstrap / Imgur / Google Fonts**
+- **Image `onerror`:** cup placeholder; name + price still shown
+- **Unknown region:** Chinese-friendly error in-player + root `404.html` for GitHub Pages
 
 ## Notes
-- Stakeholder baseline: exact Ximen shell — not a rewritten `#player-root` player
+- Visual reference: Ximen/north store menu colors; playback is the shared JS player
 - Contract: `docs/menu.schema.md` + `data/menu.schema.json`

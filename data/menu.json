@@ -14,7 +14,7 @@
       "id": "qingcha-3q",
       "nameZh": "青茶3Q",
       "nameEn": "Light Oolong Tea w/ Bubble, Coconut Jelly & Green Tea Jelly",
-      "image": "images/drinks/青茶3Q.png",
+      "image": "images/drinks/青茶3Q.jpg",
       "regions": {
         "central": {
           "rank": 1,
@@ -50,7 +50,7 @@
       "id": "hongdou-fenguo-xiannai",
       "nameZh": "紅豆粉粿鮮奶",
       "nameEn": "Brown Sugar Fresh Milk with Red Bean & Jelly",
-      "image": "images/drinks/紅豆粉粿鮮奶.png",
+      "image": "images/drinks/紅豆粉粿鮮奶.jpg",
       "regions": {
         "central": {
           "rank": 2,
@@ -86,7 +86,7 @@
       "id": "baixiang-qq",
       "nameZh": "百香QQ",
       "nameEn": "Passion Fruit Green Tea with Bubble & Coconut Jelly",
-      "image": "images/drinks/百香QQ.png",
+      "image": "images/drinks/百香QQ.jpg",
       "regions": {
         "central": {
           "rank": 3,
@@ -122,7 +122,7 @@
       "id": "beixiang-fenjiao-jinxuan",
       "nameZh": "焙香粉角金萱",
       "nameEn": "Roasted Jin Xuan with Taro Balls",
-      "image": "images/drinks/焙香粉角金萱.png",
+      "image": "images/drinks/焙香粉角金萱.jpg",
       "regions": {
         "central": {
           "rank": 4,
@@ -150,7 +150,7 @@
       "id": "hongcha-xiannaicha",
       "nameZh": "紅茶鮮奶茶",
       "nameEn": "Black Tea Fresh Milk Tea",
-      "image": "images/drinks/紅茶鮮奶茶.png",
+      "image": "images/drinks/紅茶鮮奶茶.jpg",
       "regions": {
         "central": {
           "rank": 5,
@@ -170,7 +170,7 @@
       "id": "liucheng-lu",
       "nameZh": "柳橙綠",
       "nameEn": "Fresh Orange Green Tea",
-      "image": "images/drinks/柳橙綠.png",
+      "image": "images/drinks/柳橙綠.jpg",
       "regions": {
         "central": {
           "rank": 6,
@@ -202,7 +202,7 @@
       "id": "dangdai-shuangq",
       "nameZh": "當代雙Q",
       "nameEn": "Bubble Milk Tea with Taro Balls",
-      "image": "images/drinks/當代雙Q.png",
+      "image": "images/drinks/當代雙Q.jpg",
       "regions": {
         "central": {
           "rank": 7,
@@ -238,7 +238,7 @@
       "id": "xianzha-108",
       "nameZh": "仙楂108",
       "nameEn": "108 Roasted Oolong with Hawthorn",
-      "image": "images/drinks/仙楂108.png",
+      "image": "images/drinks/仙楂108.jpg",
       "regions": {
         "central": {
           "rank": 8,
@@ -266,7 +266,7 @@
       "id": "qiaomai-fenguo",
       "nameZh": "蕎麥粉粿",
       "nameEn": "Buckwheat Jelly Drink",
-      "image": "images/drinks/蕎麥粉粿.png",
+      "image": "images/drinks/蕎麥粉粿.jpg",
       "regions": {
         "central": {
           "rank": 9,
@@ -294,7 +294,7 @@
       "id": "hongmi-cha",
       "nameZh": "轟蜜茶",
       "nameEn": "Honey Tea",
-      "image": "images/drinks/轟蜜茶.png",
+      "image": "images/drinks/轟蜜茶.jpg",
       "regions": {
         "central": {
           "rank": 10,
@@ -314,7 +314,7 @@
       "id": "riyuetan-xiannaicha",
       "nameZh": "日月潭鮮奶茶",
       "nameEn": "Sun Moon Lake Fresh Milk Tea",
-      "image": "images/drinks/日月潭鮮奶茶.png",
+      "image": "images/drinks/日月潭鮮奶茶.jpg",
       "regions": {
         "central-smart": {
           "rank": 5,
@@ -330,7 +330,7 @@
       "id": "hongmi-cha-108",
       "nameZh": "轟蜜茶108",
       "nameEn": "Honey 108 Roasted Oolong Tea with Tea Jelly",
-      "image": "images/drinks/轟蜜茶108.png",
+      "image": "images/drinks/轟蜜茶108.jpg",
       "regions": {
         "central-smart": {
           "rank": 10,
@@ -350,7 +350,7 @@
       "id": "heiting-zhenzhu-xiannai",
       "nameZh": "黑糖珍珠鮮奶",
       "nameEn": "Brown Sugar Fresh Milk with Bubble",
-      "image": "images/drinks/黑糖珍珠鮮奶.png",
+      "image": "images/drinks/黑糖珍珠鮮奶.jpg",
       "regions": {
         "mrt-tamsui": {
           "rank": 1,
@@ -366,7 +366,7 @@
       "id": "zhaopai-gaoshanqing",
       "nameZh": "招牌高山青",
       "nameEn": "Taiwan Light Oolong Tea",
-      "image": "images/drinks/招牌高山青.png",
+      "image": "images/drinks/招牌高山青.jpg",
       "regions": {
         "mrt-tamsui": {
           "rank": 2,
@@ -382,7 +382,7 @@
       "id": "donggua-ningmeng",
       "nameZh": "冬瓜檸檬",
       "nameEn": "Winter Melon Lemon Tea",
-      "image": "images/drinks/冬瓜檸檬.png",
+      "image": "images/drinks/冬瓜檸檬.jpg",
       "regions": {
         "mrt-tamsui": {
           "rank": 5,
@@ -394,7 +394,7 @@
       "id": "108-beiwulong-naicha",
       "nameZh": "108焙烏龍奶茶",
       "nameEn": "108 Roasted Oolong Milk Tea",
-      "image": "images/drinks/108焙烏龍奶茶.png",
+      "image": "images/drinks/108焙烏龍奶茶.jpg",
       "regions": {
         "mrt-tamsui": {
           "rank": 6,
@@ -406,7 +406,7 @@
       "id": "riyuetan-hongcha",
       "nameZh": "日月潭紅茶",
       "nameEn": "Sun Moon Lake Black Tea",
-      "image": "images/drinks/日月潭紅茶.png",
+      "image": "images/drinks/日月潭紅茶.jpg",
       "regions": {
         "mrt-tamsui": {
           "rank": 8,
@@ -418,7 +418,7 @@
       "id": "ganzhe-qingliao",
       "nameZh": "甘蔗青了",
       "nameEn": "Sugarcane Green Tea",
-      "image": "images/drinks/甘蔗青了.png",
+      "image": "images/drinks/甘蔗青了.jpg",
       "regions": {
         "mrt-tamsui": {
           "rank": 9,
@@ -430,7 +430,7 @@
       "id": "108-chawang",
       "nameZh": "108茶王",
       "nameEn": "108 Roasted Oolong Tea",
-      "image": "images/drinks/108茶王.png",
+      "image": "images/drinks/108茶王.jpg",
       "regions": {
         "ximen": {
           "rank": 2,
@@ -442,7 +442,7 @@
       "id": "guihua-dong-108",
       "nameZh": "桂花凍108",
       "nameEn": "108 Roasted Oolong with Osmanthus Jelly",
-      "image": "images/drinks/桂花凍108.png",
+      "image": "images/drinks/桂花凍108.jpg",
       "regions": {
         "ximen": {
           "rank": 6,

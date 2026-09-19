@@ -28,18 +28,19 @@
   </ul>
 </main>
 <script>
-/* If someone hits /regions/<unknown>/ and Pages serves 404.html from root,
-   also try to boot the shared player for a richer in-shell error when path looks like a region. */
 (function () {
   var m = location.pathname.match(/\/regions\/([^/]+)\/?$/);
   if (!m) return;
   var known = ["central","central-smart","mrt-tamsui","north","north-smart","south","ximen"];
   if (known.indexOf(m[1]) !== -1) {
-    /* Valid region but 404 — likely Pages path issue; redirect to trailing-slash index if needed */
     if (!/\/$/.test(location.pathname)) {
       location.replace(location.pathname + "/" + location.search + location.hash);
     }
+    return;
   }
+  document.querySelector("h1").textContent = "找不到此區域";
+  document.querySelector("main p").textContent =
+    "區域「" + m[1] + "」不在選單資料中。請改選下列正確區域，或回到首頁。";
 })();
 </script>
 </body>
