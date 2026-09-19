@@ -39,6 +39,11 @@
   }
 
   function resolveRegion() {
+    var params = new URLSearchParams(location.search);
+    var fromQuery = params.get("region");
+    if (fromQuery && fromQuery.trim()) {
+      return fromQuery.trim();
+    }
     var el = document.getElementById("player-root");
     if (el && el.getAttribute("data-region")) {
       return el.getAttribute("data-region").trim();
@@ -230,7 +235,7 @@
 
       var rankSpan = document.createElement("span");
       rankSpan.className = "rank";
-      rankSpan.innerHTML = pad2(item.rank) + "<span>/</span>";
+      rankSpan.innerHTML = pad2(item.rank) + "<span> /</span>";
 
       var names = document.createElement("span");
       names.className = "names";
