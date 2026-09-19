@@ -82,6 +82,10 @@ body, html {
 }
 .L .Ltopimg .Ltea01, .L .Ltopimg .Ltea02, .L .Ltopimg .Ltea03, .L .Ltopimg .Ltea04, .L .Ltopimg .Ltea05 {
   transform: translate(-50%, -50%) rotate(-160deg);
+  width: 62%;
+  max-height: 54%;
+  height: auto;
+  object-fit: contain;
 }
 .L h1.Ltop {
   color: #ec6f09;
