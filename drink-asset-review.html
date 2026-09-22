@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TEATOP 飲料素材對照 · 客戶討論用</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=Montserrat:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --orange: #ec6f09;
+      --orange-light: #f08c3a;
+      --navy: #0c2f54;
+      --bg: #f7f4f0;
+      --card: #ffffff;
+      --muted: #5c534a;
+      --border: #e8dfd4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: #1a1510;
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a4a72 100%);
+      color: #fff;
+      padding: 1.75rem 1.25rem 2rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 42rem;
+      opacity: 0.92;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      background: var(--orange);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .notice {
+      background: #fff8f0;
+      border: 1px solid #f0dcc4;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(12, 47, 84, 0.06);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem 1rem 0.5rem;
+    }
+
+    .rank {
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 10px;
+      background: var(--orange);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-head .titles h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .card-head .titles p {
+      margin: 0.25rem 0 0;
+      font-family: Montserrat, "Noto Sans TC", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .stage-wrap {
+      padding: 0 1rem;
+    }
+
+    .stage-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0.5rem 0 0.35rem;
+    }
+
+    .stage {
+      position: relative;
+      height: 200px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      overflow: hidden;
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      left: 50%;
+      top: 58%;
+      transform: translate(-50%, -50%);
+      background: var(--orange);
+      border-radius: 50%;
+      opacity: 0.15;
+    }
+
+    .stage img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 38%;
+      max-height: 55%;
+      object-fit: contain;
+    }
+
+    .stage img.leaf {
+      max-width: 42%;
+      max-height: 48%;
+    }
+
+    .stage img.leaf-left {
+      transform: translate(-95%, -55%);
+    }
+
+    .stage img.leaf-right {
+      transform: translate(-5%, -55%);
+    }
+
+    .stage img.cup {
+      max-width: 36%;
+      max-height: 52%;
+      z-index: 1;
+    }
+
+    .stage-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      background: #fafafa;
+    }
+
+    .assets {
+      padding: 0.75rem 1rem 1rem;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .asset-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 0.65rem;
+      align-items: center;
+      padding: 0.5rem;
+      background: #faf8f5;
+      border-radius: 8px;
+    }
+
+    .asset-row img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .asset-row .meta strong {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .asset-row .meta a {
+      font-size: 0.68rem;
+      word-break: break-all;
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .asset-row .meta a:hover {
+      text-decoration: underline;
+    }
+
+    .asset-row .meta .missing {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .error-banner {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+      .card {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+      header {
+        background: var(--navy);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TEATOP 飲料素材對照表</h1>
+    <p>並排顯示中文／英文名稱、杯圖、左裝飾葉、右裝飾葉，方便與客戶確認動畫看板素材。資料來源：<code>data/menu.json</code>（西門）＋ <code>data/ximen-animation-assets.json</code>（TOP1–5 葉片／原動畫杯圖）。</p>
+    <span class="badge">區域：西門 · TOP10</span>
+  </header>
+  <main>
+    <div id="error" class="error-banner" hidden></div>
+    <p class="notice">TOP1–5 左側動畫各有專屬左葉、右葉；TOP6–10 在原 Ximen 版型中<strong>沒有</strong>左側落葉素材，僅右欄清單＋杯圖（menu 路徑）。</p>
+    <div id="grid" class="grid" aria-live="polite"></div>
+  </main>
+  <script>
+    (function () {
+      "use strict";
+
+      var REGION = "ximen";
+      var ASSET_ROOT = "./";
+
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
+
+      function resolveImage(rel) {
+        if (!rel) return "";
+        if (/^https?:\/\//i.test(rel)) return rel;
+        return ASSET_ROOT + rel.replace(/^\.\//, "");
+      }
+
+      function itemsForRegion(menu, regionId) {
+        var list = [];
+        (menu.items || []).forEach(function (item) {
+          var r = item.regions && item.regions[regionId];
+          if (!r || r.rank == null) return;
+          list.push({
+            nameZh: item.nameZh || "",
+            nameEn: item.nameEn || "",
+            menuImage: item.image || "",
+            rank: Number(r.rank),
+          });
+        });
+        list.sort(function (a, b) {
+          return a.rank - b.rank;
+        });
+        return list;
+      }
+
+      function showError(msg) {
+        var el = document.getElementById("error");
+        if (!el) return;
+        el.hidden = false;
+        el.textContent = msg;
+      }
+
+      function assetRow(label, src, alt) {
+        var row = document.createElement("div");
+        row.className = "asset-row";
+        if (src) {
+          row.innerHTML =
+            '<img src="' +
+            src.replace(/"/g, "&quot;") +
+            '" alt="' +
+            (alt || "").replace(/"/g, "&quot;") +
+            '" loading="lazy" />' +
+            '<div class="meta"><strong>' +
+            label +
+            '</strong><a href="' +
+            src.replace(/"/g, "&quot;") +
+            '" target="_blank" rel="noopener">' +
+            src +
+            "</a></div>";
+        } else {
+          row.innerHTML =
+            '<div style="width:72px;height:72px;background:#eee;border-radius:6px"></div>' +
+            '<div class="meta"><strong>' +
+            label +
+            '</strong><span class="missing">（原版型無此素材）</span></div>';
+        }
+        return row;
+      }
+
+      function buildCard(item, shellByRank) {
+        var shell = shellByRank[String(item.rank)] || null;
+        var cupSrc = shell && shell.cupShell ? shell.cupShell : resolveImage(item.menuImage);
+        var leftLeaf = shell && shell.leftLeaf ? shell.leftLeaf : "";
+        var rightLeaf = shell && shell.rightLeaf ? shell.rightLeaf : "";
+
+        var card = document.createElement("article");
+        card.className = "card";
+
+        var head = document.createElement("div");
+        head.className = "card-head";
+        head.innerHTML =
+          '<div class="rank">#' +
+          item.rank +
+          '</div><div class="titles"><h2>' +
+          item.nameZh +
+          "</h2><p>" +
+          item.nameEn.replace(/\n/g, "<br/>") +
+          "</p></div>";
+        card.appendChild(head);
+
+        var stageWrap = document.createElement("div");
+        stageWrap.className = "stage-wrap";
+        stageWrap.innerHTML = '<p class="stage-label">左側動畫預覽（葉＋杯）</p>';
+        var stage = document.createElement("div");
+        stage.className = "stage";
+
+        if (leftLeaf || rightLeaf || cupSrc) {
+          if (leftLeaf) {
+            var ll = document.createElement("img");
+            ll.className = "leaf leaf-left";
+            ll.src = leftLeaf;
+            ll.alt = item.nameZh + " 左葉";
+            stage.appendChild(ll);
+          }
+          if (cupSrc) {
+            var cup = document.createElement("img");
+            cup.className = "cup";
+            cup.src = cupSrc;
+            cup.alt = item.nameZh + " 杯圖";
+            stage.appendChild(cup);
+          }
+          if (rightLeaf) {
+            var rl = document.createElement("img");
+            rl.className = "leaf leaf-right";
+            rl.src = rightLeaf;
+            rl.alt = item.nameZh + " 右葉";
+            stage.appendChild(rl);
+          }
+        } else {
+          stage.innerHTML = '<div class="stage-empty">尚無可顯示圖片</div>';
+        }
+
+        stageWrap.appendChild(stage);
+        card.appendChild(stageWrap);
+
+        var assets = document.createElement("div");
+        assets.className = "assets";
+        assets.appendChild(assetRow("杯圖", cupSrc, item.nameZh));
+        assets.appendChild(assetRow("左裝飾葉", leftLeaf, item.nameZh));
+        assets.appendChild(assetRow("右裝飾葉", rightLeaf, item.nameZh));
+        if (shell && shell.cupShell && item.menuImage) {
+          assets.appendChild(
+            assetRow("menu 杯圖路徑", resolveImage(item.menuImage), item.nameZh)
+          );
+        }
+        card.appendChild(assets);
+
+        return card;
+      }
+
+      function boot() {
+        Promise.all([
+          fetch(ASSET_ROOT + "data/menu.json", { cache: "no-cache" }),
+          fetch(ASSET_ROOT + "data/ximen-animation-assets.json", { cache: "no-cache" }),
+        ])
+          .then(function (responses) {
+            if (!responses[0].ok) throw new Error("menu.json HTTP " + responses[0].status);
+            if (!responses[1].ok) {
+              throw new Error("ximen-animation-assets.json HTTP " + responses[1].status);
+            }
+            return Promise.all([responses[0].json(), responses[1].json()]);
+          })
+          .then(function (payload) {
+            var menu = payload[0];
+            var shellAssets = payload[1];
+            var shellByRank = (shellAssets && shellAssets.ranks) || {};
+            var items = itemsForRegion(menu, REGION);
+            var grid = document.getElementById("grid");
+            if (!grid) return;
+            if (!items.length) {
+              showError("西門區域沒有排行資料。");
+              return;
+            }
+            items.forEach(function (item) {
+              grid.appendChild(buildCard(item, shellByRank));
+            });
+          })
+          .catch(function (err) {
+            showError(
+              "無法載入資料：" +
+                (err && err.message ? err.message : String(err)) +
+                "。請用本機或 GitHub Pages 以 HTTP 開啟此頁（勿直接用 file://）。"
+            );
+          });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", boot);
+      } else {
+        boot();
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "description": "Left-panel animation assets from teatop_Ximen (ranks 1–5 only). Ranks 6–10 have no Lleaf/Rleaf in the original shell.",
+  "ranks": {
+    "1": {
+      "leftLeaf": "https://i.imgur.com/R7brK8S.png",
+      "rightLeaf": "https://i.imgur.com/VQoiPLZ.png",
+      "cupShell": "https://i.imgur.com/7YoJGXP.png"
+    },
+    "2": {
+      "leftLeaf": "https://i.imgur.com/Y3DDstp.png",
+      "rightLeaf": "https://i.imgur.com/20VAs4D.png",
+      "cupShell": "https://i.imgur.com/ZvIPmGZ.png"
+    },
+    "3": {
+      "leftLeaf": "https://i.imgur.com/qrYlB89.png",
+      "rightLeaf": "https://i.imgur.com/WdBACx1.png",
+      "cupShell": "https://i.imgur.com/XvkAzkq.png"
+    },
+    "4": {
+      "leftLeaf": "https://i.imgur.com/piFJe3D.png",
+      "rightLeaf": "https://i.imgur.com/DVVeo5S.png",
+      "cupShell": "https://i.imgur.com/UQElilL.png"
+    },
+    "5": {
+      "leftLeaf": "https://i.imgur.com/j4oDo4K.png",
+      "rightLeaf": "https://i.imgur.com/4PcTEKD.png",
+      "cupShell": "https://i.imgur.com/UTPFuE9.png"
+    }
+  }
+}

@@ -28,6 +28,8 @@ npx --yes serve -l 4173
 
 Then open e.g. http://127.0.0.1:4173/regions/ximen/
 
+**Client asset review (西門 TOP10 杯圖／左右葉對照):** http://127.0.0.1:4173/drink-asset-review.html
+
 ## Architecture
 - **Data:** `data/menu.json` (filter by region id) — images, zh/en names, ranks, L prices
 - **Visual shell (verbatim from [teatop_Ximen](https://github.com/yixuantang623/teatop_Ximen)):**
