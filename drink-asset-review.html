@@ -289,10 +289,6 @@
       var REGION = "ximen";
       var ASSET_ROOT = "./";
 
-      function pad2(n) {
-        return String(n).padStart(2, "0");
-      }
-
       function resolveImage(rel) {
         if (!rel) return "";
         if (/^https?:\/\//i.test(rel)) return rel;
