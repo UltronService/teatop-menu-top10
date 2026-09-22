@@ -118,7 +118,7 @@
 <body>
   <main>
     <div id="error" class="error-banner" hidden></div>
-    <table aria-label="西門 TOP10 飲料素材對照">
+    <table aria-label="客戶品項素材對照">
       <thead>
         <tr>
           <th scope="col">飲料（中文）</th>
@@ -152,22 +152,39 @@
           .replace(/"/g, "&quot;");
       }
 
-      function itemsForRegion(menu, regionId) {
-        var list = [];
+      function menuByZh(menu) {
+        var map = Object.create(null);
+        (menu.items || []).forEach(function (item) {
+          if (!item.nameZh || map[item.nameZh]) return;
+          map[item.nameZh] = item;
+        });
+        return map;
+      }
+
+      function shellByNameZh(menu, regionId, shellByRank) {
+        var map = Object.create(null);
         (menu.items || []).forEach(function (item) {
           var r = item.regions && item.regions[regionId];
-          if (!r || r.rank == null) return;
-          list.push({
-            nameZh: item.nameZh || "",
-            nameEn: item.nameEn || "",
-            menuImage: item.image || "",
-            rank: Number(r.rank),
+          if (!r || r.rank == null || r.rank > 5) return;
+          var shell = shellByRank[String(r.rank)];
+          if (shell && item.nameZh) map[item.nameZh] = shell;
+        });
+        return map;
+      }
+
+      function dedupeCatalogItems(items) {
+        var seen = Object.create(null);
+        var out = [];
+        (items || []).forEach(function (entry) {
+          var zh = (entry && entry.nameZh) || "";
+          if (!zh || seen[zh]) return;
+          seen[zh] = true;
+          out.push({
+            nameZh: zh,
+            nameEn: (entry && entry.nameEn) || "",
           });
         });
-        list.sort(function (a, b) {
-          return a.rank - b.rank;
-        });
-        return list;
+        return out;
       }
 
       function showError(msg) {
@@ -195,52 +212,67 @@
         );
       }
 
-      function buildRow(item, shellByRank) {
-        var shell = shellByRank[String(item.rank)] || null;
-        var cupSrc = shell && shell.cupShell ? shell.cupShell : resolveImage(item.menuImage);
+      function buildRow(entry, menuMap, shellMap) {
+        var menuItem = menuMap[entry.nameZh] || null;
+        var shell = shellMap[entry.nameZh] || null;
+        var menuImage = menuItem && menuItem.image ? menuItem.image : "";
+        var cupSrc = menuImage ? resolveImage(menuImage) : "";
+        if (!cupSrc && shell && shell.cupShell) cupSrc = shell.cupShell;
         var leftLeaf = shell && shell.leftLeaf ? shell.leftLeaf : "";
         var rightLeaf = shell && shell.rightLeaf ? shell.rightLeaf : "";
-        var enHtml = escapeHtml(item.nameEn).replace(/\n/g, "<br/>");
+        var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
+        var enHtml = escapeHtml(nameEn).replace(/\n/g, "<br/>");
 
         var tr = document.createElement("tr");
         tr.innerHTML =
           "<td>" +
-          escapeHtml(item.nameZh) +
+          escapeHtml(entry.nameZh) +
           "</td>" +
           '<td class="col-en">' +
           enHtml +
           "</td>" +
-          imageCell(cupSrc, item.nameZh + " 杯圖") +
-          imageCell(leftLeaf, item.nameZh + " 左裝飾葉") +
-          imageCell(rightLeaf, item.nameZh + " 右裝飾葉");
+          imageCell(cupSrc, entry.nameZh + " 杯圖") +
+          imageCell(leftLeaf, entry.nameZh + " 左裝飾葉") +
+          imageCell(rightLeaf, entry.nameZh + " 右裝飾葉");
         return tr;
       }
 
       function boot() {
         Promise.all([
+          fetch(ASSET_ROOT + "data/client-drink-catalog.json", { cache: "no-cache" }),
           fetch(ASSET_ROOT + "data/menu.json", { cache: "no-cache" }),
           fetch(ASSET_ROOT + "data/ximen-animation-assets.json", { cache: "no-cache" }),
         ])
           .then(function (responses) {
-            if (!responses[0].ok) throw new Error("menu.json HTTP " + responses[0].status);
-            if (!responses[1].ok) {
-              throw new Error("ximen-animation-assets.json HTTP " + responses[1].status);
+            if (!responses[0].ok) {
+              throw new Error("client-drink-catalog.json HTTP " + responses[0].status);
             }
-            return Promise.all([responses[0].json(), responses[1].json()]);
+            if (!responses[1].ok) throw new Error("menu.json HTTP " + responses[1].status);
+            if (!responses[2].ok) {
+              throw new Error("ximen-animation-assets.json HTTP " + responses[2].status);
+            }
+            return Promise.all([
+              responses[0].json(),
+              responses[1].json(),
+              responses[2].json(),
+            ]);
           })
           .then(function (payload) {
-            var menu = payload[0];
-            var shellAssets = payload[1];
+            var catalog = payload[0];
+            var menu = payload[1];
+            var shellAssets = payload[2];
             var shellByRank = (shellAssets && shellAssets.ranks) || {};
-            var items = itemsForRegion(menu, REGION);
+            var menuMap = menuByZh(menu);
+            var shellMap = shellByNameZh(menu, REGION, shellByRank);
+            var items = dedupeCatalogItems(catalog.items);
             var tbody = document.getElementById("table-body");
             if (!tbody) return;
             if (!items.length) {
-              showError("西門區域沒有排行資料。");
+              showError("客戶品項清單是空的。");
               return;
             }
-            items.forEach(function (item) {
-              tbody.appendChild(buildRow(item, shellByRank));
+            items.forEach(function (entry) {
+              tbody.appendChild(buildRow(entry, menuMap, shellMap));
             });
           })
           .catch(function (err) {

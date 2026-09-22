@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "source": "Client spreadsheet (中文品項 / 英文品項)",
+  "items": [
+    {
+      "nameZh": "青茶3Q",
+      "nameEn": "Light Oolong Tea w/ Bubble, Coconut Jelly & Green Tea Jelly"
+    },
+    {
+      "nameZh": "紅豆粉粿鮮奶",
+      "nameEn": "Brown Sugar Fresh Milk with Red Bean & Jelly"
+    },
+    {
+      "nameZh": "百香QQ",
+      "nameEn": "Passion Fruit Green Tea with Bubble & Coconut Jelly"
+    },
+    {
+      "nameZh": "焙香粉角金萱",
+      "nameEn": "Jin Xuan Oolong Tea with 108 Roasted Oolong Tapioca Cubes"
+    },
+    {
+      "nameZh": "紅茶鮮奶茶",
+      "nameEn": "Black Tea Latte"
+    },
+    {
+      "nameZh": "柳橙綠",
+      "nameEn": "Fresh Orange Green Tea"
+    },
+    {
+      "nameZh": "當代雙Q",
+      "nameEn": "Bubble Milk Tea with Taro Balls"
+    },
+    {
+      "nameZh": "仙楂108",
+      "nameEn": "Hawthorn 108 Roasted Oolong Tea"
+    },
+    {
+      "nameZh": "蕎麥粉粿",
+      "nameEn": "Buckwheat Tea with Jelly"
+    },
+    {
+      "nameZh": "轟蜜茶",
+      "nameEn": "Honey Tea with Tea Jelly (Choice of Tea Base)"
+    },
+    {
+      "nameZh": "日月潭鮮奶茶",
+      "nameEn": "Sun Moon Lake Black Tea Latte"
+    },
+    {
+      "nameZh": "轟蜜茶108",
+      "nameEn": "Honey 108 Roasted Oolong Tea with Tea Jelly"
+    },
+    {
+      "nameZh": "黑糖珍珠鮮奶",
+      "nameEn": "Brown Sugar Fresh Milk with Bubble"
+    },
+    {
+      "nameZh": "招牌高山青",
+      "nameEn": "Taiwan Light Oolong Tea"
+    },
+    {
+      "nameZh": "冬瓜檸檬",
+      "nameEn": "Winter Melon Drink with Lemon Juice"
+    },
+    {
+      "nameZh": "108焙烏龍奶茶",
+      "nameEn": "108 Roasted Oolong Creamer Milk Tea"
+    },
+    {
+      "nameZh": "日月潭紅茶",
+      "nameEn": "Sun Moon Lake Black Tea"
+    },
+    {
+      "nameZh": "甘蔗青了",
+      "nameEn": "Sugar Cane Light Oolong Tea"
+    },
+    {
+      "nameZh": "108茶王",
+      "nameEn": "108 Roasted Oolong Tea"
+    },
+    {
+      "nameZh": "桂花凍108",
+      "nameEn": "108 Roasted Oolong with Osmanthus Jelly"
+    }
+  ]
+}
