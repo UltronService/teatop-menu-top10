@@ -95,12 +95,14 @@
       object-fit: contain;
     }
 
-    .img-cell .badge-dot {
+    .img-cell .badge-dot,
+    button.icon-toggle .badge-dot {
       display: inline-block;
       width: 28px;
       height: 28px;
       border-radius: 999px;
       border: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
     .img-cell .badge-caption {
@@ -381,6 +383,8 @@
         if (iconDef.type === "colorDot") {
           var dot = document.createElement("span");
           dot.className = "badge-dot";
+          dot.setAttribute("role", "img");
+          dot.setAttribute("aria-label", "●冰飲");
           dot.style.backgroundColor = iconDef.color || "rgb(138, 184, 186)";
           dot.title = iconDef.title || "●冰飲";
           button.appendChild(dot);
