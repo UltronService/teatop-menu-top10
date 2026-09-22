@@ -58,12 +58,21 @@
       background: #faf8f5;
     }
 
-    .col-en {
+    .col-drink .name-zh {
+      font-weight: 600;
+    }
+
+    .col-drink .name-en {
+      margin-top: 0.35rem;
       font-family: Montserrat, "Noto Sans TC", sans-serif;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 500;
       color: var(--muted);
-      max-width: 14rem;
+      line-height: 1.35;
+    }
+
+    .col-en {
+      display: none;
     }
 
     .img-cell {
@@ -121,8 +130,7 @@
     <table aria-label="客戶品項素材對照">
       <thead>
         <tr>
-          <th scope="col">飲料（中文）</th>
-          <th scope="col">飲料（英文）</th>
+          <th scope="col">飲料</th>
           <th scope="col">杯圖</th>
           <th scope="col">左裝飾葉</th>
           <th scope="col">右裝飾葉</th>
@@ -225,12 +233,11 @@
 
         var tr = document.createElement("tr");
         tr.innerHTML =
-          "<td>" +
+          '<td class="col-drink"><div class="name-zh">' +
           escapeHtml(entry.nameZh) +
-          "</td>" +
-          '<td class="col-en">' +
+          '</div><div class="name-en">' +
           enHtml +
-          "</td>" +
+          "</div></td>" +
           imageCell(cupSrc, entry.nameZh + " 杯圖") +
           imageCell(leftLeaf, entry.nameZh + " 左裝飾葉") +
           imageCell(rightLeaf, entry.nameZh + " 右裝飾葉");
