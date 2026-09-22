@@ -1,5 +1,7 @@
 # teatop-menu-top10
 
+**Product version: v1.0** · see [`VERSION`](VERSION) and [`docs/RELEASE-v1.0.md`](docs/RELEASE-v1.0.md)
+
 TEATOP TOP10 electronic menu — **exact** Ximen visual shell (`index.html` DOM/classes + `style.css` + `script.js` timeline), seven region URLs, data-driven content only.
 
 ## Clone
