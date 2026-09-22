@@ -59,6 +59,57 @@
       font-weight: 600;
     }
 
+    .share {
+      margin-top: 1.25rem;
+      max-width: 36rem;
+    }
+
+    .share label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 0.35rem;
+      opacity: 0.95;
+    }
+
+    .share-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .share-row input {
+      flex: 1;
+      min-width: 12rem;
+      padding: 0.5rem 0.65rem;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    .share-row button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--orange);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .share-row button:hover {
+      background: var(--orange-light);
+    }
+
+    .share-hint {
+      margin: 0.35rem 0 0;
+      font-size: 0.8rem;
+      color: #fde68a;
+    }
+
     main {
       max-width: 1200px;
       margin: 0 auto;
@@ -276,6 +327,14 @@
     <h1>TEATOP 飲料素材對照表</h1>
     <p>並排顯示中文／英文名稱、杯圖、左裝飾葉、右裝飾葉，方便與客戶確認動畫看板素材。資料來源：<code>data/menu.json</code>（西門）＋ <code>data/ximen-animation-assets.json</code>（TOP1–5 葉片／原動畫杯圖）。</p>
     <span class="badge">區域：西門 · TOP10</span>
+    <div class="share" id="share-box">
+      <label for="share-url">分享給客戶（複製連結即可用 Chrome / Edge 開啟）</label>
+      <div class="share-row">
+        <input id="share-url" type="text" readonly aria-label="分享連結" />
+        <button type="button" id="share-copy">複製連結</button>
+      </div>
+      <p class="share-hint" id="share-hint" hidden>已複製到剪貼簿</p>
+    </div>
   </header>
   <main>
     <div id="error" class="error-banner" hidden></div>
@@ -418,7 +477,43 @@
         return card;
       }
 
+      function initShareLink() {
+        var input = document.getElementById("share-url");
+        var btn = document.getElementById("share-copy");
+        var hint = document.getElementById("share-hint");
+        if (!input || !btn) return;
+        input.value = window.location.href.split("#")[0];
+        btn.addEventListener("click", function () {
+          var url = input.value;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard
+              .writeText(url)
+              .then(function () {
+                if (hint) {
+                  hint.hidden = false;
+                  setTimeout(function () {
+                    hint.hidden = true;
+                  }, 2500);
+                }
+              })
+              .catch(function () {
+                input.select();
+                document.execCommand("copy");
+              });
+            return;
+          }
+          input.select();
+          try {
+            document.execCommand("copy");
+            if (hint) hint.hidden = false;
+          } catch (e) {
+            /* ignore */
+          }
+        });
+      }
+
       function boot() {
+        initShareLink();
         Promise.all([
           fetch(ASSET_ROOT + "data/menu.json", { cache: "no-cache" }),
           fetch(ASSET_ROOT + "data/ximen-animation-assets.json", { cache: "no-cache" }),
