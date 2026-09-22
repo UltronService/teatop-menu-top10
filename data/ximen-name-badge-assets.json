@@ -1,10 +1,39 @@
 {
-  "description": "Right-panel RCname::after badges from teatop_Ximen style.css (ximen TOP10 row 01–10 only).",
+  "description": "Right-panel RCname::after from teatop_Ximen — grouped by four shape types (color variants = same shape).",
+  "shapeColumns": [
+    {
+      "id": "hotSingle",
+      "label": "熱飲蒸氣（單圖）"
+    },
+    {
+      "id": "comboWide",
+      "label": "三連寬標"
+    },
+    {
+      "id": "guSquare",
+      "label": "「古」方框（單）"
+    },
+    {
+      "id": "colorDot",
+      "label": "純色圓點"
+    }
+  ],
+  "shapeByXimenRank": {
+    "1": "hotSingle",
+    "2": "hotSingle",
+    "3": "hotSingle",
+    "4": "comboWide",
+    "5": "hotSingle",
+    "6": "guSquare",
+    "7": "colorDot",
+    "8": null,
+    "9": "comboWide",
+    "10": "hotSingle"
+  },
   "byXimenRank": {
     "1": {
       "type": "image",
-      "url": "https://i.imgur.com/jefyVWB.png",
-      "note": "R01–R03、R05 共用"
+      "url": "https://i.imgur.com/jefyVWB.png"
     },
     "2": {
       "type": "image",
@@ -16,8 +45,7 @@
     },
     "4": {
       "type": "image",
-      "url": "https://i.imgur.com/sMPtqn2.png",
-      "note": "R04 較寬"
+      "url": "https://i.imgur.com/sMPtqn2.png"
     },
     "5": {
       "type": "image",
@@ -29,8 +57,7 @@
     },
     "7": {
       "type": "colorDot",
-      "color": "rgb(138, 184, 186)",
-      "note": "R07 CSS 圓點，非圖檔"
+      "color": "rgb(138, 184, 186)"
     },
     "8": null,
     "9": {

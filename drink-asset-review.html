@@ -116,6 +116,24 @@
       object-fit: contain;
     }
 
+    .img-cell .empty {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    thead th.shape-col {
+      font-size: 0.78rem;
+      white-space: normal;
+      max-width: 5.5rem;
+      line-height: 1.25;
+      vertical-align: bottom;
+    }
+
+    .img-cell.shape-slot a {
+      width: 88px;
+      height: 48px;
+    }
+
     .error-banner {
       background: #fef2f2;
       border: 1px solid #fecaca;
@@ -141,9 +159,8 @@
     <div id="error" class="error-banner" hidden></div>
     <table aria-label="客戶品項素材對照">
       <thead>
-        <tr>
+        <tr id="table-head-row">
           <th scope="col">飲料</th>
-          <th scope="col">品名後小圖示</th>
           <th scope="col">杯圖</th>
           <th scope="col">左裝飾葉</th>
           <th scope="col">右裝飾葉</th>
@@ -193,16 +210,32 @@
         return map;
       }
 
-      function badgeByNameZh(menu, regionId, byXimenRank) {
+      function assignmentByNameZh(menu, regionId, byXimenRank, shapeByXimenRank) {
         var map = Object.create(null);
         (menu.items || []).forEach(function (item) {
           var r = item.regions && item.regions[regionId];
           if (!r || r.rank == null || !item.nameZh) return;
-          var badge = byXimenRank[String(r.rank)];
-          if (badge === undefined) return;
-          map[item.nameZh] = badge;
+          var rankKey = String(r.rank);
+          if (!Object.prototype.hasOwnProperty.call(shapeByXimenRank, rankKey)) return;
+          map[item.nameZh] = {
+            shapeId: shapeByXimenRank[rankKey],
+            badge: byXimenRank[rankKey],
+          };
         });
         return map;
+      }
+
+      function renderShapeHeaders(shapeColumns) {
+        var headRow = document.getElementById("table-head-row");
+        if (!headRow || !shapeColumns || !shapeColumns.length) return;
+        var cupTh = headRow.querySelector("th:nth-child(2)");
+        shapeColumns.forEach(function (col) {
+          var th = document.createElement("th");
+          th.scope = "col";
+          th.className = "shape-col";
+          th.textContent = col.label || col.id;
+          if (cupTh) headRow.insertBefore(th, cupTh);
+        });
       }
 
       function dedupeCatalogItems(items) {
@@ -245,23 +278,27 @@
         );
       }
 
-      function badgeCell(badge, alt) {
+      function shapeColumnCell(columnId, assignment, alt) {
+        if (!assignment || assignment.shapeId !== columnId) {
+          return '<td class="img-cell shape-slot"><span class="empty">—</span></td>';
+        }
+        var badge = assignment.badge;
         if (badge === null || badge === undefined) {
-          return '<td class="img-cell"><span class="empty">—</span></td>';
+          return '<td class="img-cell shape-slot"><span class="empty">—</span></td>';
         }
         if (badge.type === "colorDot") {
           var color = escapeHtml(badge.color || "#8ab8ba");
           return (
-            '<td class="img-cell"><span class="badge-dot" style="background-color:' +
+            '<td class="img-cell shape-slot"><span class="badge-dot" style="background-color:' +
             color +
-            '" title="CSS 圓點"></span><span class="badge-caption">CSS 圓點</span></td>'
+            '" title="CSS 圓點"></span></td>'
           );
         }
         if (badge.type === "image" && badge.url) {
           var safeSrc = escapeHtml(badge.url);
-          var safeAlt = escapeHtml(alt + " 品名後小圖示");
+          var safeAlt = escapeHtml(alt);
           return (
-            '<td class="img-cell"><a href="' +
+            '<td class="img-cell shape-slot"><a href="' +
             safeSrc +
             '" target="_blank" rel="noopener" title="開啟原圖"><img class="badge-img" src="' +
             safeSrc +
@@ -270,10 +307,10 @@
             '" loading="lazy" /></a></td>'
           );
         }
-        return '<td class="img-cell"><span class="empty">—</span></td>';
+        return '<td class="img-cell shape-slot"><span class="empty">—</span></td>';
       }
 
-      function buildRow(entry, menuMap, shellMap, badgeMap) {
+      function buildRow(entry, menuMap, shellMap, assignmentMap, shapeColumns) {
         var menuItem = menuMap[entry.nameZh] || null;
         var shell = shellMap[entry.nameZh] || null;
         var menuImage = menuItem && menuItem.image ? menuItem.image : "";
@@ -284,7 +321,12 @@
         var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
         var enHtml = escapeHtml(nameEn).replace(/\n/g, "<br/>");
 
-        var badge = badgeMap[entry.nameZh];
+        var assignment = assignmentMap[entry.nameZh];
+        var shapeCells = (shapeColumns || [])
+          .map(function (col) {
+            return shapeColumnCell(col.id, assignment, entry.nameZh + " " + col.label);
+          })
+          .join("");
 
         var tr = document.createElement("tr");
         tr.innerHTML =
@@ -293,7 +335,7 @@
           '</div><div class="name-en">' +
           enHtml +
           "</div></td>" +
-          badgeCell(badge, entry.nameZh) +
+          shapeCells +
           imageCell(cupSrc, entry.nameZh + " 杯圖") +
           imageCell(leftLeaf, entry.nameZh + " 左裝飾葉") +
           imageCell(rightLeaf, entry.nameZh + " 右裝飾葉");
@@ -332,9 +374,17 @@
             var badgeAssets = payload[3];
             var shellByRank = (shellAssets && shellAssets.ranks) || {};
             var byXimenRank = (badgeAssets && badgeAssets.byXimenRank) || {};
+            var shapeByXimenRank = (badgeAssets && badgeAssets.shapeByXimenRank) || {};
+            var shapeColumns = (badgeAssets && badgeAssets.shapeColumns) || [];
+            renderShapeHeaders(shapeColumns);
             var menuMap = menuByZh(menu);
             var shellMap = shellByNameZh(menu, REGION, shellByRank);
-            var badgeMap = badgeByNameZh(menu, REGION, byXimenRank);
+            var assignmentMap = assignmentByNameZh(
+              menu,
+              REGION,
+              byXimenRank,
+              shapeByXimenRank
+            );
             var items = dedupeCatalogItems(catalog.items);
             var tbody = document.getElementById("table-body");
             if (!tbody) return;
@@ -343,7 +393,9 @@
               return;
             }
             items.forEach(function (entry) {
-              tbody.appendChild(buildRow(entry, menuMap, shellMap, badgeMap));
+              tbody.appendChild(
+                buildRow(entry, menuMap, shellMap, assignmentMap, shapeColumns)
+              );
             });
           })
           .catch(function (err) {
