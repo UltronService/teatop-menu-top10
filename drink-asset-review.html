@@ -33,7 +33,7 @@
 
     table {
       width: 100%;
-      min-width: 720px;
+      min-width: 960px;
       border-collapse: collapse;
       font-size: 0.95rem;
     }
@@ -121,17 +121,41 @@
       font-size: 0.85rem;
     }
 
-    thead th.shape-col {
+    thead th.icon-col {
       font-size: 0.78rem;
+      text-align: center;
       white-space: normal;
-      max-width: 5.5rem;
+      max-width: 4.25rem;
       line-height: 1.25;
       vertical-align: bottom;
     }
 
-    .img-cell.shape-slot a {
-      width: 88px;
-      height: 48px;
+    thead th.asset-col {
+      font-size: 0.85rem;
+    }
+
+    tbody td.icon-slot {
+      text-align: center;
+      width: 4.5rem;
+    }
+
+    .icon-glyph {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2rem;
+      min-height: 2rem;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--navy);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .icon-glyph.gu {
+      font-family: "Noto Sans TC", sans-serif;
+      font-size: 1.1rem;
     }
 
     .error-banner {
@@ -161,9 +185,9 @@
       <thead>
         <tr id="table-head-row">
           <th scope="col">飲料</th>
-          <th scope="col">杯圖</th>
-          <th scope="col">左裝飾葉</th>
-          <th scope="col">右裝飾葉</th>
+          <th scope="col" class="asset-col" data-col="cup">杯圖</th>
+          <th scope="col" class="asset-col">左裝飾葉</th>
+          <th scope="col" class="asset-col">右裝飾葉</th>
         </tr>
       </thead>
       <tbody id="table-body" aria-live="polite"></tbody>
@@ -210,29 +234,26 @@
         return map;
       }
 
-      function assignmentByNameZh(menu, regionId, byXimenRank, shapeByXimenRank) {
+      function iconAssignmentsByNameZh(menu, regionId, assignmentsByXimenRank) {
         var map = Object.create(null);
         (menu.items || []).forEach(function (item) {
           var r = item.regions && item.regions[regionId];
           if (!r || r.rank == null || !item.nameZh) return;
           var rankKey = String(r.rank);
-          if (!Object.prototype.hasOwnProperty.call(shapeByXimenRank, rankKey)) return;
-          map[item.nameZh] = {
-            shapeId: shapeByXimenRank[rankKey],
-            badge: byXimenRank[rankKey],
-          };
+          if (!Object.prototype.hasOwnProperty.call(assignmentsByXimenRank, rankKey)) return;
+          map[item.nameZh] = assignmentsByXimenRank[rankKey] || {};
         });
         return map;
       }
 
-      function renderShapeHeaders(shapeColumns) {
+      function renderIconHeaders(iconColumns) {
         var headRow = document.getElementById("table-head-row");
-        if (!headRow || !shapeColumns || !shapeColumns.length) return;
-        var cupTh = headRow.querySelector("th:nth-child(2)");
-        shapeColumns.forEach(function (col) {
+        if (!headRow || !iconColumns || !iconColumns.length) return;
+        var cupTh = headRow.querySelector('th[data-col="cup"]');
+        iconColumns.forEach(function (col) {
           var th = document.createElement("th");
           th.scope = "col";
-          th.className = "shape-col";
+          th.className = "icon-col";
           th.textContent = col.label || col.id;
           if (cupTh) headRow.insertBefore(th, cupTh);
         });
@@ -278,39 +299,53 @@
         );
       }
 
-      function shapeColumnCell(columnId, assignment, alt) {
-        if (!assignment || assignment.shapeId !== columnId) {
-          return '<td class="img-cell shape-slot"><span class="empty">—</span></td>';
+      function iconColumnCell(columnId, rowIcons, alt) {
+        var icon = rowIcons && rowIcons[columnId];
+        if (!icon) {
+          return '<td class="icon-slot"><span class="empty">—</span></td>';
         }
-        var badge = assignment.badge;
-        if (badge === null || badge === undefined) {
-          return '<td class="img-cell shape-slot"><span class="empty">—</span></td>';
-        }
-        if (badge.type === "colorDot") {
-          var color = escapeHtml(badge.color || "#8ab8ba");
+        if (icon.type === "colorDot") {
+          var color = escapeHtml(icon.color || "#8ab8ba");
           return (
-            '<td class="img-cell shape-slot"><span class="badge-dot" style="background-color:' +
+            '<td class="icon-slot"><span class="badge-dot" style="background-color:' +
             color +
-            '" title="CSS 圓點"></span></td>'
+            '" title="' +
+            escapeHtml(icon.title || "●冰飲") +
+            '"></span></td>'
           );
         }
-        if (badge.type === "image" && badge.url) {
-          var safeSrc = escapeHtml(badge.url);
-          var safeAlt = escapeHtml(alt);
+        if (icon.type === "glyph" && icon.glyph) {
+          var extra = icon.glyph === "固" || icon.glyph === "古" ? " gu" : "";
           return (
-            '<td class="img-cell shape-slot"><a href="' +
+            '<td class="icon-slot"><span class="icon-glyph' +
+            extra +
+            '" title="' +
+            escapeHtml(icon.title || icon.glyph) +
+            '">' +
+            escapeHtml(icon.glyph) +
+            "</span></td>"
+          );
+        }
+        if (icon.type === "image" && icon.url) {
+          var safeSrc = escapeHtml(icon.url);
+          var safeAlt = escapeHtml(alt);
+          var title = escapeHtml(icon.title || "開啟原圖");
+          return (
+            '<td class="icon-slot img-cell"><a href="' +
             safeSrc +
-            '" target="_blank" rel="noopener" title="開啟原圖"><img class="badge-img" src="' +
+            '" target="_blank" rel="noopener" title="' +
+            title +
+            '"><img class="badge-img" src="' +
             safeSrc +
             '" alt="' +
             safeAlt +
             '" loading="lazy" /></a></td>'
           );
         }
-        return '<td class="img-cell shape-slot"><span class="empty">—</span></td>';
+        return '<td class="icon-slot"><span class="empty">—</span></td>';
       }
 
-      function buildRow(entry, menuMap, shellMap, assignmentMap, shapeColumns) {
+      function buildRow(entry, menuMap, shellMap, iconMap, iconColumns) {
         var menuItem = menuMap[entry.nameZh] || null;
         var shell = shellMap[entry.nameZh] || null;
         var menuImage = menuItem && menuItem.image ? menuItem.image : "";
@@ -321,10 +356,10 @@
         var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
         var enHtml = escapeHtml(nameEn).replace(/\n/g, "<br/>");
 
-        var assignment = assignmentMap[entry.nameZh];
-        var shapeCells = (shapeColumns || [])
+        var rowIcons = iconMap[entry.nameZh];
+        var iconCells = (iconColumns || [])
           .map(function (col) {
-            return shapeColumnCell(col.id, assignment, entry.nameZh + " " + col.label);
+            return iconColumnCell(col.id, rowIcons, entry.nameZh + " " + col.label);
           })
           .join("");
 
@@ -335,7 +370,7 @@
           '</div><div class="name-en">' +
           enHtml +
           "</div></td>" +
-          shapeCells +
+          iconCells +
           imageCell(cupSrc, entry.nameZh + " 杯圖") +
           imageCell(leftLeaf, entry.nameZh + " 左裝飾葉") +
           imageCell(rightLeaf, entry.nameZh + " 右裝飾葉");
@@ -373,18 +408,13 @@
             var shellAssets = payload[2];
             var badgeAssets = payload[3];
             var shellByRank = (shellAssets && shellAssets.ranks) || {};
-            var byXimenRank = (badgeAssets && badgeAssets.byXimenRank) || {};
-            var shapeByXimenRank = (badgeAssets && badgeAssets.shapeByXimenRank) || {};
-            var shapeColumns = (badgeAssets && badgeAssets.shapeColumns) || [];
-            renderShapeHeaders(shapeColumns);
+            var iconColumns = (badgeAssets && badgeAssets.iconColumns) || [];
+            var assignmentsByXimenRank =
+              (badgeAssets && badgeAssets.assignmentsByXimenRank) || {};
+            renderIconHeaders(iconColumns);
             var menuMap = menuByZh(menu);
             var shellMap = shellByNameZh(menu, REGION, shellByRank);
-            var assignmentMap = assignmentByNameZh(
-              menu,
-              REGION,
-              byXimenRank,
-              shapeByXimenRank
-            );
+            var iconMap = iconAssignmentsByNameZh(menu, REGION, assignmentsByXimenRank);
             var items = dedupeCatalogItems(catalog.items);
             var tbody = document.getElementById("table-body");
             if (!tbody) return;
@@ -393,9 +423,7 @@
               return;
             }
             items.forEach(function (entry) {
-              tbody.appendChild(
-                buildRow(entry, menuMap, shellMap, assignmentMap, shapeColumns)
-              );
+              tbody.appendChild(buildRow(entry, menuMap, shellMap, iconMap, iconColumns));
             });
           })
           .catch(function (err) {

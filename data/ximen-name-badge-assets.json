@@ -1,72 +1,43 @@
 {
-  "description": "Right-panel RCname::after from teatop_Ximen — grouped by four shape types (color variants = same shape).",
-  "shapeColumns": [
-    {
-      "id": "hotSingle",
-      "label": "熱飲蒸氣（單圖）"
-    },
-    {
-      "id": "comboWide",
-      "label": "三連寬標"
-    },
-    {
-      "id": "guSquare",
-      "label": "「古」方框（單）"
-    },
-    {
-      "id": "colorDot",
-      "label": "純色圓點"
-    }
+  "description": "Ximen RCname suffix icons as four independent columns (teatop_Ximen). Same shape, different color = same column type.",
+  "iconColumns": [
+    { "id": "hot", "label": "♨熱飲" },
+    { "id": "fixedSweet", "label": "∅甜度固定" },
+    { "id": "fixedSolid", "label": "固 不可更改" },
+    { "id": "iced", "label": "●冰飲" }
   ],
-  "shapeByXimenRank": {
-    "1": "hotSingle",
-    "2": "hotSingle",
-    "3": "hotSingle",
-    "4": "comboWide",
-    "5": "hotSingle",
-    "6": "guSquare",
-    "7": "colorDot",
-    "8": null,
-    "9": "comboWide",
-    "10": "hotSingle"
-  },
-  "byXimenRank": {
+  "assignmentsByXimenRank": {
     "1": {
-      "type": "image",
-      "url": "https://i.imgur.com/jefyVWB.png"
+      "hot": { "type": "image", "url": "https://i.imgur.com/jefyVWB.png" }
     },
     "2": {
-      "type": "image",
-      "url": "https://i.imgur.com/jefyVWB.png"
+      "hot": { "type": "image", "url": "https://i.imgur.com/jefyVWB.png" }
     },
     "3": {
-      "type": "image",
-      "url": "https://i.imgur.com/jefyVWB.png"
+      "hot": { "type": "image", "url": "https://i.imgur.com/jefyVWB.png" }
     },
     "4": {
-      "type": "image",
-      "url": "https://i.imgur.com/sMPtqn2.png"
+      "hot": { "type": "image", "url": "https://i.imgur.com/jefyVWB.png" },
+      "fixedSweet": { "type": "glyph", "glyph": "∅", "title": "甜度固定（三連標左）" },
+      "fixedSolid": { "type": "image", "url": "https://i.imgur.com/2v5oNuM.png", "title": "「古」方框（三連標右）" }
     },
     "5": {
-      "type": "image",
-      "url": "https://i.imgur.com/jefyVWB.png"
+      "hot": { "type": "image", "url": "https://i.imgur.com/jefyVWB.png" }
     },
     "6": {
-      "type": "image",
-      "url": "https://i.imgur.com/2v5oNuM.png"
+      "fixedSolid": { "type": "image", "url": "https://i.imgur.com/2v5oNuM.png", "title": "「古」方框" }
     },
     "7": {
-      "type": "colorDot",
-      "color": "rgb(138, 184, 186)"
+      "iced": { "type": "colorDot", "color": "rgb(138, 184, 186)" }
     },
-    "8": null,
+    "8": {},
     "9": {
-      "type": "image",
-      "url": "https://i.imgur.com/oWT18Dm.png"
+      "hot": { "type": "image", "url": "https://i.imgur.com/jefyVWB.png" },
+      "fixedSweet": { "type": "glyph", "glyph": "∅", "title": "甜度固定（三連標左）" },
+      "fixedSolid": { "type": "glyph", "glyph": "固", "title": "「固」字（三連標右）" }
     },
     "10": {
-      "type": "image",
-      "url": "https://i.imgur.com/2iKWyLF.png"
+      "hot": { "type": "image", "url": "https://i.imgur.com/2iKWyLF.png" }
     }
   }
 }
