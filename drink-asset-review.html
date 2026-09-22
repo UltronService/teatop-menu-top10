@@ -71,10 +71,6 @@
       line-height: 1.35;
     }
 
-    .col-en {
-      display: none;
-    }
-
     .img-cell {
       text-align: center;
       width: 120px;
@@ -99,9 +95,25 @@
       object-fit: contain;
     }
 
-    .img-cell .empty {
+    .img-cell .badge-dot {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .img-cell .badge-caption {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.65rem;
       color: var(--muted);
-      font-size: 0.85rem;
+    }
+
+    .img-cell img.badge-img {
+      max-width: 72px;
+      max-height: 32px;
+      object-fit: contain;
     }
 
     .error-banner {
@@ -131,6 +143,7 @@
       <thead>
         <tr>
           <th scope="col">飲料</th>
+          <th scope="col">品名後小圖示</th>
           <th scope="col">杯圖</th>
           <th scope="col">左裝飾葉</th>
           <th scope="col">右裝飾葉</th>
@@ -180,6 +193,18 @@
         return map;
       }
 
+      function badgeByNameZh(menu, regionId, byXimenRank) {
+        var map = Object.create(null);
+        (menu.items || []).forEach(function (item) {
+          var r = item.regions && item.regions[regionId];
+          if (!r || r.rank == null || !item.nameZh) return;
+          var badge = byXimenRank[String(r.rank)];
+          if (badge === undefined) return;
+          map[item.nameZh] = badge;
+        });
+        return map;
+      }
+
       function dedupeCatalogItems(items) {
         var seen = Object.create(null);
         var out = [];
@@ -220,7 +245,35 @@
         );
       }
 
-      function buildRow(entry, menuMap, shellMap) {
+      function badgeCell(badge, alt) {
+        if (badge === null || badge === undefined) {
+          return '<td class="img-cell"><span class="empty">—</span></td>';
+        }
+        if (badge.type === "colorDot") {
+          var color = escapeHtml(badge.color || "#8ab8ba");
+          return (
+            '<td class="img-cell"><span class="badge-dot" style="background-color:' +
+            color +
+            '" title="CSS 圓點"></span><span class="badge-caption">CSS 圓點</span></td>'
+          );
+        }
+        if (badge.type === "image" && badge.url) {
+          var safeSrc = escapeHtml(badge.url);
+          var safeAlt = escapeHtml(alt + " 品名後小圖示");
+          return (
+            '<td class="img-cell"><a href="' +
+            safeSrc +
+            '" target="_blank" rel="noopener" title="開啟原圖"><img class="badge-img" src="' +
+            safeSrc +
+            '" alt="' +
+            safeAlt +
+            '" loading="lazy" /></a></td>'
+          );
+        }
+        return '<td class="img-cell"><span class="empty">—</span></td>';
+      }
+
+      function buildRow(entry, menuMap, shellMap, badgeMap) {
         var menuItem = menuMap[entry.nameZh] || null;
         var shell = shellMap[entry.nameZh] || null;
         var menuImage = menuItem && menuItem.image ? menuItem.image : "";
@@ -231,6 +284,8 @@
         var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
         var enHtml = escapeHtml(nameEn).replace(/\n/g, "<br/>");
 
+        var badge = badgeMap[entry.nameZh];
+
         var tr = document.createElement("tr");
         tr.innerHTML =
           '<td class="col-drink"><div class="name-zh">' +
@@ -238,6 +293,7 @@
           '</div><div class="name-en">' +
           enHtml +
           "</div></td>" +
+          badgeCell(badge, entry.nameZh) +
           imageCell(cupSrc, entry.nameZh + " 杯圖") +
           imageCell(leftLeaf, entry.nameZh + " 左裝飾葉") +
           imageCell(rightLeaf, entry.nameZh + " 右裝飾葉");
@@ -249,6 +305,7 @@
           fetch(ASSET_ROOT + "data/client-drink-catalog.json", { cache: "no-cache" }),
           fetch(ASSET_ROOT + "data/menu.json", { cache: "no-cache" }),
           fetch(ASSET_ROOT + "data/ximen-animation-assets.json", { cache: "no-cache" }),
+          fetch(ASSET_ROOT + "data/ximen-name-badge-assets.json", { cache: "no-cache" }),
         ])
           .then(function (responses) {
             if (!responses[0].ok) {
@@ -258,19 +315,26 @@
             if (!responses[2].ok) {
               throw new Error("ximen-animation-assets.json HTTP " + responses[2].status);
             }
+            if (!responses[3].ok) {
+              throw new Error("ximen-name-badge-assets.json HTTP " + responses[3].status);
+            }
             return Promise.all([
               responses[0].json(),
               responses[1].json(),
               responses[2].json(),
+              responses[3].json(),
             ]);
           })
           .then(function (payload) {
             var catalog = payload[0];
             var menu = payload[1];
             var shellAssets = payload[2];
+            var badgeAssets = payload[3];
             var shellByRank = (shellAssets && shellAssets.ranks) || {};
+            var byXimenRank = (badgeAssets && badgeAssets.byXimenRank) || {};
             var menuMap = menuByZh(menu);
             var shellMap = shellByNameZh(menu, REGION, shellByRank);
+            var badgeMap = badgeByNameZh(menu, REGION, byXimenRank);
             var items = dedupeCatalogItems(catalog.items);
             var tbody = document.getElementById("table-body");
             if (!tbody) return;
@@ -279,7 +343,7 @@
               return;
             }
             items.forEach(function (entry) {
-              tbody.appendChild(buildRow(entry, menuMap, shellMap));
+              tbody.appendChild(buildRow(entry, menuMap, shellMap, badgeMap));
             });
           })
           .catch(function (err) {

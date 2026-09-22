@@ -1,0 +1,45 @@
+{
+  "description": "Right-panel RCname::after badges from teatop_Ximen style.css (ximen TOP10 row 01–10 only).",
+  "byXimenRank": {
+    "1": {
+      "type": "image",
+      "url": "https://i.imgur.com/jefyVWB.png",
+      "note": "R01–R03、R05 共用"
+    },
+    "2": {
+      "type": "image",
+      "url": "https://i.imgur.com/jefyVWB.png"
+    },
+    "3": {
+      "type": "image",
+      "url": "https://i.imgur.com/jefyVWB.png"
+    },
+    "4": {
+      "type": "image",
+      "url": "https://i.imgur.com/sMPtqn2.png",
+      "note": "R04 較寬"
+    },
+    "5": {
+      "type": "image",
+      "url": "https://i.imgur.com/jefyVWB.png"
+    },
+    "6": {
+      "type": "image",
+      "url": "https://i.imgur.com/2v5oNuM.png"
+    },
+    "7": {
+      "type": "colorDot",
+      "color": "rgb(138, 184, 186)",
+      "note": "R07 CSS 圓點，非圖檔"
+    },
+    "8": null,
+    "9": {
+      "type": "image",
+      "url": "https://i.imgur.com/oWT18Dm.png"
+    },
+    "10": {
+      "type": "image",
+      "url": "https://i.imgur.com/2iKWyLF.png"
+    }
+  }
+}
