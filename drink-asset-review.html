@@ -210,6 +210,141 @@
       border-radius: 8px;
     }
 
+    button.leaf-picker {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 5.5rem;
+      margin: 0;
+      padding: 0.35rem;
+      border: 2px dashed #cfc5b8;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      gap: 0.25rem;
+    }
+
+    button.leaf-picker:hover {
+      border-color: #ec6f09;
+    }
+
+    button.leaf-picker img {
+      max-width: 72px;
+      max-height: 56px;
+      object-fit: contain;
+    }
+
+    button.leaf-picker .leaf-picker-label {
+      font-size: 0.62rem;
+      color: var(--muted);
+      line-height: 1.2;
+      max-width: 100%;
+    }
+
+    .leaf-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .leaf-modal[hidden] {
+      display: none;
+    }
+
+    .leaf-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 47, 84, 0.45);
+    }
+
+    .leaf-modal-panel {
+      position: relative;
+      z-index: 1;
+      width: min(640px, 100%);
+      max-height: min(85vh, 720px);
+      overflow: auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem 1rem 1.25rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .leaf-modal-panel h2 {
+      margin: 0 2rem 0.75rem 0;
+      font-size: 1rem;
+    }
+
+    .leaf-modal-close {
+      position: absolute;
+      top: 0.65rem;
+      right: 0.65rem;
+      border: none;
+      background: #f5f3ef;
+      border-radius: 6px;
+      width: 2rem;
+      height: 2rem;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .leaf-option-none {
+      display: block;
+      width: 100%;
+      margin-bottom: 0.75rem;
+      padding: 0.65rem;
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #faf8f5;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .leaf-option-none:hover {
+      border-color: #ec6f09;
+    }
+
+    .leaf-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .leaf-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem 0.35rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.72rem;
+      gap: 0.35rem;
+    }
+
+    .leaf-option:hover,
+    .leaf-option.is-selected {
+      border-color: #ec6f09;
+      background: #fff8f0;
+    }
+
+    .leaf-option img {
+      width: 72px;
+      height: 56px;
+      object-fit: contain;
+    }
+
     @media print {
       main {
         padding: 0;
@@ -235,6 +370,15 @@
       </thead>
       <tbody id="table-body" aria-live="polite"></tbody>
     </table>
+    <div id="leaf-picker-modal" class="leaf-modal" hidden role="dialog" aria-modal="true" aria-labelledby="leaf-picker-title">
+      <div class="leaf-modal-backdrop" data-leaf-dismiss="1"></div>
+      <div class="leaf-modal-panel">
+        <button type="button" class="leaf-modal-close" data-leaf-dismiss="1" aria-label="關閉">×</button>
+        <h2 id="leaf-picker-title">選擇裝飾葉</h2>
+        <button type="button" class="leaf-option-none" data-leaf-id="none">沒有裝飾葉素材</button>
+        <div id="leaf-picker-grid" class="leaf-picker-grid"></div>
+      </div>
+    </div>
   </main>
   <script>
     (function () {
@@ -243,8 +387,13 @@
       var REGION = "ximen";
       var ASSET_ROOT = "./";
       var TOGGLE_STORAGE_KEY = "teatop-drink-icon-toggles-v1";
+      var LEAF_STORAGE_KEY = "teatop-drink-leaf-picks-v1";
 
       var iconColumnDefaults = Object.create(null);
+      var leafCatalogList = [];
+      var leafById = Object.create(null);
+      var leafPickerContext = null;
+      var savedLeafPicks = Object.create(null);
 
       function resolveImage(rel) {
         if (!rel) return "";
@@ -325,6 +474,194 @@
         if (!el) return;
         el.hidden = false;
         el.textContent = msg;
+      }
+
+      function loadLeafStorage() {
+        try {
+          var raw = localStorage.getItem(LEAF_STORAGE_KEY);
+          if (!raw) return Object.create(null);
+          var parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return Object.create(null);
+          return parsed;
+        } catch (e) {
+          return Object.create(null);
+        }
+      }
+
+      function saveLeafStorage(state) {
+        try {
+          localStorage.setItem(LEAF_STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          /* ignore */
+        }
+      }
+
+      function leafStorageKey(nameZh, slot) {
+        return nameZh + "|" + slot;
+      }
+
+      function indexLeafCatalog(catalog) {
+        leafCatalogList = catalog || [];
+        leafById = Object.create(null);
+        leafCatalogList.forEach(function (item) {
+          if (item && item.id) leafById[item.id] = item;
+        });
+      }
+
+      function leafIdForUrl(url) {
+        if (!url) return "none";
+        for (var i = 0; i < leafCatalogList.length; i++) {
+          if (leafCatalogList[i].url === url) return leafCatalogList[i].id;
+        }
+        return "none";
+      }
+
+      function initialLeafId(nameZh, slot, shell, saved) {
+        var key = leafStorageKey(nameZh, slot);
+        if (Object.prototype.hasOwnProperty.call(saved, key)) {
+          var v = saved[key];
+          if (v === "none" || leafById[v]) return v;
+        }
+        if (!shell) return "none";
+        var url = slot === "leftLeaf" ? shell.leftLeaf : shell.rightLeaf;
+        return leafIdForUrl(url);
+      }
+
+      function renderLeafPickerButton(btn, leafId) {
+        btn.innerHTML = "";
+        if (!leafId || leafId === "none") {
+          var empty = document.createElement("span");
+          empty.className = "toggle-off";
+          empty.textContent = "—";
+          btn.appendChild(empty);
+          var cap = document.createElement("span");
+          cap.className = "leaf-picker-label";
+          cap.textContent = "沒有裝飾葉素材";
+          btn.appendChild(cap);
+          btn.title = "點擊選擇裝飾葉";
+          return;
+        }
+        var leaf = leafById[leafId];
+        if (!leaf) {
+          btn.textContent = "—";
+          return;
+        }
+        var img = document.createElement("img");
+        img.src = leaf.url;
+        img.alt = leaf.label;
+        img.loading = "lazy";
+        btn.appendChild(img);
+        var label = document.createElement("span");
+        label.className = "leaf-picker-label";
+        label.textContent = leaf.label;
+        btn.appendChild(label);
+        btn.title = "目前：" + leaf.label + "（點擊更換）";
+      }
+
+      function createLeafPickerCell(nameZh, slot, slotLabel, shell, saved) {
+        var td = document.createElement("td");
+        td.className = "img-cell";
+        var leafId = initialLeafId(nameZh, slot, shell, saved);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "leaf-picker";
+        btn.setAttribute("data-drink-zh", nameZh);
+        btn.setAttribute("data-leaf-slot", slot);
+        btn.setAttribute("data-leaf-id", leafId);
+        renderLeafPickerButton(btn, leafId);
+        td.appendChild(btn);
+        return td;
+      }
+
+      function closeLeafPickerModal() {
+        var modal = document.getElementById("leaf-picker-modal");
+        if (modal) modal.hidden = true;
+        leafPickerContext = null;
+      }
+
+      function applyLeafSelection(nameZh, slot, leafId, targetBtn) {
+        savedLeafPicks[leafStorageKey(nameZh, slot)] = leafId;
+        saveLeafStorage(savedLeafPicks);
+        var btn = targetBtn;
+        if (!btn && typeof CSS !== "undefined" && CSS.escape) {
+          btn = document.querySelector(
+            'button.leaf-picker[data-drink-zh="' +
+              CSS.escape(nameZh) +
+              '"][data-leaf-slot="' +
+              slot +
+              '"]'
+          );
+        }
+        if (btn) {
+          btn.setAttribute("data-leaf-id", leafId);
+          renderLeafPickerButton(btn, leafId);
+        }
+      }
+
+      function openLeafPickerModal(nameZh, slot, slotLabel) {
+        var modal = document.getElementById("leaf-picker-modal");
+        var grid = document.getElementById("leaf-picker-grid");
+        var title = document.getElementById("leaf-picker-title");
+        if (!modal || !grid || !title) return;
+        var currentBtn = document.querySelector(
+          'button.leaf-picker[data-drink-zh="' +
+            CSS.escape(nameZh) +
+            '"][data-leaf-slot="' +
+            slot +
+            '"]'
+        );
+        var currentId =
+          (currentBtn && currentBtn.getAttribute("data-leaf-id")) || "none";
+        leafPickerContext = { nameZh: nameZh, slot: slot, button: currentBtn };
+        title.textContent =
+          nameZh + " · " + slotLabel + "（共 " + leafCatalogList.length + " 種可選）";
+        grid.innerHTML = "";
+        leafCatalogList.forEach(function (leaf) {
+          var opt = document.createElement("button");
+          opt.type = "button";
+          opt.className = "leaf-option";
+          if (leaf.id === currentId) opt.classList.add("is-selected");
+          opt.setAttribute("data-leaf-id", leaf.id);
+          opt.innerHTML =
+            '<img src="' +
+            escapeHtml(leaf.url) +
+            '" alt="" loading="lazy" /><span>' +
+            escapeHtml(leaf.label) +
+            "</span>";
+          grid.appendChild(opt);
+        });
+        modal.hidden = false;
+      }
+
+      function wireLeafPickerTable(tbody) {
+        if (!tbody) return;
+        tbody.addEventListener("click", function (event) {
+          var btn = event.target.closest("button.leaf-picker");
+          if (!btn || !tbody.contains(btn)) return;
+          var nameZh = btn.getAttribute("data-drink-zh") || "";
+          var slot = btn.getAttribute("data-leaf-slot") || "";
+          var slotLabel = slot === "leftLeaf" ? "左裝飾葉" : "右裝飾葉";
+          openLeafPickerModal(nameZh, slot, slotLabel);
+        });
+
+        var modal = document.getElementById("leaf-picker-modal");
+        if (!modal) return;
+        modal.addEventListener("click", function (event) {
+          if (event.target.getAttribute("data-leaf-dismiss") === "1") {
+            closeLeafPickerModal();
+            return;
+          }
+          var pick = event.target.closest("[data-leaf-id]");
+          if (!pick || !leafPickerContext) return;
+          var leafId = pick.getAttribute("data-leaf-id") || "none";
+          applyLeafSelection(
+            leafPickerContext.nameZh,
+            leafPickerContext.slot,
+            leafId,
+            leafPickerContext.button
+          );
+          closeLeafPickerModal();
+        });
       }
 
       function loadToggleStorage() {
@@ -476,14 +813,12 @@
         );
       }
 
-      function buildRow(entry, menuMap, shellMap, iconMap, iconColumns, saved) {
+      function buildRow(entry, menuMap, shellMap, iconMap, iconColumns, saved, savedLeaves) {
         var menuItem = menuMap[entry.nameZh] || null;
         var shell = shellMap[entry.nameZh] || null;
         var menuImage = menuItem && menuItem.image ? menuItem.image : "";
         var cupSrc = menuImage ? resolveImage(menuImage) : "";
         if (!cupSrc && shell && shell.cupShell) cupSrc = shell.cupShell;
-        var leftLeaf = shell && shell.leftLeaf ? shell.leftLeaf : "";
-        var rightLeaf = shell && shell.rightLeaf ? shell.rightLeaf : "";
         var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
         var enHtml = escapeHtml(nameEn).replace(/\n/g, "<br/>");
         var rowIcons = iconMap[entry.nameZh];
@@ -513,13 +848,16 @@
           );
         });
 
-        var assetHtml =
-          imageCell(cupSrc, entry.nameZh + " 杯圖") +
-          imageCell(leftLeaf, entry.nameZh + " 左裝飾葉") +
-          imageCell(rightLeaf, entry.nameZh + " 右裝飾葉");
-        var wrap = document.createElement("template");
-        wrap.innerHTML = assetHtml;
-        while (wrap.content.firstChild) tr.appendChild(wrap.content.firstChild);
+        var cupWrap = document.createElement("template");
+        cupWrap.innerHTML = imageCell(cupSrc, entry.nameZh + " 杯圖");
+        tr.appendChild(cupWrap.content.firstChild);
+
+        tr.appendChild(
+          createLeafPickerCell(entry.nameZh, "leftLeaf", "左裝飾葉", shell, savedLeaves)
+        );
+        tr.appendChild(
+          createLeafPickerCell(entry.nameZh, "rightLeaf", "右裝飾葉", shell, savedLeaves)
+        );
 
         return tr;
       }
@@ -559,6 +897,8 @@
             var assignmentsByXimenRank =
               (badgeAssets && badgeAssets.assignmentsByXimenRank) || {};
             iconColumnDefaults = (badgeAssets && badgeAssets.iconColumnDefaults) || {};
+            indexLeafCatalog(shellAssets.leafCatalog || []);
+            savedLeafPicks = loadLeafStorage();
             var savedToggles = loadToggleStorage();
             renderIconHeaders(iconColumns);
             var menuMap = menuByZh(menu);
@@ -572,9 +912,18 @@
               return;
             }
             wireIconToggleTable(tbody, savedToggles);
+            wireLeafPickerTable(tbody);
             items.forEach(function (entry) {
               tbody.appendChild(
-                buildRow(entry, menuMap, shellMap, iconMap, iconColumns, savedToggles)
+                buildRow(
+                  entry,
+                  menuMap,
+                  shellMap,
+                  iconMap,
+                  iconColumns,
+                  savedToggles,
+                  savedLeafPicks
+                )
               );
             });
           })

@@ -26,5 +26,17 @@
       "rightLeaf": "https://i.imgur.com/4PcTEKD.png",
       "cupShell": "https://i.imgur.com/UTPFuE9.png"
     }
-  }
+  },
+  "leafCatalog": [
+    { "id": "leaf-l-top1", "label": "TOP1 左葉", "side": "left", "url": "https://i.imgur.com/R7brK8S.png" },
+    { "id": "leaf-l-top2", "label": "TOP2 左葉", "side": "left", "url": "https://i.imgur.com/Y3DDstp.png" },
+    { "id": "leaf-l-top3", "label": "TOP3 左葉", "side": "left", "url": "https://i.imgur.com/qrYlB89.png" },
+    { "id": "leaf-l-top4", "label": "TOP4 左葉", "side": "left", "url": "https://i.imgur.com/piFJe3D.png" },
+    { "id": "leaf-l-top5", "label": "TOP5 左葉", "side": "left", "url": "https://i.imgur.com/j4oDo4K.png" },
+    { "id": "leaf-r-top1", "label": "TOP1 右葉", "side": "right", "url": "https://i.imgur.com/VQoiPLZ.png" },
+    { "id": "leaf-r-top2", "label": "TOP2 右葉", "side": "right", "url": "https://i.imgur.com/20VAs4D.png" },
+    { "id": "leaf-r-top3", "label": "TOP3 右葉", "side": "right", "url": "https://i.imgur.com/WdBACx1.png" },
+    { "id": "leaf-r-top4", "label": "TOP4 右葉", "side": "right", "url": "https://i.imgur.com/DVVeo5S.png" },
+    { "id": "leaf-r-top5", "label": "TOP5 右葉", "side": "right", "url": "https://i.imgur.com/4PcTEKD.png" }
+  ]
 }
