@@ -121,7 +121,7 @@
     {
       "id": "beixiang-fenjiao-jinxuan",
       "nameZh": "焙香粉角金萱",
-      "nameEn": "Roasted Jin Xuan with Taro Balls",
+      "nameEn": "Jin Xuan Oolong Tea with 108 Roasted Oolong Tapioca Cubes",
       "image": "images/drinks/焙香粉角金萱.png",
       "regions": {
         "central": {
@@ -149,7 +149,7 @@
     {
       "id": "hongcha-xiannaicha",
       "nameZh": "紅茶鮮奶茶",
-      "nameEn": "Black Tea Fresh Milk Tea",
+      "nameEn": "Black Tea Latte",
       "image": "images/drinks/紅茶鮮奶茶.png",
       "regions": {
         "central": {
@@ -237,7 +237,7 @@
     {
       "id": "xianzha-108",
       "nameZh": "仙楂108",
-      "nameEn": "108 Roasted Oolong with Hawthorn",
+      "nameEn": "Hawthorn 108 Roasted Oolong Tea",
       "image": "images/drinks/仙楂108.png",
       "regions": {
         "central": {
@@ -265,7 +265,7 @@
     {
       "id": "qiaomai-fenguo",
       "nameZh": "蕎麥粉粿",
-      "nameEn": "Buckwheat Jelly Drink",
+      "nameEn": "Buckwheat Tea with Jelly",
       "image": "images/drinks/蕎麥粉粿.png",
       "regions": {
         "central": {
@@ -293,7 +293,7 @@
     {
       "id": "hongmi-cha",
       "nameZh": "轟蜜茶",
-      "nameEn": "Honey Tea",
+      "nameEn": "Honey Tea with Tea Jelly (Choice of Tea Base)",
       "image": "images/drinks/轟蜜茶.png",
       "regions": {
         "central": {
@@ -313,7 +313,7 @@
     {
       "id": "riyuetan-xiannaicha",
       "nameZh": "日月潭鮮奶茶",
-      "nameEn": "Sun Moon Lake Fresh Milk Tea",
+      "nameEn": "Sun Moon Lake Black Tea Latte",
       "image": "images/drinks/日月潭鮮奶茶.png",
       "regions": {
         "central-smart": {
@@ -381,7 +381,7 @@
     {
       "id": "donggua-ningmeng",
       "nameZh": "冬瓜檸檬",
-      "nameEn": "Winter Melon Lemon Tea",
+      "nameEn": "Winter Melon Drink with Lemon Juice",
       "image": "images/drinks/冬瓜檸檬.png",
       "regions": {
         "mrt-tamsui": {
@@ -393,7 +393,7 @@
     {
       "id": "108-beiwulong-naicha",
       "nameZh": "108焙烏龍奶茶",
-      "nameEn": "108 Roasted Oolong Milk Tea",
+      "nameEn": "108 Roasted Oolong Creamer Milk Tea",
       "image": "images/drinks/108焙烏龍奶茶.png",
       "regions": {
         "mrt-tamsui": {
@@ -417,7 +417,7 @@
     {
       "id": "ganzhe-qingliao",
       "nameZh": "甘蔗青了",
-      "nameEn": "Sugarcane Green Tea",
+      "nameEn": "Sugar Cane Light Oolong Tea",
       "image": "images/drinks/甘蔗青了.png",
       "regions": {
         "mrt-tamsui": {
