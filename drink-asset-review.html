@@ -137,6 +137,42 @@
     tbody td.icon-slot {
       text-align: center;
       width: 4.5rem;
+      padding: 0.35rem;
+    }
+
+    button.icon-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 3.1rem;
+      margin: 0;
+      padding: 0.25rem;
+      border: 2px dashed #cfc5b8;
+      border-radius: 8px;
+      background: #f5f3ef;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    button.icon-toggle:hover {
+      border-color: #ec6f09;
+    }
+
+    button.icon-toggle[aria-pressed="true"] {
+      border-style: solid;
+      border-color: #ec6f09;
+      background: #fff8f0;
+      box-shadow: inset 0 0 0 1px rgba(236, 111, 9, 0.15);
+    }
+
+    button.icon-toggle .toggle-off {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    button.icon-toggle img.badge-img {
+      pointer-events: none;
     }
 
     .icon-glyph {
@@ -204,6 +240,9 @@
 
       var REGION = "ximen";
       var ASSET_ROOT = "./";
+      var TOGGLE_STORAGE_KEY = "teatop-drink-icon-toggles-v1";
+
+      var iconColumnDefaults = Object.create(null);
 
       function resolveImage(rel) {
         if (!rel) return "";
@@ -286,6 +325,135 @@
         el.textContent = msg;
       }
 
+      function loadToggleStorage() {
+        try {
+          var raw = localStorage.getItem(TOGGLE_STORAGE_KEY);
+          if (!raw) return Object.create(null);
+          var parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return Object.create(null);
+          return parsed;
+        } catch (e) {
+          return Object.create(null);
+        }
+      }
+
+      function saveToggleStorage(state) {
+        try {
+          localStorage.setItem(TOGGLE_STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          /* ignore quota / private mode */
+        }
+      }
+
+      function toggleStorageKey(nameZh, columnId) {
+        return nameZh + "|" + columnId;
+      }
+
+      function iconDefForColumn(columnId, rowIcons) {
+        if (rowIcons && rowIcons[columnId]) return rowIcons[columnId];
+        return iconColumnDefaults[columnId] || null;
+      }
+
+      function initialToggleOn(nameZh, columnId, rowIcons, saved) {
+        var key = toggleStorageKey(nameZh, columnId);
+        if (Object.prototype.hasOwnProperty.call(saved, key)) {
+          return saved[key] === true;
+        }
+        return !!(rowIcons && rowIcons[columnId]);
+      }
+
+      function renderToggleInner(button, iconDef, isOn) {
+        button.innerHTML = "";
+        if (!isOn) {
+          var off = document.createElement("span");
+          off.className = "toggle-off";
+          off.textContent = "—";
+          button.appendChild(off);
+          return;
+        }
+        if (!iconDef) {
+          var missing = document.createElement("span");
+          missing.className = "toggle-off";
+          missing.textContent = "—";
+          button.appendChild(missing);
+          return;
+        }
+        if (iconDef.type === "colorDot") {
+          var dot = document.createElement("span");
+          dot.className = "badge-dot";
+          dot.style.backgroundColor = iconDef.color || "rgb(138, 184, 186)";
+          dot.title = iconDef.title || "●冰飲";
+          button.appendChild(dot);
+          return;
+        }
+        if (iconDef.type === "glyph" && iconDef.glyph) {
+          var glyph = document.createElement("span");
+          glyph.className = "icon-glyph";
+          if (iconDef.glyph === "固" || iconDef.glyph === "古") glyph.classList.add("gu");
+          glyph.textContent = iconDef.glyph;
+          glyph.title = iconDef.title || iconDef.glyph;
+          button.appendChild(glyph);
+          return;
+        }
+        if (iconDef.type === "image" && iconDef.url) {
+          var img = document.createElement("img");
+          img.className = "badge-img";
+          img.src = iconDef.url;
+          img.alt = button.getAttribute("data-drink-zh") || "";
+          img.loading = "lazy";
+          img.title = iconDef.title || "";
+          button.appendChild(img);
+        }
+      }
+
+      function createIconToggleCell(nameZh, columnId, columnLabel, rowIcons, saved) {
+        var td = document.createElement("td");
+        td.className = "icon-slot";
+        var iconDef = iconDefForColumn(columnId, rowIcons);
+        var isOn = initialToggleOn(nameZh, columnId, rowIcons, saved);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "icon-toggle";
+        btn.setAttribute("aria-pressed", isOn ? "true" : "false");
+        btn.setAttribute("data-drink-zh", nameZh);
+        btn.setAttribute("data-column-id", columnId);
+        btn.title = (isOn ? "關閉" : "開啟") + "：" + columnLabel;
+        if (iconDef) {
+          btn.setAttribute("data-icon-def", JSON.stringify(iconDef));
+        }
+        renderToggleInner(btn, iconDef, isOn);
+        td.appendChild(btn);
+        return td;
+      }
+
+      function wireIconToggleTable(tbody, saved) {
+        if (!tbody) return;
+        tbody.addEventListener("click", function (event) {
+          var btn = event.target.closest("button.icon-toggle");
+          if (!btn || !tbody.contains(btn)) return;
+          var isOn = btn.getAttribute("aria-pressed") === "true";
+          var next = !isOn;
+          var nameZh = btn.getAttribute("data-drink-zh") || "";
+          var columnId = btn.getAttribute("data-column-id") || "";
+          var iconDef = null;
+          try {
+            var raw = btn.getAttribute("data-icon-def");
+            if (raw) iconDef = JSON.parse(raw);
+          } catch (e) {
+            iconDef = iconColumnDefaults[columnId] || null;
+          }
+          if (!iconDef) iconDef = iconColumnDefaults[columnId] || null;
+          btn.setAttribute("aria-pressed", next ? "true" : "false");
+          var label = btn.title.split("：").pop() || columnId;
+          btn.title = (next ? "關閉" : "開啟") + "：" + label;
+          renderToggleInner(btn, iconDef, next);
+          if (nameZh && columnId) {
+            saved[toggleStorageKey(nameZh, columnId)] = next;
+            saveToggleStorage(saved);
+          }
+        });
+      }
+
       function imageCell(src, alt) {
         if (!src) {
           return '<td class="img-cell"><span class="empty">—</span></td>';
@@ -304,53 +472,7 @@
         );
       }
 
-      function iconColumnCell(columnId, rowIcons, alt) {
-        var icon = rowIcons && rowIcons[columnId];
-        if (!icon) {
-          return '<td class="icon-slot"><span class="empty">—</span></td>';
-        }
-        if (icon.type === "colorDot") {
-          var color = escapeHtml(icon.color || "#8ab8ba");
-          return (
-            '<td class="icon-slot"><span class="badge-dot" style="background-color:' +
-            color +
-            '" title="' +
-            escapeHtml(icon.title || "●冰飲") +
-            '"></span></td>'
-          );
-        }
-        if (icon.type === "glyph" && icon.glyph) {
-          var extra = icon.glyph === "固" || icon.glyph === "古" ? " gu" : "";
-          return (
-            '<td class="icon-slot"><span class="icon-glyph' +
-            extra +
-            '" title="' +
-            escapeHtml(icon.title || icon.glyph) +
-            '">' +
-            escapeHtml(icon.glyph) +
-            "</span></td>"
-          );
-        }
-        if (icon.type === "image" && icon.url) {
-          var safeSrc = escapeHtml(icon.url);
-          var safeAlt = escapeHtml(alt);
-          var title = escapeHtml(icon.title || "開啟原圖");
-          return (
-            '<td class="icon-slot img-cell"><a href="' +
-            safeSrc +
-            '" target="_blank" rel="noopener" title="' +
-            title +
-            '"><img class="badge-img" src="' +
-            safeSrc +
-            '" alt="' +
-            safeAlt +
-            '" loading="lazy" /></a></td>'
-          );
-        }
-        return '<td class="icon-slot"><span class="empty">—</span></td>';
-      }
-
-      function buildRow(entry, menuMap, shellMap, iconMap, iconColumns) {
+      function buildRow(entry, menuMap, shellMap, iconMap, iconColumns, saved) {
         var menuItem = menuMap[entry.nameZh] || null;
         var shell = shellMap[entry.nameZh] || null;
         var menuImage = menuItem && menuItem.image ? menuItem.image : "";
@@ -360,25 +482,41 @@
         var rightLeaf = shell && shell.rightLeaf ? shell.rightLeaf : "";
         var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
         var enHtml = escapeHtml(nameEn).replace(/\n/g, "<br/>");
-
         var rowIcons = iconMap[entry.nameZh];
-        var iconCells = (iconColumns || [])
-          .map(function (col) {
-            return iconColumnCell(col.id, rowIcons, entry.nameZh + " " + col.label);
-          })
-          .join("");
 
         var tr = document.createElement("tr");
-        tr.innerHTML =
-          '<td class="col-drink"><div class="name-zh">' +
+        tr.setAttribute("data-drink-zh", entry.nameZh);
+
+        var drinkTd = document.createElement("td");
+        drinkTd.className = "col-drink";
+        drinkTd.innerHTML =
+          '<div class="name-zh">' +
           escapeHtml(entry.nameZh) +
           '</div><div class="name-en">' +
           enHtml +
-          "</div></td>" +
-          iconCells +
+          "</div>";
+        tr.appendChild(drinkTd);
+
+        (iconColumns || []).forEach(function (col) {
+          tr.appendChild(
+            createIconToggleCell(
+              entry.nameZh,
+              col.id,
+              col.label || col.id,
+              rowIcons,
+              saved
+            )
+          );
+        });
+
+        var assetHtml =
           imageCell(cupSrc, entry.nameZh + " 杯圖") +
           imageCell(leftLeaf, entry.nameZh + " 左裝飾葉") +
           imageCell(rightLeaf, entry.nameZh + " 右裝飾葉");
+        var wrap = document.createElement("template");
+        wrap.innerHTML = assetHtml;
+        while (wrap.content.firstChild) tr.appendChild(wrap.content.firstChild);
+
         return tr;
       }
 
@@ -416,6 +554,8 @@
             var iconColumns = (badgeAssets && badgeAssets.iconColumns) || [];
             var assignmentsByXimenRank =
               (badgeAssets && badgeAssets.assignmentsByXimenRank) || {};
+            iconColumnDefaults = (badgeAssets && badgeAssets.iconColumnDefaults) || {};
+            var savedToggles = loadToggleStorage();
             renderIconHeaders(iconColumns);
             var menuMap = menuByZh(menu);
             var shellMap = shellByNameZh(menu, REGION, shellByRank);
@@ -427,8 +567,11 @@
               showError("客戶品項清單是空的。");
               return;
             }
+            wireIconToggleTable(tbody, savedToggles);
             items.forEach(function (entry) {
-              tbody.appendChild(buildRow(entry, menuMap, shellMap, iconMap, iconColumns));
+              tbody.appendChild(
+                buildRow(entry, menuMap, shellMap, iconMap, iconColumns, savedToggles)
+              );
             });
           })
           .catch(function (err) {

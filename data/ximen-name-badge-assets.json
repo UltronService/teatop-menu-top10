@@ -39,5 +39,11 @@
     "10": {
       "hot": { "type": "image", "url": "https://i.imgur.com/2iKWyLF.png" }
     }
+  },
+  "iconColumnDefaults": {
+    "hot": { "type": "image", "url": "https://i.imgur.com/jefyVWB.png" },
+    "fixedSweet": { "type": "glyph", "glyph": "∅", "title": "甜度固定" },
+    "fixedSolid": { "type": "glyph", "glyph": "固", "title": "固 不可更改" },
+    "iced": { "type": "colorDot", "color": "rgb(138, 184, 186)" }
   }
 }
