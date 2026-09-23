@@ -84,13 +84,7 @@ npx --yes serve _site -l 4173
 
 ## 驗收（UAT）
 
-<<<<<<< HEAD
-1. 開啟 `/admin/#/login`，本機或 Pages 登入。
-2. 區域排行／素材對照：儲存草稿、發佈。
-3. 區域預覽連結仍可開 `regions/<id>/`。
-=======
-1. 開啟 `/admin/` 或 `/admin/#/login`（GitHub Pages 使用 hash 路由），本機模式登入。
-2. **區域排行與價格**：改一格排名與價格 →「儲存草稿」→「發佈選單」；錯誤排名應顯示紅字。
-3. **飲料素材對照**：切換圖示、選左右葉 → 儲存草稿 → 發佈。
-4. 點「區域播放器預覽」應開啟 `regions/<id>/`（內容仍為 repo `menu.json`，非 Firestore）。
->>>>>>> cacc143 (fix(admin): HashRouter and auth loading for GitHub Pages)
+1. 開啟 `/admin/` 或 `/admin/#/login`（Hash 路由）登入。
+2. **區域排行與價格**：改排名或價格 → 儲存草稿 → 發佈選單。
+3. **飲料素材對照**：調整圖示與裝飾葉 → 儲存草稿 → 發佈。
+4. 區域播放器預覽連結可開啟 `regions/<id>/`。
