@@ -62,10 +62,14 @@ function mapFirebaseUser(user: User): AdminUser {
   return { uid: user.uid, email: user.email ?? "" };
 }
 
+const AUTH_READY_TIMEOUT_MS = 8000;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
   const mode: "firebase" | "local" = isFirebaseConfigured() ? "firebase" : "local";
+  const [user, setUser] = useState<AdminUser | null>(() =>
+    mode === "local" ? readLocalSession() : null
+  );
+  const [loading, setLoading] = useState(() => mode === "firebase");
 
   useEffect(() => {
     if (mode === "local") {
@@ -79,15 +83,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(mapFirebaseUser(firebaseUser));
-      } else {
-        setUser(null);
+    let settled = false;
+    const finish = (nextUser: AdminUser | null) => {
+      if (settled) {
+        return;
       }
+      settled = true;
+      setUser(nextUser);
       setLoading(false);
-    });
-    return () => unsub();
+    };
+    const timeoutId = window.setTimeout(() => {
+      finish(readLocalSession());
+    }, AUTH_READY_TIMEOUT_MS);
+    const unsub = onAuthStateChanged(
+      auth,
+      (firebaseUser) => {
+        finish(firebaseUser ? mapFirebaseUser(firebaseUser) : null);
+      },
+      () => {
+        finish(readLocalSession());
+      }
+    );
+    return () => {
+      settled = true;
+      window.clearTimeout(timeoutId);
+      unsub();
+    };
   }, [mode]);
 
   const signIn = useCallback(
