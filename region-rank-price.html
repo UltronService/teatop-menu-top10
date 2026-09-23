@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TEATOP 區域排行與價格 · 示意 · v1.0</title>
+  <title>TEATOP 區域排行與價格 · 跨區對照 · v1.0</title>
   <meta name="teatop-product-version" content="1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,6 +15,7 @@
       --border: #ddd5cb;
       --muted: #5c534a;
       --bg: #f7f4f0;
+      --err: #b91c1c;
     }
 
     * {
@@ -47,44 +48,10 @@
       color: var(--muted);
     }
 
-    header .badge {
-      display: inline-block;
-      margin-top: 0.5rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      background: #fff3e6;
-      color: var(--orange);
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
     main {
       padding: 1rem;
-      max-width: 1280px;
+      max-width: 1400px;
       margin: 0 auto;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-
-    .tabs button {
-      border: 1px solid var(--border);
-      background: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-
-    .tabs button[aria-selected="true"] {
-      background: var(--navy);
-      color: #fff;
-      border-color: var(--navy);
     }
 
     .panel {
@@ -92,10 +59,6 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1rem;
-    }
-
-    .panel[hidden] {
-      display: none;
     }
 
     .toolbar {
@@ -106,18 +69,25 @@
       margin-bottom: 0.75rem;
     }
 
-    .toolbar label {
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .toolbar select {
+    .toolbar button {
       font-family: inherit;
-      font-size: 0.9rem;
-      padding: 0.4rem 0.6rem;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.85rem;
       border-radius: 6px;
       border: 1px solid var(--border);
-      min-width: 10rem;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .toolbar button.primary {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .toolbar .hint {
+      font-size: 0.82rem;
+      color: var(--muted);
     }
 
     .table-wrap {
@@ -127,29 +97,29 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
-      min-width: 520px;
+      font-size: 0.85rem;
+      min-width: 960px;
     }
 
     thead th {
       background: var(--navy);
       color: #fff;
       text-align: left;
-      padding: 0.6rem 0.5rem;
+      padding: 0.55rem 0.4rem;
       border: 1px solid #0a2847;
-      white-space: nowrap;
     }
 
     thead th.region-col {
       text-align: center;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       line-height: 1.25;
+      min-width: 6.5rem;
     }
 
     tbody td {
       border: 1px solid var(--border);
-      padding: 0.5rem;
-      vertical-align: middle;
+      padding: 0.35rem;
+      vertical-align: top;
     }
 
     tbody tr:nth-child(even) {
@@ -161,43 +131,80 @@
     }
 
     .col-drink .name-en {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--muted);
       font-family: Montserrat, "Noto Sans TC", sans-serif;
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
     }
 
-    .cell-muted {
-      text-align: center;
+    .cell-edit {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .cell-edit label {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.68rem;
       color: var(--muted);
     }
 
-    .cell-region {
-      text-align: center;
-      font-size: 0.82rem;
-      line-height: 1.35;
+    .cell-edit input {
+      width: 3.1rem;
+      padding: 0.2rem 0.25rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
     }
 
-    .cell-region .rank {
-      font-weight: 700;
-      color: var(--navy);
+    .cell-edit input.price-input {
+      width: 3.6rem;
     }
 
-    .cell-region .price {
-      color: var(--muted);
+    .cell-edit input.is-invalid {
+      border-color: var(--err);
+      background: #fef2f2;
     }
 
-    .cell-region.is-diff {
-      background: #fff8f0;
+    .cell-edit input.is-modified {
+      border-color: var(--orange);
     }
 
-    .error-banner {
+    .cell-edit .cell-err {
+      font-size: 0.65rem;
+      color: var(--err);
+      line-height: 1.2;
+      min-height: 0.8rem;
+    }
+
+    thead th.region-col.has-col-error {
+      box-shadow: inset 0 -3px 0 var(--err);
+    }
+
+    .banner {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      font-size: 0.88rem;
+    }
+
+    .banner-error {
       background: #fef2f2;
       border: 1px solid #fecaca;
-      color: #991b1b;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
+      color: var(--err);
+    }
+
+    .banner-ok {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .banner[hidden] {
+      display: none;
     }
 
     footer {
@@ -213,42 +220,21 @@
 </head>
 <body>
   <header>
-    <h1>TEATOP 區域排行與價格</h1>
-    <p>唯讀示意 · 資料來源 <code>data/menu.json</code>（與各區播放器相同）</p>
-    <span class="badge">示意版 · v1.0</span>
+    <h1>TEATOP 區域排行與價格 · 跨區對照</h1>
+    <p>可編輯排名（1–10）與大杯價；變更存於本機瀏覽器，不會直接改動 <code>menu.json</code>。</p>
   </header>
   <main>
-    <div id="error" class="error-banner" hidden></div>
-    <div class="tabs" role="tablist">
-      <button type="button" role="tab" id="tab-region" aria-selected="true" aria-controls="panel-region">依區域 TOP10</button>
-      <button type="button" role="tab" id="tab-matrix" aria-selected="false" aria-controls="panel-matrix">跨區對照（20 品項）</button>
-    </div>
+    <div id="load-error" class="banner banner-error" hidden></div>
+    <div id="validate-banner" class="banner banner-error" hidden></div>
+    <div id="status-banner" class="banner banner-ok" hidden></div>
 
-    <section id="panel-region" class="panel" role="tabpanel" aria-labelledby="tab-region">
+    <section class="panel">
       <div class="toolbar">
-        <label for="region-select">選擇區域</label>
-        <select id="region-select" aria-label="選擇區域"></select>
+        <span class="hint">列：客戶 20 品 · 空白排名＝該區不列入 TOP10</span>
+        <button type="button" id="btn-reset" class="primary">還原 menu.json 預設</button>
       </div>
       <div class="table-wrap">
-        <table aria-label="區域 TOP10 排行與價格">
-          <thead>
-            <tr>
-              <th scope="col">排名</th>
-              <th scope="col">飲料</th>
-              <th scope="col">大杯價</th>
-            </tr>
-          </thead>
-          <tbody id="region-table-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="panel-matrix" class="panel" role="tabpanel" aria-labelledby="tab-matrix" hidden>
-      <p style="margin:0 0 0.75rem;font-size:0.85rem;color:var(--muted)">
-        列：客戶清單 20 品 · 欄：七區 · 儲存格格式「#排名 / $價格」，未進該區 TOP10 顯示 —
-      </p>
-      <div class="table-wrap">
-        <table aria-label="跨區排行與價格對照">
+        <table aria-label="跨區排行與價格對照（可編輯）">
           <thead id="matrix-thead"></thead>
           <tbody id="matrix-tbody"></tbody>
         </table>
@@ -266,6 +252,7 @@
       "use strict";
 
       var ASSET_ROOT = "./";
+      var STORAGE_KEY = "teatop-region-matrix-edits-v1";
 
       var LABELS = {
         central: "中部",
@@ -279,6 +266,9 @@
 
       var menuData = null;
       var catalogItems = [];
+      var menuByZhMap = Object.create(null);
+      var overrides = Object.create(null);
+      var regionIds = [];
 
       function escapeHtml(text) {
         return String(text)
@@ -288,37 +278,336 @@
           .replace(/"/g, "&quot;");
       }
 
-      function showError(msg) {
-        var el = document.getElementById("error");
+      function storageKey(itemKey, regionId) {
+        return itemKey + "|" + regionId;
+      }
+
+      function itemKeyForRow(entry) {
+        var menuItem = menuByZhMap[entry.nameZh];
+        if (menuItem && menuItem.id) return menuItem.id;
+        return "zh:" + entry.nameZh;
+      }
+
+      function baseRegionData(menuItem, regionId) {
+        if (!menuItem || !menuItem.regions) return { rank: null, priceL: null };
+        var r = menuItem.regions[regionId];
+        if (!r || r.rank == null) return { rank: null, priceL: null };
+        return { rank: Number(r.rank), priceL: r.priceL != null ? Number(r.priceL) : null };
+      }
+
+      function loadOverrides() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return Object.create(null);
+          var parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return Object.create(null);
+          return parsed;
+        } catch (e) {
+          return Object.create(null);
+        }
+      }
+
+      function saveOverrides() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+        } catch (e) {
+          /* ignore */
+        }
+      }
+
+      function effectiveData(itemKey, regionId, menuItem) {
+        var key = storageKey(itemKey, regionId);
+        if (Object.prototype.hasOwnProperty.call(overrides, key)) {
+          return {
+            rank: overrides[key].rank,
+            priceL: overrides[key].priceL,
+          };
+        }
+        return baseRegionData(menuItem, regionId);
+      }
+
+      function isModified(itemKey, regionId, menuItem) {
+        var key = storageKey(itemKey, regionId);
+        if (!Object.prototype.hasOwnProperty.call(overrides, key)) return false;
+        var base = baseRegionData(menuItem, regionId);
+        var cur = overrides[key];
+        return cur.rank !== base.rank || cur.priceL !== base.priceL;
+      }
+
+      function setOverride(itemKey, regionId, menuItem, rank, priceL) {
+        var key = storageKey(itemKey, regionId);
+        var base = baseRegionData(menuItem, regionId);
+        if (rank === base.rank && priceL === base.priceL) {
+          delete overrides[key];
+        } else {
+          overrides[key] = { rank: rank, priceL: priceL };
+        }
+        saveOverrides();
+      }
+
+      function parseRankInput(raw) {
+        var s = String(raw == null ? "" : raw).trim();
+        if (s === "") return { ok: true, value: null };
+        var n = Number(s);
+        if (!Number.isInteger(n) || n < 1 || n > 10) {
+          return { ok: false, message: "排名須為 1–10 或空白" };
+        }
+        return { ok: true, value: n };
+      }
+
+      function parsePriceInput(raw, hasRank) {
+        var s = String(raw == null ? "" : raw).trim();
+        if (s === "") {
+          if (hasRank) return { ok: false, message: "有排名時須填價格" };
+          return { ok: true, value: null };
+        }
+        var n = Number(s);
+        if (!Number.isFinite(n) || n < 0 || Math.floor(n) !== n) {
+          return { ok: false, message: "價格須為 0 以上整數" };
+        }
+        return { ok: true, value: n };
+      }
+
+      function collectRegionValues(regionId) {
+        var list = [];
+        catalogItems.forEach(function (entry) {
+          var itemKey = itemKeyForRow(entry);
+          var menuItem = menuByZhMap[entry.nameZh] || null;
+          var data = effectiveData(itemKey, regionId, menuItem);
+          if (data.rank != null) {
+            list.push({ itemKey: itemKey, rank: data.rank });
+          }
+        });
+        return list;
+      }
+
+      function validateRegion(regionId) {
+        var ranked = collectRegionValues(regionId);
+        var errors = Object.create(null);
+        var rankCount = Object.create(null);
+        ranked.forEach(function (row) {
+          var r = row.rank;
+          if (!rankCount[r]) rankCount[r] = [];
+          rankCount[r].push(row.itemKey);
+        });
+        Object.keys(rankCount).forEach(function (rank) {
+          if (rankCount[rank].length > 1) {
+            rankCount[rank].forEach(function (itemKey) {
+              var k = itemKey + "|" + regionId;
+              errors[k] = "排名 " + rank + " 重複";
+            });
+          }
+        });
+        if (ranked.length > 10) {
+          catalogItems.forEach(function (entry) {
+            var itemKey = itemKeyForRow(entry);
+            var menuItem = menuByZhMap[entry.nameZh] || null;
+            var data = effectiveData(itemKey, regionId, menuItem);
+            if (data.rank != null) {
+              errors[itemKey + "|" + regionId] = "該區最多 10 品";
+            }
+          });
+        }
+        return errors;
+      }
+
+      function validateAllRegions() {
+        var merged = Object.create(null);
+        regionIds.forEach(function (rid) {
+          var regErr = validateRegion(rid);
+          Object.keys(regErr).forEach(function (k) {
+            merged[k] = regErr[k];
+          });
+        });
+        return merged;
+      }
+
+      function showLoadError(msg) {
+        var el = document.getElementById("load-error");
         if (!el) return;
         el.hidden = false;
         el.textContent = msg;
       }
 
-      function menuByZh(menu) {
-        var map = Object.create(null);
-        (menu.items || []).forEach(function (item) {
-          if (item.nameZh && !map[item.nameZh]) map[item.nameZh] = item;
-        });
-        return map;
+      function updateBanners(allErrors) {
+        var validateEl = document.getElementById("validate-banner");
+        var statusEl = document.getElementById("status-banner");
+        var keys = Object.keys(allErrors);
+        if (validateEl) {
+          if (keys.length) {
+            validateEl.hidden = false;
+            validateEl.textContent =
+              "檢查未通過（" +
+              keys.length +
+              " 格）：同一區域排名不可重複、最多 10 品；有排名須填價格。";
+          } else {
+            validateEl.hidden = true;
+          }
+        }
+        if (statusEl) {
+          var modCount = Object.keys(overrides).length;
+          if (!keys.length) {
+            statusEl.hidden = false;
+            statusEl.textContent =
+              modCount > 0
+                ? "目前有效；已修改 " + modCount + " 格（仅存於本機）。"
+                : "目前有效；與 menu.json 預設一致。";
+          } else {
+            statusEl.hidden = true;
+          }
+        }
       }
 
-      function itemsForRegion(menu, regionId) {
-        var list = [];
-        (menu.items || []).forEach(function (item) {
-          var r = item.regions && item.regions[regionId];
-          if (!r || r.rank == null) return;
-          list.push({
-            nameZh: item.nameZh || "",
-            nameEn: item.nameEn || "",
-            rank: Number(r.rank),
-            priceL: r.priceL,
+      function applyCellValidation(inputs, message) {
+        inputs.rank.classList.toggle("is-invalid", !!message);
+        inputs.price.classList.toggle("is-invalid", !!message);
+        inputs.err.textContent = message || "";
+      }
+
+      function refreshColumnHeaders(allErrors) {
+        regionIds.forEach(function (rid) {
+          var th = document.querySelector('th[data-region-id="' + rid + '"]');
+          if (!th) return;
+          var has = false;
+          catalogItems.forEach(function (entry) {
+            var itemKey = itemKeyForRow(entry);
+            if (allErrors[itemKey + "|" + rid]) has = true;
           });
+          th.classList.toggle("has-col-error", has);
         });
-        list.sort(function (a, b) {
-          return a.rank - b.rank;
+      }
+
+      function bindCellInputs(td, entry, regionId) {
+        var itemKey = itemKeyForRow(entry);
+        var menuItem = menuByZhMap[entry.nameZh] || null;
+        var data = effectiveData(itemKey, regionId, menuItem);
+
+        var rankInput = td.querySelector(".rank-input");
+        var priceInput = td.querySelector(".price-input");
+        var errSpan = td.querySelector(".cell-err");
+        var inputs = { rank: rankInput, price: priceInput, err: errSpan };
+
+        function syncModifiedClass() {
+          var modified = isModified(itemKey, regionId, menuItem);
+          rankInput.classList.toggle("is-modified", modified);
+          priceInput.classList.toggle("is-modified", modified);
+        }
+
+        function commit() {
+          var rankParsed = parseRankInput(rankInput.value);
+          if (!rankParsed.ok) {
+            applyCellValidation(inputs, rankParsed.message);
+            return;
+          }
+          var priceParsed = parsePriceInput(priceInput.value, rankParsed.value != null);
+          if (!priceParsed.ok) {
+            applyCellValidation(inputs, priceParsed.message);
+            return;
+          }
+          if (rankParsed.value == null && priceParsed.value != null) {
+            applyCellValidation(inputs, "無排名時不可填價格");
+            return;
+          }
+          setOverride(itemKey, regionId, menuItem, rankParsed.value, priceParsed.value);
+          syncModifiedClass();
+          var allErrors = validateAllRegions();
+          catalogItems.forEach(function (e2) {
+            regionIds.forEach(function (rid2) {
+              var ik = itemKeyForRow(e2);
+              var cell = document.querySelector(
+                'td[data-item-key="' + ik + '"][data-region-id="' + rid2 + '"]'
+              );
+              if (!cell) return;
+              var msg = allErrors[ik + "|" + rid2] || "";
+              var ri = cell.querySelector(".rank-input");
+              var pi = cell.querySelector(".price-input");
+              var es = cell.querySelector(".cell-err");
+              if (!msg) {
+                ri.classList.remove("is-invalid");
+                pi.classList.remove("is-invalid");
+                if (!es.textContent || es.textContent.indexOf("排名") >= 0 || es.textContent.indexOf("價格") >= 0 || es.textContent.indexOf("最多") >= 0) {
+                  es.textContent = "";
+                }
+              } else {
+                ri.classList.add("is-invalid");
+                pi.classList.add("is-invalid");
+                es.textContent = msg;
+              }
+            });
+          });
+          applyCellValidation(inputs, allErrors[itemKey + "|" + regionId] || "");
+          updateBanners(allErrors);
+          refreshColumnHeaders(allErrors);
+        }
+
+        rankInput.addEventListener("change", commit);
+        priceInput.addEventListener("change", commit);
+        rankInput.addEventListener("blur", commit);
+        priceInput.addEventListener("blur", commit);
+        syncModifiedClass();
+      }
+
+      function createEditCell(entry, regionId) {
+        var itemKey = itemKeyForRow(entry);
+        var menuItem = menuByZhMap[entry.nameZh] || null;
+        var data = effectiveData(itemKey, regionId, menuItem);
+        var td = document.createElement("td");
+        td.className = "cell-edit-wrap";
+        td.setAttribute("data-item-key", itemKey);
+        td.setAttribute("data-region-id", regionId);
+        td.innerHTML =
+          '<div class="cell-edit">' +
+          '<label>排名<input type="number" class="rank-input" min="1" max="10" step="1" value="' +
+          (data.rank != null ? escapeHtml(data.rank) : "") +
+          '" aria-label="排名" /></label>' +
+          '<label>$L<input type="number" class="price-input" min="0" step="1" value="' +
+          (data.priceL != null ? escapeHtml(data.priceL) : "") +
+          '" aria-label="大杯價" /></label>' +
+          '<span class="cell-err" role="alert"></span></div>';
+        bindCellInputs(td, entry, regionId);
+        return td;
+      }
+
+      function renderMatrix() {
+        var thead = document.getElementById("matrix-thead");
+        var tbody = document.getElementById("matrix-tbody");
+        if (!thead || !tbody) return;
+
+        var headRow = document.createElement("tr");
+        headRow.innerHTML = '<th scope="col">飲料</th>';
+        regionIds.forEach(function (rid) {
+          var th = document.createElement("th");
+          th.scope = "col";
+          th.className = "region-col";
+          th.setAttribute("data-region-id", rid);
+          th.textContent = LABELS[rid] || rid;
+          headRow.appendChild(th);
         });
-        return list;
+        thead.innerHTML = "";
+        thead.appendChild(headRow);
+
+        tbody.innerHTML = "";
+        catalogItems.forEach(function (entry) {
+          var tr = document.createElement("tr");
+          var menuItem = menuByZhMap[entry.nameZh] || null;
+          var drinkTd = document.createElement("td");
+          drinkTd.className = "col-drink";
+          drinkTd.innerHTML =
+            '<div class="name-zh">' +
+            escapeHtml(entry.nameZh) +
+            '</div><div class="name-en">' +
+            escapeHtml(entry.nameEn || (menuItem && menuItem.nameEn) || "") +
+            "</div>";
+          tr.appendChild(drinkTd);
+          regionIds.forEach(function (rid) {
+            tr.appendChild(createEditCell(entry, rid));
+          });
+          tbody.appendChild(tr);
+        });
+
+        var allErrors = validateAllRegions();
+        updateBanners(allErrors);
+        refreshColumnHeaders(allErrors);
       }
 
       function dedupeCatalog(items) {
@@ -336,132 +625,23 @@
         return out;
       }
 
-      function formatPrice(priceL) {
-        if (priceL == null || priceL === "") return "—";
-        return "$" + priceL + " L";
-      }
-
-      function renderRegionTable(regionId) {
-        var tbody = document.getElementById("region-table-body");
-        if (!tbody || !menuData) return;
-        var rows = itemsForRegion(menuData, regionId);
-        tbody.innerHTML = "";
-        if (!rows.length) {
-          tbody.innerHTML =
-            '<tr><td colspan="3" class="cell-muted">此區域尚無 TOP10 資料</td></tr>';
-          return;
-        }
-        rows.forEach(function (row) {
-          var tr = document.createElement("tr");
-          tr.innerHTML =
-            '<td class="cell-muted">' +
-            escapeHtml(row.rank) +
-            '</td><td class="col-drink"><div class="name-zh">' +
-            escapeHtml(row.nameZh) +
-            '</div><div class="name-en">' +
-            escapeHtml(row.nameEn) +
-            "</div></td><td>" +
-            escapeHtml(formatPrice(row.priceL)) +
-            "</td>";
-          tbody.appendChild(tr);
+      function buildMenuByZh(menu) {
+        var map = Object.create(null);
+        (menu.items || []).forEach(function (item) {
+          if (item.nameZh && !map[item.nameZh]) map[item.nameZh] = item;
         });
-      }
-
-      function regionCellHtml(menuItem, regionId) {
-        if (!menuItem || !menuItem.regions) {
-          return '<td class="cell-region cell-muted">—</td>';
-        }
-        var r = menuItem.regions[regionId];
-        if (!r || r.rank == null) {
-          return '<td class="cell-region cell-muted">—</td>';
-        }
-        return (
-          '<td class="cell-region"><div class="rank">#' +
-          escapeHtml(r.rank) +
-          '</div><div class="price">' +
-          escapeHtml(formatPrice(r.priceL)) +
-          "</div></td>"
-        );
-      }
-
-      function renderMatrixTable() {
-        var thead = document.getElementById("matrix-thead");
-        var tbody = document.getElementById("matrix-tbody");
-        if (!thead || !tbody || !menuData) return;
-        var regions = menuData.regions || [];
-        var map = menuByZh(menuData);
-
-        var headRow = document.createElement("tr");
-        headRow.innerHTML = '<th scope="col">飲料</th>';
-        regions.forEach(function (rid) {
-          var th = document.createElement("th");
-          th.scope = "col";
-          th.className = "region-col";
-          th.textContent = LABELS[rid] || rid;
-          headRow.appendChild(th);
-        });
-        thead.innerHTML = "";
-        thead.appendChild(headRow);
-
-        tbody.innerHTML = "";
-        catalogItems.forEach(function (entry) {
-          var menuItem = map[entry.nameZh] || null;
-          var tr = document.createElement("tr");
-          var drinkTd =
-            '<td class="col-drink"><div class="name-zh">' +
-            escapeHtml(entry.nameZh) +
-            '</div><div class="name-en">' +
-            escapeHtml(entry.nameEn || (menuItem && menuItem.nameEn) || "") +
-            "</div></td>";
-          tr.innerHTML = drinkTd;
-          regions.forEach(function (rid) {
-            var tmp = document.createElement("template");
-            tmp.innerHTML = regionCellHtml(menuItem, rid);
-            tr.appendChild(tmp.content.firstChild);
-          });
-          tbody.appendChild(tr);
-        });
-      }
-
-      function fillRegionSelect(regions) {
-        var sel = document.getElementById("region-select");
-        if (!sel) return;
-        sel.innerHTML = "";
-        regions.forEach(function (rid) {
-          var opt = document.createElement("option");
-          opt.value = rid;
-          opt.textContent = (LABELS[rid] || rid) + "（" + rid + "）";
-          sel.appendChild(opt);
-        });
-        sel.addEventListener("change", function () {
-          renderRegionTable(sel.value);
-        });
-        if (regions.length) renderRegionTable(regions[0]);
-      }
-
-      function wireTabs() {
-        var tabRegion = document.getElementById("tab-region");
-        var tabMatrix = document.getElementById("tab-matrix");
-        var panelRegion = document.getElementById("panel-region");
-        var panelMatrix = document.getElementById("panel-matrix");
-        if (!tabRegion || !tabMatrix) return;
-
-        tabRegion.addEventListener("click", function () {
-          tabRegion.setAttribute("aria-selected", "true");
-          tabMatrix.setAttribute("aria-selected", "false");
-          panelRegion.hidden = false;
-          panelMatrix.hidden = true;
-        });
-        tabMatrix.addEventListener("click", function () {
-          tabMatrix.setAttribute("aria-selected", "true");
-          tabRegion.setAttribute("aria-selected", "false");
-          panelMatrix.hidden = false;
-          panelRegion.hidden = true;
-        });
+        return map;
       }
 
       function boot() {
-        wireTabs();
+        document.getElementById("btn-reset").addEventListener("click", function () {
+          overrides = Object.create(null);
+          saveOverrides();
+          renderMatrix();
+        });
+
+        overrides = loadOverrides();
+
         Promise.all([
           fetch(ASSET_ROOT + "data/menu.json", { cache: "no-cache" }),
           fetch(ASSET_ROOT + "data/client-drink-catalog.json", { cache: "no-cache" }),
@@ -475,15 +655,16 @@
           })
           .then(function (payload) {
             menuData = payload[0];
+            regionIds = menuData.regions || [];
             catalogItems = dedupeCatalog(payload[1].items);
-            fillRegionSelect(menuData.regions || []);
-            renderMatrixTable();
+            menuByZhMap = buildMenuByZh(menuData);
+            renderMatrix();
           })
           .catch(function (err) {
-            showError(
+            showLoadError(
               "無法載入資料：" +
                 (err && err.message ? err.message : String(err)) +
-                "。請以 HTTP 開啟（GitHub Pages 或本機 python -m http.server）。"
+                "。請以 HTTP 開啟。"
             );
           });
       }
