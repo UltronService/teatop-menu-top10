@@ -5,352 +5,138 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TEATOP 飲料素材對照 · v1.0</title>
   <meta name="teatop-product-version" content="1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=Montserrat:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/5.24.9/reset.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    :root {
-      --navy: #0c2f54;
-      --border: #ddd5cb;
-      --muted: #5c534a;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      font-family: "Noto Sans TC", sans-serif;
-      background: #fff;
-      color: #1a1510;
-      line-height: 1.45;
+      background: #f5f5f5;
     }
 
-    main {
-      padding: 1rem;
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      min-width: 960px;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-    }
-
-    thead th {
-      background: var(--navy);
-      color: #fff;
+    .teatop-page-header-title {
+      margin: 0;
+      font-size: 18px;
       font-weight: 600;
-      text-align: left;
-      padding: 0.75rem 0.65rem;
-      white-space: nowrap;
-      border: 1px solid #0a2847;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 64px;
     }
 
-    tbody td {
-      vertical-align: middle;
-      padding: 0.65rem;
-      border: 1px solid var(--border);
-    }
-
-    tbody tr:nth-child(even) {
-      background: #faf8f5;
-    }
-
-    .col-drink .name-zh {
+    .teatop-drink-name-zh {
       font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
     }
 
-    .col-drink .name-en {
-      margin-top: 0.35rem;
-      font-family: Montserrat, "Noto Sans TC", sans-serif;
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--muted);
+    .teatop-drink-name-en {
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
       line-height: 1.35;
+      white-space: pre-line;
     }
 
-    .img-cell {
-      text-align: center;
-      width: 120px;
-    }
-
-    .img-cell a {
+    .teatop-thumb-wrap {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 96px;
-      height: 96px;
-      margin: 0 auto;
+      width: 88px;
+      height: 88px;
       background: #fff;
-      border: 1px solid var(--border);
+      border: 1px solid #f0f0f0;
       border-radius: 8px;
-      text-decoration: none;
+      overflow: hidden;
     }
 
-    .img-cell img {
-      max-width: 88px;
-      max-height: 88px;
+    .teatop-thumb-wrap img {
+      max-width: 80px;
+      max-height: 80px;
       object-fit: contain;
     }
 
-    .img-cell .badge-dot,
-    button.icon-toggle .badge-dot {
+    .teatop-icon-toggle-btn {
+      min-width: 56px;
+      min-height: 48px;
+      height: auto;
+      padding: 4px 8px;
+      border-style: dashed !important;
+    }
+
+    .teatop-icon-toggle-btn.is-on {
+      border-style: solid !important;
+      border-color: #ec6f09 !important;
+      background: #fff8f0 !important;
+    }
+
+    .teatop-badge-dot {
       display: inline-block;
       width: 28px;
       height: 28px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
+      border: 1px solid #d9d9d9;
     }
 
-    .img-cell .badge-caption {
-      display: block;
-      margin-top: 0.25rem;
-      font-size: 0.65rem;
-      color: var(--muted);
-    }
-
-    .img-cell img.badge-img {
-      max-width: 72px;
-      max-height: 32px;
-      object-fit: contain;
-    }
-
-    .img-cell .empty {
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    thead th.icon-col {
-      font-size: 0.78rem;
-      text-align: center;
-      white-space: normal;
-      max-width: 4.25rem;
-      line-height: 1.25;
-      vertical-align: bottom;
-    }
-
-    thead th.asset-col {
-      font-size: 0.85rem;
-    }
-
-    tbody td.icon-slot {
-      text-align: center;
-      width: 4.5rem;
-      padding: 0.35rem;
-    }
-
-    button.icon-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      min-height: 3.1rem;
-      margin: 0;
-      padding: 0.25rem;
-      border: 2px dashed #cfc5b8;
-      border-radius: 8px;
-      background: #f5f3ef;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    button.icon-toggle:hover {
-      border-color: #ec6f09;
-    }
-
-    button.icon-toggle[aria-pressed="true"] {
-      border-style: solid;
-      border-color: #ec6f09;
-      background: #fff8f0;
-      box-shadow: inset 0 0 0 1px rgba(236, 111, 9, 0.15);
-    }
-
-    button.icon-toggle .toggle-off {
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    button.icon-toggle img.badge-img {
-      pointer-events: none;
-    }
-
-    .icon-glyph {
+    .teatop-icon-glyph {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 2rem;
-      min-height: 2rem;
-      font-size: 1.35rem;
+      min-width: 32px;
+      min-height: 32px;
+      font-size: 18px;
       font-weight: 700;
-      color: var(--navy);
-      border: 1px solid var(--border);
+      color: #0c2f54;
+      border: 1px solid #d9d9d9;
       border-radius: 6px;
       background: #fff;
     }
 
-    .icon-glyph.gu {
-      font-family: "Noto Sans TC", sans-serif;
-      font-size: 1.1rem;
-    }
-
-    .icon-slot .empty {
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .error-banner {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #991b1b;
-      padding: 1rem;
-      margin: 1rem;
-      border-radius: 8px;
-    }
-
-    button.leaf-picker {
-      display: flex;
+    .teatop-leaf-picker-btn {
+      min-height: 96px;
+      height: auto;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      min-height: 5.5rem;
-      margin: 0;
-      padding: 0.35rem;
-      border: 2px dashed #cfc5b8;
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      font-family: inherit;
-      gap: 0.25rem;
+      gap: 4px;
+      white-space: normal;
+      text-align: center;
     }
 
-    button.leaf-picker:hover {
-      border-color: #ec6f09;
-    }
-
-    button.leaf-picker img {
+    .teatop-leaf-picker-btn img {
       max-width: 72px;
       max-height: 56px;
       object-fit: contain;
     }
 
-    button.leaf-picker .leaf-picker-label {
-      font-size: 0.62rem;
-      color: var(--muted);
-      line-height: 1.2;
-      max-width: 100%;
-    }
-
-    .leaf-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .leaf-modal[hidden] {
-      display: none;
-    }
-
-    .leaf-modal-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(12, 47, 84, 0.45);
-    }
-
-    .leaf-modal-panel {
-      position: relative;
-      z-index: 1;
-      width: min(640px, 100%);
-      max-height: min(85vh, 720px);
-      overflow: auto;
-      background: #fff;
-      border-radius: 12px;
-      padding: 1rem 1rem 1.25rem;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .leaf-modal-panel h2 {
-      margin: 0 2rem 0.75rem 0;
-      font-size: 1rem;
-    }
-
-    .leaf-modal-close {
-      position: absolute;
-      top: 0.65rem;
-      right: 0.65rem;
-      border: none;
-      background: #f5f3ef;
-      border-radius: 6px;
-      width: 2rem;
-      height: 2rem;
-      cursor: pointer;
-      font-size: 1.1rem;
-      line-height: 1;
-    }
-
-    .leaf-option-none {
-      display: block;
-      width: 100%;
-      margin-bottom: 0.75rem;
-      padding: 0.65rem;
-      text-align: left;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #faf8f5;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.9rem;
-    }
-
-    .leaf-option-none:hover {
-      border-color: #ec6f09;
-    }
-
-    .leaf-picker-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-      gap: 0.5rem;
-    }
-
-    .leaf-option {
+    .teatop-leaf-option {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 0.5rem 0.35rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.72rem;
-      gap: 0.35rem;
+      gap: 6px;
+      padding: 8px;
+      height: auto;
     }
 
-    .leaf-option:hover,
-    .leaf-option.is-selected {
-      border-color: #ec6f09;
-      background: #fff8f0;
-    }
-
-    .leaf-option img {
+    .teatop-leaf-option img {
       width: 72px;
       height: 56px;
       object-fit: contain;
     }
 
+    .teatop-leaf-option.is-selected {
+      border-color: #ec6f09 !important;
+      background: #fff8f0 !important;
+    }
+
+    .teatop-empty-none-pick {
+      cursor: pointer;
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px dashed #d9d9d9;
+      border-radius: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .teatop-empty-none-pick:hover {
+      border-color: #ec6f09;
+    }
+
     @media print {
-      main {
-        padding: 0;
-      }
-      thead th {
+      .ant-layout-header {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -358,32 +144,32 @@
   </style>
 </head>
 <body>
-  <main>
-    <div id="error" class="error-banner" hidden></div>
-    <table aria-label="客戶品項素材對照">
-      <thead>
-        <tr id="table-head-row">
-          <th scope="col">飲料</th>
-          <th scope="col" class="asset-col" data-col="cup">杯圖</th>
-          <th scope="col" class="asset-col">左裝飾葉</th>
-          <th scope="col" class="asset-col">右裝飾葉</th>
-        </tr>
-      </thead>
-      <tbody id="table-body" aria-live="polite"></tbody>
-    </table>
-    <div id="leaf-picker-modal" class="leaf-modal" hidden role="dialog" aria-modal="true" aria-labelledby="leaf-picker-title">
-      <div class="leaf-modal-backdrop" data-leaf-dismiss="1"></div>
-      <div class="leaf-modal-panel">
-        <button type="button" class="leaf-modal-close" data-leaf-dismiss="1" aria-label="關閉">×</button>
-        <h2 id="leaf-picker-title">選擇裝飾葉</h2>
-        <button type="button" class="leaf-option-none" data-leaf-id="none">沒有裝飾葉素材</button>
-        <div id="leaf-picker-grid" class="leaf-picker-grid"></div>
-      </div>
-    </div>
-  </main>
+  <div id="root"></div>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/dayjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/5.24.9/antd.min.js"></script>
+
   <script>
     (function () {
       "use strict";
+
+      var e = React.createElement;
+      var useState = React.useState;
+      var useMemo = React.useMemo;
+      var useCallback = React.useCallback;
+
+      var Layout = antd.Layout;
+      var Header = Layout.Header;
+      var Content = Layout.Content;
+      var Table = antd.Table;
+      var Modal = antd.Modal;
+      var Button = antd.Button;
+      var Empty = antd.Empty;
+      var Alert = antd.Alert;
+      var ConfigProvider = antd.ConfigProvider;
+      var Space = antd.Space;
 
       var REGION = "ximen";
       var ASSET_ROOT = "./";
@@ -442,19 +228,6 @@
         return map;
       }
 
-      function renderIconHeaders(iconColumns) {
-        var headRow = document.getElementById("table-head-row");
-        if (!headRow || !iconColumns || !iconColumns.length) return;
-        var cupTh = headRow.querySelector('th[data-col="cup"]');
-        iconColumns.forEach(function (col) {
-          var th = document.createElement("th");
-          th.scope = "col";
-          th.className = "icon-col";
-          th.textContent = col.label || col.id;
-          if (cupTh) headRow.insertBefore(th, cupTh);
-        });
-      }
-
       function dedupeCatalogItems(items) {
         var seen = Object.create(null);
         var out = [];
@@ -470,13 +243,6 @@
         return out;
       }
 
-      function showError(msg) {
-        var el = document.getElementById("error");
-        if (!el) return;
-        el.hidden = false;
-        el.textContent = msg;
-      }
-
       function loadLeafStorage() {
         try {
           var raw = localStorage.getItem(LEAF_STORAGE_KEY);
@@ -484,7 +250,7 @@
           var parsed = JSON.parse(raw);
           if (!parsed || typeof parsed !== "object") return Object.create(null);
           return parsed;
-        } catch (e) {
+        } catch (err) {
           return Object.create(null);
         }
       }
@@ -492,7 +258,7 @@
       function saveLeafStorage(state) {
         try {
           localStorage.setItem(LEAF_STORAGE_KEY, JSON.stringify(state));
-        } catch (e) {
+        } catch (err) {
           /* ignore */
         }
       }
@@ -528,143 +294,6 @@
         return leafIdForUrl(url);
       }
 
-      function renderLeafPickerButton(btn, leafId) {
-        btn.innerHTML = "";
-        if (!leafId || leafId === "none") {
-          var empty = document.createElement("span");
-          empty.className = "toggle-off";
-          empty.textContent = "—";
-          btn.appendChild(empty);
-          var cap = document.createElement("span");
-          cap.className = "leaf-picker-label";
-          cap.textContent = "沒有裝飾葉素材";
-          btn.appendChild(cap);
-          btn.title = "點擊選擇裝飾葉";
-          return;
-        }
-        var leaf = leafById[leafId];
-        if (!leaf) {
-          btn.textContent = "—";
-          return;
-        }
-        var img = document.createElement("img");
-        img.src = leaf.url;
-        img.alt = leaf.label;
-        img.loading = "lazy";
-        btn.appendChild(img);
-        var label = document.createElement("span");
-        label.className = "leaf-picker-label";
-        label.textContent = leaf.label;
-        btn.appendChild(label);
-        btn.title = "目前：" + leaf.label + "（點擊更換）";
-      }
-
-      function createLeafPickerCell(nameZh, slot, slotLabel, shell, saved) {
-        var td = document.createElement("td");
-        td.className = "img-cell";
-        var leafId = initialLeafId(nameZh, slot, shell, saved);
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "leaf-picker";
-        btn.setAttribute("data-drink-zh", nameZh);
-        btn.setAttribute("data-leaf-slot", slot);
-        btn.setAttribute("data-leaf-id", leafId);
-        renderLeafPickerButton(btn, leafId);
-        td.appendChild(btn);
-        return td;
-      }
-
-      function closeLeafPickerModal() {
-        var modal = document.getElementById("leaf-picker-modal");
-        if (modal) modal.hidden = true;
-        leafPickerContext = null;
-      }
-
-      function applyLeafSelection(nameZh, slot, leafId, targetBtn) {
-        savedLeafPicks[leafStorageKey(nameZh, slot)] = leafId;
-        saveLeafStorage(savedLeafPicks);
-        var btn = targetBtn;
-        if (!btn && typeof CSS !== "undefined" && CSS.escape) {
-          btn = document.querySelector(
-            'button.leaf-picker[data-drink-zh="' +
-              CSS.escape(nameZh) +
-              '"][data-leaf-slot="' +
-              slot +
-              '"]'
-          );
-        }
-        if (btn) {
-          btn.setAttribute("data-leaf-id", leafId);
-          renderLeafPickerButton(btn, leafId);
-        }
-      }
-
-      function openLeafPickerModal(nameZh, slot, slotLabel) {
-        var modal = document.getElementById("leaf-picker-modal");
-        var grid = document.getElementById("leaf-picker-grid");
-        var title = document.getElementById("leaf-picker-title");
-        if (!modal || !grid || !title) return;
-        var currentBtn = document.querySelector(
-          'button.leaf-picker[data-drink-zh="' +
-            CSS.escape(nameZh) +
-            '"][data-leaf-slot="' +
-            slot +
-            '"]'
-        );
-        var currentId =
-          (currentBtn && currentBtn.getAttribute("data-leaf-id")) || "none";
-        leafPickerContext = { nameZh: nameZh, slot: slot, button: currentBtn };
-        title.textContent =
-          nameZh + " · " + slotLabel + "（共 " + leafCatalogList.length + " 種可選）";
-        grid.innerHTML = "";
-        leafCatalogList.forEach(function (leaf) {
-          var opt = document.createElement("button");
-          opt.type = "button";
-          opt.className = "leaf-option";
-          if (leaf.id === currentId) opt.classList.add("is-selected");
-          opt.setAttribute("data-leaf-id", leaf.id);
-          opt.innerHTML =
-            '<img src="' +
-            escapeHtml(leaf.url) +
-            '" alt="" loading="lazy" /><span>' +
-            escapeHtml(leaf.label) +
-            "</span>";
-          grid.appendChild(opt);
-        });
-        modal.hidden = false;
-      }
-
-      function wireLeafPickerTable(tbody) {
-        if (!tbody) return;
-        tbody.addEventListener("click", function (event) {
-          var btn = event.target.closest("button.leaf-picker");
-          if (!btn || !tbody.contains(btn)) return;
-          var nameZh = btn.getAttribute("data-drink-zh") || "";
-          var slot = btn.getAttribute("data-leaf-slot") || "";
-          var slotLabel = slot === "leftLeaf" ? "左裝飾葉" : "右裝飾葉";
-          openLeafPickerModal(nameZh, slot, slotLabel);
-        });
-
-        var modal = document.getElementById("leaf-picker-modal");
-        if (!modal) return;
-        modal.addEventListener("click", function (event) {
-          if (event.target.getAttribute("data-leaf-dismiss") === "1") {
-            closeLeafPickerModal();
-            return;
-          }
-          var pick = event.target.closest("[data-leaf-id]");
-          if (!pick || !leafPickerContext) return;
-          var leafId = pick.getAttribute("data-leaf-id") || "none";
-          applyLeafSelection(
-            leafPickerContext.nameZh,
-            leafPickerContext.slot,
-            leafId,
-            leafPickerContext.button
-          );
-          closeLeafPickerModal();
-        });
-      }
-
       function loadToggleStorage() {
         try {
           var raw = localStorage.getItem(TOGGLE_STORAGE_KEY);
@@ -672,7 +301,7 @@
           var parsed = JSON.parse(raw);
           if (!parsed || typeof parsed !== "object") return Object.create(null);
           return parsed;
-        } catch (e) {
+        } catch (err) {
           return Object.create(null);
         }
       }
@@ -680,7 +309,7 @@
       function saveToggleStorage(state) {
         try {
           localStorage.setItem(TOGGLE_STORAGE_KEY, JSON.stringify(state));
-        } catch (e) {
+        } catch (err) {
           /* ignore quota / private mode */
         }
       }
@@ -702,165 +331,469 @@
         return !!(rowIcons && rowIcons[columnId]);
       }
 
-      function renderToggleInner(button, iconDef, isOn) {
-        button.innerHTML = "";
+      function renderToggleInnerNodes(iconDef, isOn, drinkZh) {
         if (!isOn) {
-          var off = document.createElement("span");
-          off.className = "toggle-off";
-          off.textContent = "—";
-          button.appendChild(off);
-          return;
+          return e("span", { style: { color: "rgba(0,0,0,0.45)" } }, "—");
         }
         if (!iconDef) {
-          var missing = document.createElement("span");
-          missing.className = "toggle-off";
-          missing.textContent = "—";
-          button.appendChild(missing);
-          return;
+          return e("span", { style: { color: "rgba(0,0,0,0.45)" } }, "—");
         }
         if (iconDef.type === "colorDot") {
-          var dot = document.createElement("span");
-          dot.className = "badge-dot";
-          dot.setAttribute("role", "img");
-          dot.setAttribute("aria-label", "●冰飲");
-          dot.style.backgroundColor = iconDef.color || "rgb(138, 184, 186)";
-          dot.title = iconDef.title || "●冰飲";
-          button.appendChild(dot);
-          return;
+          return e("span", {
+            className: "teatop-badge-dot",
+            role: "img",
+            "aria-label": "●冰飲",
+            title: iconDef.title || "●冰飲",
+            style: { backgroundColor: iconDef.color || "rgb(138, 184, 186)" },
+          });
         }
         if (iconDef.type === "glyph" && iconDef.glyph) {
-          var glyph = document.createElement("span");
-          glyph.className = "icon-glyph";
-          if (iconDef.glyph === "固" || iconDef.glyph === "古") glyph.classList.add("gu");
-          glyph.textContent = iconDef.glyph;
-          glyph.title = iconDef.title || iconDef.glyph;
-          button.appendChild(glyph);
-          return;
+          return e(
+            "span",
+            {
+              className: "teatop-icon-glyph",
+              title: iconDef.title || iconDef.glyph,
+            },
+            iconDef.glyph
+          );
         }
         if (iconDef.type === "image" && iconDef.url) {
-          var img = document.createElement("img");
-          img.className = "badge-img";
-          img.src = iconDef.url;
-          img.alt = button.getAttribute("data-drink-zh") || "";
-          img.loading = "lazy";
-          img.title = iconDef.title || "";
-          button.appendChild(img);
+          return e("img", {
+            src: iconDef.url,
+            alt: drinkZh || "",
+            loading: "lazy",
+            title: iconDef.title || "",
+            style: { maxWidth: 72, maxHeight: 32, objectFit: "contain" },
+          });
         }
+        return e("span", { style: { color: "rgba(0,0,0,0.45)" } }, "—");
       }
 
-      function createIconToggleCell(nameZh, columnId, columnLabel, rowIcons, saved) {
-        var td = document.createElement("td");
-        td.className = "icon-slot";
-        var iconDef = iconDefForColumn(columnId, rowIcons);
-        var isOn = initialToggleOn(nameZh, columnId, rowIcons, saved);
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "icon-toggle";
-        btn.setAttribute("aria-pressed", isOn ? "true" : "false");
-        btn.setAttribute("data-drink-zh", nameZh);
-        btn.setAttribute("data-column-id", columnId);
-        btn.title = (isOn ? "關閉" : "開啟") + "：" + columnLabel;
-        if (iconDef) {
-          btn.setAttribute("data-icon-def", JSON.stringify(iconDef));
-        }
-        renderToggleInner(btn, iconDef, isOn);
-        td.appendChild(btn);
-        return td;
-      }
-
-      function wireIconToggleTable(tbody, saved) {
-        if (!tbody) return;
-        tbody.addEventListener("click", function (event) {
-          var btn = event.target.closest("button.icon-toggle");
-          if (!btn || !tbody.contains(btn)) return;
-          var isOn = btn.getAttribute("aria-pressed") === "true";
-          var next = !isOn;
-          var nameZh = btn.getAttribute("data-drink-zh") || "";
-          var columnId = btn.getAttribute("data-column-id") || "";
-          var iconDef = null;
-          try {
-            var raw = btn.getAttribute("data-icon-def");
-            if (raw) iconDef = JSON.parse(raw);
-          } catch (e) {
-            iconDef = iconColumnDefaults[columnId] || null;
-          }
-          if (!iconDef) iconDef = iconColumnDefaults[columnId] || null;
-          btn.setAttribute("aria-pressed", next ? "true" : "false");
-          var label = btn.title.split("：").pop() || columnId;
-          btn.title = (next ? "關閉" : "開啟") + "：" + label;
-          renderToggleInner(btn, iconDef, next);
-          if (nameZh && columnId) {
-            saved[toggleStorageKey(nameZh, columnId)] = next;
-            saveToggleStorage(saved);
-          }
+      function buildTableRows(items, menuMap, shellMap, iconMap, savedToggles, savedLeaves) {
+        return items.map(function (entry) {
+          var menuItem = menuMap[entry.nameZh] || null;
+          var shell = shellMap[entry.nameZh] || null;
+          var menuImage = menuItem && menuItem.image ? menuItem.image : "";
+          var cupSrc = menuImage ? resolveImage(menuImage) : "";
+          if (!cupSrc && shell && shell.cupShell) cupSrc = shell.cupShell;
+          var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
+          var rowIcons = iconMap[entry.nameZh];
+          return {
+            key: entry.nameZh,
+            nameZh: entry.nameZh,
+            nameEn: nameEn,
+            cupSrc: cupSrc,
+            shell: shell,
+            rowIcons: rowIcons,
+            leftLeafId: initialLeafId(entry.nameZh, "leftLeaf", shell, savedLeaves),
+            rightLeafId: initialLeafId(entry.nameZh, "rightLeaf", shell, savedLeaves),
+            savedToggles: savedToggles,
+          };
         });
       }
 
-      function imageCell(src, alt) {
-        if (!src) {
-          return '<td class="img-cell"><span class="empty">—</span></td>';
-        }
-        var safeSrc = escapeHtml(src);
-        var safeAlt = escapeHtml(alt);
-        return (
-          '<td class="img-cell"><a href="' +
-          safeSrc +
-          '" target="_blank" rel="noopener" title="開啟原圖">' +
-          '<img src="' +
-          safeSrc +
-          '" alt="' +
-          safeAlt +
-          '" loading="lazy" /></a></td>'
-        );
-      }
-
-      function buildRow(entry, menuMap, shellMap, iconMap, iconColumns, saved, savedLeaves) {
-        var menuItem = menuMap[entry.nameZh] || null;
-        var shell = shellMap[entry.nameZh] || null;
-        var menuImage = menuItem && menuItem.image ? menuItem.image : "";
-        var cupSrc = menuImage ? resolveImage(menuImage) : "";
-        if (!cupSrc && shell && shell.cupShell) cupSrc = shell.cupShell;
-        var nameEn = entry.nameEn || (menuItem && menuItem.nameEn) || "";
-        var enHtml = escapeHtml(nameEn).replace(/\n/g, "<br/>");
-        var rowIcons = iconMap[entry.nameZh];
-
-        var tr = document.createElement("tr");
-        tr.setAttribute("data-drink-zh", entry.nameZh);
-
-        var drinkTd = document.createElement("td");
-        drinkTd.className = "col-drink";
-        drinkTd.innerHTML =
-          '<div class="name-zh">' +
-          escapeHtml(entry.nameZh) +
-          '</div><div class="name-en">' +
-          enHtml +
-          "</div>";
-        tr.appendChild(drinkTd);
-
-        (iconColumns || []).forEach(function (col) {
-          tr.appendChild(
-            createIconToggleCell(
-              entry.nameZh,
-              col.id,
-              col.label || col.id,
-              rowIcons,
-              saved
-            )
+      function LeafPickerButton(props) {
+        var leafId = props.leafId;
+        var onOpen = props.onOpen;
+        var children;
+        if (!leafId || leafId === "none") {
+          children = e(
+            Empty,
+            {
+              image: Empty.PRESENTED_IMAGE_SIMPLE,
+              description: "沒有裝飾葉素材",
+              style: { margin: 0, transform: "scale(0.85)" },
+            }
           );
+        } else {
+          var leaf = leafById[leafId];
+          if (!leaf) {
+            children = "—";
+          } else {
+            children = e(
+              Space,
+              { direction: "vertical", size: 4, align: "center" },
+              e("img", { src: leaf.url, alt: leaf.label, loading: "lazy" }),
+              e("span", { style: { fontSize: 11, color: "rgba(0,0,0,0.45)" } }, leaf.label)
+            );
+          }
+        }
+        var title =
+          !leafId || leafId === "none"
+            ? "點擊選擇裝飾葉"
+            : leafById[leafId]
+              ? "目前：" + leafById[leafId].label + "（點擊更換）"
+              : "點擊選擇裝飾葉";
+        return e(
+          Button,
+          {
+            type: "primary",
+            ghost: true,
+            className: "teatop-leaf-picker-btn",
+            title: title,
+            onClick: onOpen,
+          },
+          children
+        );
+      }
+
+      function DrinkAssetReviewApp(props) {
+        var initialItems = props.items;
+        var iconColumns = props.iconColumns;
+        var menuMap = props.menuMap;
+        var shellMap = props.shellMap;
+        var iconMap = props.iconMap;
+
+        var toggleState = useState(props.initialSavedToggles || Object.create(null));
+        var savedToggles = toggleState[0];
+        var setSavedToggles = toggleState[1];
+
+        var leafState = useState(props.initialSavedLeaves || Object.create(null));
+        var savedLeaves = leafState[0];
+        var setSavedLeaves = leafState[1];
+
+        var rowSeed = useMemo(
+          function () {
+            return buildTableRows(
+              initialItems,
+              menuMap,
+              shellMap,
+              iconMap,
+              savedToggles,
+              savedLeaves
+            );
+          },
+          [initialItems, menuMap, shellMap, iconMap, savedToggles, savedLeaves]
+        );
+
+        var modalState = useState(null);
+        var leafModal = modalState[0];
+        var setLeafModal = modalState[1];
+
+        var handleIconToggle = useCallback(
+          function (nameZh, columnId, columnLabel, rowIcons) {
+            var iconDef = iconDefForColumn(columnId, rowIcons);
+            var key = toggleStorageKey(nameZh, columnId);
+            var isOn = Object.prototype.hasOwnProperty.call(savedToggles, key)
+              ? savedToggles[key] === true
+              : !!(rowIcons && rowIcons[columnId]);
+            var next = !isOn;
+            var nextState = Object.assign(Object.create(null), savedToggles);
+            nextState[key] = next;
+            setSavedToggles(nextState);
+            saveToggleStorage(nextState);
+          },
+          [savedToggles]
+        );
+
+        var openLeafPickerModal = useCallback(function (nameZh, slot, slotLabel) {
+          var currentId = savedLeaves[leafStorageKey(nameZh, slot)];
+          if (currentId === undefined) {
+            var shell = shellMap[nameZh] || null;
+            currentId = initialLeafId(nameZh, slot, shell, savedLeaves);
+          }
+          leafPickerContext = { nameZh: nameZh, slot: slot };
+          setLeafModal({
+            nameZh: nameZh,
+            slot: slot,
+            slotLabel: slotLabel,
+            currentId: currentId || "none",
+            title:
+              nameZh +
+              " · " +
+              slotLabel +
+              "（共 " +
+              leafCatalogList.length +
+              " 種可選）",
+          });
+        }, [savedLeaves, shellMap]);
+
+        var closeLeafPickerModal = useCallback(function () {
+          leafPickerContext = null;
+          setLeafModal(null);
+        }, []);
+
+        var applyLeafSelection = useCallback(
+          function (nameZh, slot, leafId) {
+            var nextState = Object.assign(Object.create(null), savedLeaves);
+            nextState[leafStorageKey(nameZh, slot)] = leafId;
+            savedLeafPicks = nextState;
+            setSavedLeaves(nextState);
+            saveLeafStorage(nextState);
+            closeLeafPickerModal();
+          },
+          [savedLeaves, closeLeafPickerModal]
+        );
+
+        var columns = useMemo(
+          function () {
+            var cols = [
+              {
+                title: "飲料",
+                dataIndex: "nameZh",
+                key: "drink",
+                fixed: "left",
+                width: 180,
+                render: function (_text, record) {
+                  return e(
+                    "div",
+                    null,
+                    e("div", { className: "teatop-drink-name-zh" }, record.nameZh),
+                    record.nameEn
+                      ? e("div", { className: "teatop-drink-name-en" }, record.nameEn)
+                      : null
+                  );
+                },
+              },
+            ];
+
+            (iconColumns || []).forEach(function (col) {
+              cols.push({
+                title: col.label || col.id,
+                key: "icon-" + col.id,
+                align: "center",
+                width: 72,
+                render: function (_text, record) {
+                  var columnId = col.id;
+                  var columnLabel = col.label || col.id;
+                  var rowIcons = record.rowIcons;
+                  var iconDef = iconDefForColumn(columnId, rowIcons);
+                  var key = toggleStorageKey(record.nameZh, columnId);
+                  var isOn = Object.prototype.hasOwnProperty.call(savedToggles, key)
+                    ? savedToggles[key] === true
+                    : initialToggleOn(record.nameZh, columnId, rowIcons, savedToggles);
+                  var btnClass = "teatop-icon-toggle-btn" + (isOn ? " is-on" : "");
+                  return e(
+                    Button,
+                    {
+                      type: "default",
+                      className: btnClass,
+                      "aria-pressed": isOn ? "true" : "false",
+                      title: (isOn ? "關閉" : "開啟") + "：" + columnLabel,
+                      onClick: function () {
+                        handleIconToggle(record.nameZh, columnId, columnLabel, rowIcons);
+                      },
+                    },
+                    renderToggleInnerNodes(iconDef, isOn, record.nameZh)
+                  );
+                },
+              });
+            });
+
+            cols.push({
+              title: "杯圖",
+              key: "cup",
+              align: "center",
+              width: 120,
+              render: function (_text, record) {
+                if (!record.cupSrc) {
+                  return e("span", { style: { color: "rgba(0,0,0,0.45)" } }, "—");
+                }
+                return e(
+                  "a",
+                  {
+                    href: record.cupSrc,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    title: "開啟原圖",
+                  },
+                  e(
+                    "span",
+                    { className: "teatop-thumb-wrap" },
+                    e("img", {
+                      src: record.cupSrc,
+                      alt: record.nameZh + " 杯圖",
+                      loading: "lazy",
+                    })
+                  )
+                );
+              },
+            });
+
+            cols.push({
+              title: "左裝飾葉",
+              key: "leftLeaf",
+              align: "center",
+              width: 140,
+              render: function (_text, record) {
+                var leafId =
+                  savedLeaves[leafStorageKey(record.nameZh, "leftLeaf")] !== undefined
+                    ? savedLeaves[leafStorageKey(record.nameZh, "leftLeaf")]
+                    : record.leftLeafId;
+                return e(LeafPickerButton, {
+                  leafId: leafId,
+                  onOpen: function () {
+                    openLeafPickerModal(record.nameZh, "leftLeaf", "左裝飾葉");
+                  },
+                });
+              },
+            });
+
+            cols.push({
+              title: "右裝飾葉",
+              key: "rightLeaf",
+              align: "center",
+              width: 140,
+              render: function (_text, record) {
+                var leafId =
+                  savedLeaves[leafStorageKey(record.nameZh, "rightLeaf")] !== undefined
+                    ? savedLeaves[leafStorageKey(record.nameZh, "rightLeaf")]
+                    : record.rightLeafId;
+                return e(LeafPickerButton, {
+                  leafId: leafId,
+                  onOpen: function () {
+                    openLeafPickerModal(record.nameZh, "rightLeaf", "右裝飾葉");
+                  },
+                });
+              },
+            });
+
+            return cols;
+          },
+          [
+            iconColumns,
+            savedToggles,
+            savedLeaves,
+            handleIconToggle,
+            openLeafPickerModal,
+          ]
+        );
+
+        var modalBody = null;
+        if (leafModal) {
+          if (!leafCatalogList.length) {
+            modalBody = e(Empty, { description: "沒有裝飾葉素材" });
+          } else {
+            modalBody = e(
+              "div",
+              null,
+              e(
+                "div",
+                {
+                  className: "teatop-empty-none-pick",
+                  role: "button",
+                  tabIndex: 0,
+                  onClick: function () {
+                    applyLeafSelection(leafModal.nameZh, leafModal.slot, "none");
+                  },
+                  onKeyDown: function (ev) {
+                    if (ev.key === "Enter" || ev.key === " ") {
+                      applyLeafSelection(leafModal.nameZh, leafModal.slot, "none");
+                    }
+                  },
+                },
+                e(Empty, { description: "沒有裝飾葉素材" })
+              ),
+              e(
+                "div",
+                {
+                  style: {
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(108px, 1fr))",
+                    gap: 8,
+                  },
+                },
+                leafCatalogList.map(function (leaf) {
+                  var selected = leaf.id === leafModal.currentId;
+                  return e(
+                    Button,
+                    {
+                      key: leaf.id,
+                      className: "teatop-leaf-option" + (selected ? " is-selected" : ""),
+                      onClick: function () {
+                        applyLeafSelection(leafModal.nameZh, leafModal.slot, leaf.id);
+                      },
+                    },
+                    e("img", { src: leaf.url, alt: "", loading: "lazy" }),
+                    e("span", { style: { fontSize: 11 } }, leaf.label)
+                  );
+                })
+              )
+            );
+          }
+        }
+
+        return e(
+          ConfigProvider,
+          {
+            theme: {
+              token: {
+                colorPrimary: "#ec6f09",
+                borderRadius: 8,
+              },
+            },
+          },
+          e(
+            Layout,
+            { style: { minHeight: "100vh", background: "#f5f5f5" } },
+            e(
+              Header,
+              {
+                style: {
+                  background: "#fff",
+                  padding: "0 24px",
+                  height: 64,
+                  lineHeight: "64px",
+                  borderBottom: "1px solid #f0f0f0",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
+                },
+              },
+              e("h1", { className: "teatop-page-header-title" }, "TEATOP 飲料素材對照 · v1.0")
+            ),
+            e(
+              Content,
+              { style: { padding: 24, maxWidth: 1400, margin: "0 auto", width: "100%" } },
+              props.errorMessage
+                ? e(Alert, {
+                    type: "error",
+                    message: props.errorMessage,
+                    showIcon: true,
+                    style: { marginBottom: 16 },
+                  })
+                : null,
+              e(Table, {
+                columns: columns,
+                dataSource: rowSeed,
+                pagination: false,
+                bordered: true,
+                size: "middle",
+                scroll: { x: "max-content" },
+                locale: { emptyText: e(Empty, { description: "尚無品項資料" }) },
+              })
+            ),
+            e(Modal, {
+              title: leafModal ? leafModal.title : "選擇裝飾葉",
+              open: !!leafModal,
+              onCancel: closeLeafPickerModal,
+              footer: null,
+              width: 640,
+              destroyOnClose: true,
+              children: modalBody,
+            })
+          )
+        );
+      }
+
+      function renderAppMount(mountProps) {
+        var rootEl = document.getElementById("root");
+        if (!rootEl) return;
+        var root = ReactDOM.createRoot(rootEl);
+        root.render(e(DrinkAssetReviewApp, mountProps));
+      }
+
+      function showError(msg) {
+        renderAppMount({
+          items: [],
+          iconColumns: [],
+          menuMap: Object.create(null),
+          shellMap: Object.create(null),
+          iconMap: Object.create(null),
+          initialSavedToggles: Object.create(null),
+          initialSavedLeaves: Object.create(null),
+          errorMessage: msg,
         });
-
-        var cupWrap = document.createElement("template");
-        cupWrap.innerHTML = imageCell(cupSrc, entry.nameZh + " 杯圖");
-        tr.appendChild(cupWrap.content.firstChild);
-
-        tr.appendChild(
-          createLeafPickerCell(entry.nameZh, "leftLeaf", "左裝飾葉", shell, savedLeaves)
-        );
-        tr.appendChild(
-          createLeafPickerCell(entry.nameZh, "rightLeaf", "右裝飾葉", shell, savedLeaves)
-        );
-
-        return tr;
       }
 
       function boot() {
@@ -901,31 +834,23 @@
             indexLeafCatalog(shellAssets.leafCatalog || []);
             savedLeafPicks = loadLeafStorage();
             var savedToggles = loadToggleStorage();
-            renderIconHeaders(iconColumns);
             var menuMap = menuByZh(menu);
             var shellMap = shellByNameZh(menu, REGION, shellByRank);
             var iconMap = iconAssignmentsByNameZh(menu, REGION, assignmentsByXimenRank);
             var items = dedupeCatalogItems(catalog.items);
-            var tbody = document.getElementById("table-body");
-            if (!tbody) return;
             if (!items.length) {
               showError("客戶品項清單是空的。");
               return;
             }
-            wireIconToggleTable(tbody, savedToggles);
-            wireLeafPickerTable(tbody);
-            items.forEach(function (entry) {
-              tbody.appendChild(
-                buildRow(
-                  entry,
-                  menuMap,
-                  shellMap,
-                  iconMap,
-                  iconColumns,
-                  savedToggles,
-                  savedLeafPicks
-                )
-              );
+            renderAppMount({
+              items: items,
+              iconColumns: iconColumns,
+              menuMap: menuMap,
+              shellMap: shellMap,
+              iconMap: iconMap,
+              initialSavedToggles: savedToggles,
+              initialSavedLeaves: savedLeafPicks,
+              errorMessage: null,
             });
           })
           .catch(function (err) {
