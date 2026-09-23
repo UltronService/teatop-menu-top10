@@ -9,6 +9,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -63,6 +64,7 @@ function mapFirebaseUser(user: User): AdminUser {
 }
 
 const AUTH_READY_TIMEOUT_MS = 8000;
+const AUTH_LOADING_MAX_MS = 3000;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const mode: "firebase" | "local" = isFirebaseConfigured() ? "firebase" : "local";
@@ -71,10 +73,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
   const [loading, setLoading] = useState(() => mode === "firebase");
 
+  useLayoutEffect(() => {
+    if (mode !== "local") {
+      return;
+    }
+    setUser(readLocalSession());
+    setLoading(false);
+  }, [mode]);
+
+  useEffect(() => {
+    const maxWaitId = window.setTimeout(() => {
+      setLoading(false);
+    }, AUTH_LOADING_MAX_MS);
+    return () => {
+      window.clearTimeout(maxWaitId);
+    };
+  }, []);
+
   useEffect(() => {
     if (mode === "local") {
-      setUser(readLocalSession());
-      setLoading(false);
       return;
     }
     const auth = getFirebaseAuth();

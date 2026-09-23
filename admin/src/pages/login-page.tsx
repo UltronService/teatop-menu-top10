@@ -2,7 +2,6 @@ import { Alert, Button, Card, Form, Input, Typography } from "antd";
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
-import { AuthLoadingScreen } from "../components/auth-loading";
 import { useAuth } from "../lib/auth-context";
 import { isFirebaseConfigured } from "../lib/firebase-config";
 
@@ -15,13 +14,11 @@ export function LoginPage() {
 
   const from = (location.state as { from?: string } | null)?.from ?? "/region-rank-price";
 
-  if (loading) {
-    return <AuthLoadingScreen />;
-  }
-
-  if (user) {
+  if (!loading && user) {
     return <Navigate to={from} replace />;
   }
+
+  const authBusy = loading || submitting;
 
   return (
     <div
@@ -75,7 +72,7 @@ export function LoginPage() {
           >
             <Input.Password autoComplete="current-password" />
           </Form.Item>
-          <Button type="primary" htmlType="submit" block loading={submitting}>
+          <Button type="primary" htmlType="submit" block loading={authBusy} disabled={loading}>
             登入
           </Button>
         </Form>

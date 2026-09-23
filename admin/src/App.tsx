@@ -6,6 +6,7 @@ import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { HashRouter, Route, Routes } from "react-router-dom";
 >>>>>>> cacc143 (fix(admin): HashRouter and auth loading for GitHub Pages)
 
+import { AdminErrorBoundary } from "./components/admin-error-boundary";
 import { AdminLayout } from "./components/admin-layout";
 import { HomeRedirect } from "./components/home-redirect";
 import { RequireAuth } from "./components/require-auth";
@@ -17,29 +18,31 @@ import "./styles/admin.css";
 
 export function App() {
   return (
-    <ConfigProvider
-      locale={zhTW}
-      theme={{ token: { colorPrimary: "#ec6f09", borderRadius: 8 } }}
-    >
-      <AuthProvider>
-        <HashRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              element={
-                <RequireAuth>
-                  <AdminLayout />
-                </RequireAuth>
-              }
-            >
-              <Route path="/region-rank-price" element={<RegionRankPricePage />} />
-              <Route path="/drink-asset-review" element={<DrinkAssetReviewPage />} />
-            </Route>
-            <Route path="/" element={<HomeRedirect />} />
-            <Route path="*" element={<HomeRedirect />} />
-          </Routes>
-        </HashRouter>
-      </AuthProvider>
-    </ConfigProvider>
+    <AdminErrorBoundary>
+      <ConfigProvider
+        locale={zhTW}
+        theme={{ token: { colorPrimary: "#ec6f09", borderRadius: 8 } }}
+      >
+        <AuthProvider>
+          <HashRouter>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                element={
+                  <RequireAuth>
+                    <AdminLayout />
+                  </RequireAuth>
+                }
+              >
+                <Route path="/region-rank-price" element={<RegionRankPricePage />} />
+                <Route path="/drink-asset-review" element={<DrinkAssetReviewPage />} />
+              </Route>
+              <Route path="/" element={<HomeRedirect />} />
+              <Route path="*" element={<HomeRedirect />} />
+            </Routes>
+          </HashRouter>
+        </AuthProvider>
+      </ConfigProvider>
+    </AdminErrorBoundary>
   );
 }

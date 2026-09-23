@@ -5,11 +5,44 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TEATOP 客戶自助後台</title>
+    <style>
+      @keyframes teatop-admin-spin {
+        to { transform: rotate(360deg); }
+      }
+      .teatop-admin-boot-spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #f0f0f0;
+        border-top-color: #ec6f09;
+        border-radius: 50%;
+        animation: teatop-admin-spin 0.8s linear infinite;
+      }
+    </style>
   </head>
   <body>
-    <div id="root" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;color:#595959">
-      載入中…
+    <div id="root" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#f5f5f5;font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;color:#595959">
+      <div class="teatop-admin-boot-spinner" aria-hidden="true"></div>
+      <p style="margin:0;font-size:15px">載入中…</p>
     </div>
+    <noscript>請啟用 JavaScript 以使用 TEATOP 後台登入。</noscript>
+    <script>
+      (function () {
+        var h = (location.hash || "").replace(/^#/, "").trim();
+        if (h === "login" || h === "/login/") {
+          location.replace(location.pathname + location.search + "#/login");
+        }
+        window.addEventListener(
+          "error",
+          function () {
+            var root = document.getElementById("root");
+            if (!root || root.dataset.mounted === "true") return;
+            root.innerHTML =
+              '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f5f5;padding:24px;font-family:\'Noto Sans TC\',\'Microsoft JhengHei\',sans-serif;color:#595959;text-align:center"><div><p style="margin:0 0 12px">後台載入失敗</p><a href="./#/login" style="color:#ec6f09;font-weight:600">重新開啟登入頁</a></div></div>';
+          },
+          true
+        );
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
