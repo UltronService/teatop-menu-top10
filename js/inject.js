@@ -55,6 +55,54 @@
     return assetRoot() + rel.replace(/^\.\//, "");
   }
 
+  function absolutizeMenuUrl(url) {
+    if (!url || !String(url).trim()) return "";
+    var u = String(url).trim();
+    if (/^https?:\/\//i.test(u) || u.charAt(0) === "/") return u;
+    return assetRoot() + u.replace(/^\.\//, "");
+  }
+
+  function menuUrlFromQuery() {
+    try {
+      var params = new URLSearchParams(location.search);
+      return (
+        absolutizeMenuUrl(params.get("menuUrl") || "") ||
+        absolutizeMenuUrl(params.get("publishedMenu") || "")
+      );
+    } catch (err) {
+      return "";
+    }
+  }
+
+  function fetchJson(url) {
+    return fetch(url, { cache: "no-cache" }).then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    });
+  }
+
+  function loadPlayerConfig() {
+    return fetchJson(assetRoot() + "data/player-config.json").catch(function () {
+      return {};
+    });
+  }
+
+  function publishedUrlFromConfig(cfg) {
+    if (!cfg || typeof cfg !== "object") return "";
+    var raw = cfg.publishedMenuUrl || cfg.menuUrl || "";
+    return absolutizeMenuUrl(raw);
+  }
+
+  function fetchMenuWithFallback(publishedUrl) {
+    var fallback = assetRoot() + "data/menu.json";
+    if (!publishedUrl) {
+      return fetchJson(fallback);
+    }
+    return fetchJson(publishedUrl).catch(function () {
+      return fetchJson(fallback);
+    });
+  }
+
   function formatEn(nameEn) {
     var s = nameEn || "";
     if (s.indexOf("\n") >= 0) return s.split("\n").join("<br/>");
@@ -188,15 +236,15 @@
       return;
     }
 
-    fetch(assetRoot() + "data/menu.json", { cache: "no-cache" })
-      .then(function (res) {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.json();
+    loadPlayerConfig()
+      .then(function (cfg) {
+        var published = menuUrlFromQuery() || publishedUrlFromConfig(cfg);
+        return fetchMenuWithFallback(published);
       })
       .then(function (menu) {
         var ranked = itemsForRegion(menu, region);
         if (!ranked.length) {
-          showError("此區域尚無品項", "區域「" + region + "」在 menu.json 中沒有排行資料。");
+          showError("此區域尚無品項", "區域「" + region + "」在選單資料中沒有排行資料。");
           return;
         }
         inject(ranked);

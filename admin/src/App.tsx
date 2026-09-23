@@ -1,6 +1,6 @@
 import { ConfigProvider } from "antd";
 import zhTW from "antd/locale/zh_TW";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AdminLayout } from "./components/admin-layout";
 import { RequireAuth } from "./components/require-auth";
@@ -17,7 +17,7 @@ export function App() {
       theme={{ token: { colorPrimary: "#ec6f09", borderRadius: 8 } }}
     >
       <AuthProvider>
-        <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "") || "/"}>
+        <HashRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
@@ -33,7 +33,7 @@ export function App() {
             <Route path="/" element={<Navigate to="/region-rank-price" replace />} />
             <Route path="*" element={<Navigate to="/region-rank-price" replace />} />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </AuthProvider>
     </ConfigProvider>
   );

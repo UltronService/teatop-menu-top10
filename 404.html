@@ -31,6 +31,14 @@
 /* If someone hits /regions/<unknown>/ and Pages serves 404.html from root,
    also try to boot the shared player for a richer in-shell error when path looks like a region. */
 (function () {
+  var path = location.pathname;
+  var adminBase = "/teatop-menu-top10/admin/";
+  if (path.indexOf(adminBase) === 0) {
+    var rest = path.slice(adminBase.length).replace(/\/$/, "");
+    var hashPath = rest ? "#/" + rest : "#/";
+    location.replace(adminBase + location.search + hashPath);
+    return;
+  }
   var m = location.pathname.match(/\/regions\/([^/]+)\/?$/);
   if (!m) return;
   var known = ["central","central-smart","mrt-tamsui","north","north-smart","south","ximen"];

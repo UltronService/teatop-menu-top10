@@ -20,6 +20,8 @@ Base: https://ultronservice.github.io/teatop-menu-top10/
 | south | https://ultronservice.github.io/teatop-menu-top10/regions/south/ |
 | ximen | https://ultronservice.github.io/teatop-menu-top10/regions/ximen/ |
 
+**Admin（客戶自助後台）：** https://ultronservice.github.io/teatop-menu-top10/admin/（Hash 路由，例 `#/region-rank-price`）。建置與 Pages 部署見 [`admin/README.md`](admin/README.md)。
+
 ## Local smoke test
 From the repo root (needs a static server so `fetch` of `data/menu.json` works):
 
@@ -38,7 +40,7 @@ Then open e.g. http://127.0.0.1:4173/regions/ximen/
   - `regions/<id>/index.html` — exact Ximen DOM/classes (`.animation`, `.L`, `.R`, `.L0N`, `.Rrow0N`, leaf/cup nodes)
   - `css/style.css` — exact Ximen `style.css`
   - `js/script.js` — exact Ximen timeline loop (`animationend` → restart)
-  - `js/inject.js` — **only** injects `menu.json` into that DOM (does not rebuild the shell)
+  - `js/inject.js` — injects menu JSON into that DOM (default `data/menu.json`; optional published URL via `data/player-config.json` or `?menuUrl=` / `?publishedMenu=` query, with fallback to `menu.json`)
 - **Images:** drink cups from `images/drinks/*.png`; logo at `images/logo.png` (from Ximen); decorative leaves remain original CDN assets
 - **Unknown region:** Chinese-friendly error overlay + root `404.html` for GitHub Pages
 
