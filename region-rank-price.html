@@ -5,251 +5,103 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TEATOP 區域排行與價格 · 跨區對照 · v1.0</title>
   <meta name="teatop-product-version" content="1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=Montserrat:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/5.24.9/reset.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    :root {
-      --navy: #0c2f54;
-      --orange: #ec6f09;
-      --border: #ddd5cb;
-      --muted: #5c534a;
-      --bg: #f7f4f0;
-      --err: #b91c1c;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      font-family: "Noto Sans TC", sans-serif;
-      background: var(--bg);
-      color: #1a1510;
-      line-height: 1.45;
+      background: #f5f5f5;
     }
 
-    header {
-      background: #fff;
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 1.25rem;
-    }
-
-    header h1 {
+    .teatop-page-header-title {
       margin: 0;
-      font-size: 1.15rem;
-      color: var(--navy);
-    }
-
-    header p {
-      margin: 0.35rem 0 0;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    main {
-      padding: 1rem;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .panel {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem;
-    }
-
-    .toolbar {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin-bottom: 0.75rem;
-    }
-
-    .toolbar button {
-      font-family: inherit;
-      font-size: 0.85rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #fff;
-      cursor: pointer;
-    }
-
-    .toolbar button.primary {
-      background: var(--navy);
-      color: #fff;
-      border-color: var(--navy);
-    }
-
-    .toolbar .hint {
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-      min-width: 960px;
-    }
-
-    thead th {
-      background: var(--navy);
-      color: #fff;
-      text-align: left;
-      padding: 0.55rem 0.4rem;
-      border: 1px solid #0a2847;
-    }
-
-    thead th.region-col {
-      text-align: center;
-      font-size: 0.76rem;
-      line-height: 1.25;
-      min-width: 6.5rem;
-    }
-
-    tbody td {
-      border: 1px solid var(--border);
-      padding: 0.35rem;
-      vertical-align: top;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #faf8f5;
-    }
-
-    .col-drink .name-zh {
+      font-size: 18px;
       font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 64px;
     }
 
-    .col-drink .name-en {
-      font-size: 0.72rem;
-      color: var(--muted);
+    .teatop-drink-name-zh {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+    }
+
+    .teatop-drink-name-en {
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 1.35;
       font-family: Montserrat, "Noto Sans TC", sans-serif;
-      margin-top: 0.15rem;
     }
 
-    .cell-edit {
+    .teatop-region-col-title.has-col-error {
+      box-shadow: inset 0 -3px 0 #ff4d4f;
+      padding-bottom: 4px;
+    }
+
+    .teatop-cell-edit {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: 6px;
+      min-width: 88px;
     }
 
-    .cell-edit label {
+    .teatop-cell-field {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
-      font-size: 0.68rem;
-      color: var(--muted);
+      gap: 6px;
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.45);
     }
 
-    .cell-edit input {
-      width: 3.1rem;
-      padding: 0.2rem 0.25rem;
-      font-family: inherit;
-      font-size: 0.8rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
+    .teatop-cell-field .ant-input-number {
+      width: 72px;
     }
 
-    .cell-edit input.price-input {
-      width: 3.6rem;
-    }
-
-    .cell-edit input.is-invalid {
-      border-color: var(--err);
-      background: #fef2f2;
-    }
-
-    .cell-edit input.is-modified {
-      border-color: var(--orange);
-    }
-
-    .cell-edit .cell-err {
-      font-size: 0.65rem;
-      color: var(--err);
+    .teatop-cell-err {
+      font-size: 11px;
+      color: #ff4d4f;
       line-height: 1.2;
-      min-height: 0.8rem;
+      min-height: 14px;
     }
 
-    thead th.region-col.has-col-error {
-      box-shadow: inset 0 -3px 0 var(--err);
+    .teatop-input-modified.ant-input-number {
+      border-color: #ec6f09;
     }
 
-    .banner {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      margin-bottom: 0.75rem;
-      font-size: 0.88rem;
-    }
-
-    .banner-error {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: var(--err);
-    }
-
-    .banner-ok {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      color: #166534;
-    }
-
-    .banner[hidden] {
-      display: none;
-    }
-
-    footer {
-      margin-top: 1rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    footer a {
-      color: #d45f00;
+    .teatop-input-modified.ant-input-number-focused {
+      box-shadow: 0 0 0 2px rgba(236, 111, 9, 0.15);
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>TEATOP 區域排行與價格 · 跨區對照</h1>
-    <p>可編輯排名（1–10）與大杯價；變更存於本機瀏覽器，不會直接改動 <code>menu.json</code>。</p>
-  </header>
-  <main>
-    <div id="load-error" class="banner banner-error" hidden></div>
-    <div id="validate-banner" class="banner banner-error" hidden></div>
-    <div id="status-banner" class="banner banner-ok" hidden></div>
+  <div id="root"></div>
 
-    <section class="panel">
-      <div class="toolbar">
-        <span class="hint">列：客戶 20 品 · 空白排名＝該區不列入 TOP10</span>
-        <button type="button" id="btn-reset" class="primary">還原 menu.json 預設</button>
-      </div>
-      <div class="table-wrap">
-        <table aria-label="跨區排行與價格對照（可編輯）">
-          <thead id="matrix-thead"></thead>
-          <tbody id="matrix-tbody"></tbody>
-        </table>
-      </div>
-    </section>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/dayjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/5.24.9/antd.min.js"></script>
 
-    <footer>
-      <a href="index.html">← 返回首頁</a>
-      ·
-      <a href="drink-asset-review.html">素材對照表</a>
-    </footer>
-  </main>
   <script>
     (function () {
       "use strict";
+
+      var e = React.createElement;
+      var useState = React.useState;
+      var useMemo = React.useMemo;
+      var useCallback = React.useCallback;
+
+      var Layout = antd.Layout;
+      var Header = Layout.Header;
+      var Content = Layout.Content;
+      var Footer = Layout.Footer;
+      var Table = antd.Table;
+      var Button = antd.Button;
+      var InputNumber = antd.InputNumber;
+      var Alert = antd.Alert;
+      var Card = antd.Card;
+      var Space = antd.Space;
+      var Typography = antd.Typography;
+      var ConfigProvider = antd.ConfigProvider;
 
       var ASSET_ROOT = "./";
       var STORAGE_KEY = "teatop-region-matrix-edits-v1";
@@ -302,7 +154,7 @@
           var parsed = JSON.parse(raw);
           if (!parsed || typeof parsed !== "object") return Object.create(null);
           return parsed;
-        } catch (e) {
+        } catch (err) {
           return Object.create(null);
         }
       }
@@ -310,7 +162,7 @@
       function saveOverrides() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
-        } catch (e) {
+        } catch (err) {
           /* ignore */
         }
       }
@@ -422,186 +274,13 @@
         return merged;
       }
 
-      function showLoadError(msg) {
-        var el = document.getElementById("load-error");
-        if (!el) return;
-        el.hidden = false;
-        el.textContent = msg;
-      }
-
-      function updateBanners(allErrors) {
-        var validateEl = document.getElementById("validate-banner");
-        var statusEl = document.getElementById("status-banner");
-        var keys = Object.keys(allErrors);
-        if (validateEl) {
-          if (keys.length) {
-            validateEl.hidden = false;
-            validateEl.textContent =
-              "檢查未通過（" +
-              keys.length +
-              " 格）：同一區域排名不可重複、最多 10 品；有排名須填價格。";
-          } else {
-            validateEl.hidden = true;
-          }
-        }
-        if (statusEl) {
-          var modCount = Object.keys(overrides).length;
-          if (!keys.length) {
-            statusEl.hidden = false;
-            statusEl.textContent =
-              modCount > 0
-                ? "目前有效；已修改 " + modCount + " 格（仅存於本機）。"
-                : "目前有效；與 menu.json 預設一致。";
-          } else {
-            statusEl.hidden = true;
-          }
-        }
-      }
-
-      function applyCellValidation(inputs, message) {
-        inputs.rank.classList.toggle("is-invalid", !!message);
-        inputs.price.classList.toggle("is-invalid", !!message);
-        inputs.err.textContent = message || "";
-      }
-
-      function refreshColumnHeaders(allErrors) {
-        regionIds.forEach(function (rid) {
-          var th = document.querySelector('th[data-region-id="' + rid + '"]');
-          if (!th) return;
-          var has = false;
-          catalogItems.forEach(function (entry) {
-            var itemKey = itemKeyForRow(entry);
-            if (allErrors[itemKey + "|" + rid]) has = true;
-          });
-          th.classList.toggle("has-col-error", has);
-        });
-      }
-
-      function applyAllCellErrors(allErrors) {
+      function regionHasColumnError(regionId, allErrors) {
+        var has = false;
         catalogItems.forEach(function (entry) {
-          regionIds.forEach(function (rid) {
-            var itemKey = itemKeyForRow(entry);
-            var cell = document.querySelector(
-              'td[data-item-key="' + itemKey + '"][data-region-id="' + rid + '"]'
-            );
-            if (!cell) return;
-            var msg = allErrors[itemKey + "|" + rid] || "";
-            var ri = cell.querySelector(".rank-input");
-            var pi = cell.querySelector(".price-input");
-            var es = cell.querySelector(".cell-err");
-            if (ri) ri.classList.toggle("is-invalid", !!msg);
-            if (pi) pi.classList.toggle("is-invalid", !!msg);
-            if (es) es.textContent = msg;
-          });
+          var itemKey = itemKeyForRow(entry);
+          if (allErrors[itemKey + "|" + regionId]) has = true;
         });
-        refreshColumnHeaders(allErrors);
-        updateBanners(allErrors);
-      }
-
-      function bindCellInputs(td, entry, regionId) {
-        var itemKey = itemKeyForRow(entry);
-        var menuItem = menuByZhMap[entry.nameZh] || null;
-        var data = effectiveData(itemKey, regionId, menuItem);
-
-        var rankInput = td.querySelector(".rank-input");
-        var priceInput = td.querySelector(".price-input");
-        var errSpan = td.querySelector(".cell-err");
-        var inputs = { rank: rankInput, price: priceInput, err: errSpan };
-
-        function syncModifiedClass() {
-          var modified = isModified(itemKey, regionId, menuItem);
-          rankInput.classList.toggle("is-modified", modified);
-          priceInput.classList.toggle("is-modified", modified);
-        }
-
-        function commit() {
-          var rankParsed = parseRankInput(rankInput.value);
-          if (!rankParsed.ok) {
-            applyCellValidation(inputs, rankParsed.message);
-            return;
-          }
-          var priceParsed = parsePriceInput(priceInput.value, rankParsed.value != null);
-          if (!priceParsed.ok) {
-            applyCellValidation(inputs, priceParsed.message);
-            return;
-          }
-          if (rankParsed.value == null && priceParsed.value != null) {
-            applyCellValidation(inputs, "無排名時不可填價格");
-            return;
-          }
-          setOverride(itemKey, regionId, menuItem, rankParsed.value, priceParsed.value);
-          syncModifiedClass();
-          applyCellValidation(inputs, "");
-          applyAllCellErrors(validateAllRegions());
-        }
-
-        rankInput.addEventListener("change", commit);
-        priceInput.addEventListener("change", commit);
-        rankInput.addEventListener("blur", commit);
-        priceInput.addEventListener("blur", commit);
-        syncModifiedClass();
-      }
-
-      function createEditCell(entry, regionId) {
-        var itemKey = itemKeyForRow(entry);
-        var menuItem = menuByZhMap[entry.nameZh] || null;
-        var data = effectiveData(itemKey, regionId, menuItem);
-        var td = document.createElement("td");
-        td.className = "cell-edit-wrap";
-        td.setAttribute("data-item-key", itemKey);
-        td.setAttribute("data-region-id", regionId);
-        td.innerHTML =
-          '<div class="cell-edit">' +
-          '<label>排名<input type="number" class="rank-input" min="1" max="10" step="1" value="' +
-          (data.rank != null ? escapeHtml(data.rank) : "") +
-          '" aria-label="排名" /></label>' +
-          '<label>$L<input type="number" class="price-input" min="0" step="1" value="' +
-          (data.priceL != null ? escapeHtml(data.priceL) : "") +
-          '" aria-label="大杯價" /></label>' +
-          '<span class="cell-err" role="alert"></span></div>';
-        bindCellInputs(td, entry, regionId);
-        return td;
-      }
-
-      function renderMatrix() {
-        var thead = document.getElementById("matrix-thead");
-        var tbody = document.getElementById("matrix-tbody");
-        if (!thead || !tbody) return;
-
-        var headRow = document.createElement("tr");
-        headRow.innerHTML = '<th scope="col">飲料</th>';
-        regionIds.forEach(function (rid) {
-          var th = document.createElement("th");
-          th.scope = "col";
-          th.className = "region-col";
-          th.setAttribute("data-region-id", rid);
-          th.textContent = LABELS[rid] || rid;
-          headRow.appendChild(th);
-        });
-        thead.innerHTML = "";
-        thead.appendChild(headRow);
-
-        tbody.innerHTML = "";
-        catalogItems.forEach(function (entry) {
-          var tr = document.createElement("tr");
-          var menuItem = menuByZhMap[entry.nameZh] || null;
-          var drinkTd = document.createElement("td");
-          drinkTd.className = "col-drink";
-          drinkTd.innerHTML =
-            '<div class="name-zh">' +
-            escapeHtml(entry.nameZh) +
-            '</div><div class="name-en">' +
-            escapeHtml(entry.nameEn || (menuItem && menuItem.nameEn) || "") +
-            "</div>";
-          tr.appendChild(drinkTd);
-          regionIds.forEach(function (rid) {
-            tr.appendChild(createEditCell(entry, rid));
-          });
-          tbody.appendChild(tr);
-        });
-
-        var allErrors = validateAllRegions();
-        applyAllCellErrors(allErrors);
+        return has;
       }
 
       function dedupeCatalog(items) {
@@ -627,46 +306,406 @@
         return map;
       }
 
-      function boot() {
-        document.getElementById("btn-reset").addEventListener("click", function () {
+      function RegionEditCell(props) {
+        var entry = props.entry;
+        var regionId = props.regionId;
+        var allErrors = props.allErrors;
+        var onCommitted = props.onCommitted;
+
+        var itemKey = itemKeyForRow(entry);
+        var menuItem = menuByZhMap[entry.nameZh] || null;
+        var data = effectiveData(itemKey, regionId, menuItem);
+        var errKey = itemKey + "|" + regionId;
+        var regionErr = allErrors[errKey] || "";
+
+        var rankState = useState(data.rank != null ? data.rank : null);
+        var rankVal = rankState[0];
+        var setRankVal = rankState[1];
+        var priceState = useState(data.priceL != null ? data.priceL : null);
+        var priceVal = priceState[0];
+        var setPriceVal = priceState[1];
+        var localErrState = useState("");
+        var localErr = localErrState[0];
+        var setLocalErr = localErrState[1];
+
+        React.useEffect(
+          function () {
+            var fresh = effectiveData(itemKey, regionId, menuItem);
+            setRankVal(fresh.rank != null ? fresh.rank : null);
+            setPriceVal(fresh.priceL != null ? fresh.priceL : null);
+          },
+          [props.revision, itemKey, regionId]
+        );
+
+        var modified = isModified(itemKey, regionId, menuItem);
+        var inputClass = modified ? "teatop-input-modified" : "";
+        var displayErr = localErr || regionErr;
+
+        function commit(rankRaw, priceRaw) {
+          var rankParsed = parseRankInput(rankRaw);
+          if (!rankParsed.ok) {
+            setLocalErr(rankParsed.message);
+            return;
+          }
+          var priceParsed = parsePriceInput(priceRaw, rankParsed.value != null);
+          if (!priceParsed.ok) {
+            setLocalErr(priceParsed.message);
+            return;
+          }
+          if (rankParsed.value == null && priceParsed.value != null) {
+            setLocalErr("無排名時不可填價格");
+            return;
+          }
+          setOverride(itemKey, regionId, menuItem, rankParsed.value, priceParsed.value);
+          setLocalErr("");
+          onCommitted();
+        }
+
+        function commitFromState() {
+          commit(rankVal == null ? "" : rankVal, priceVal == null ? "" : priceVal);
+        }
+
+        return e(
+          "div",
+          { className: "teatop-cell-edit" },
+          e(
+            "div",
+            { className: "teatop-cell-field" },
+            e("span", null, "排名"),
+            e(InputNumber, {
+              className: inputClass,
+              min: 1,
+              max: 10,
+              step: 1,
+              controls: false,
+              size: "small",
+              status: displayErr ? "error" : undefined,
+              value: rankVal,
+              placeholder: "—",
+              "aria-label": "排名",
+              onChange: function (val) {
+                setRankVal(val);
+              },
+              onBlur: commitFromState,
+              onPressEnter: commitFromState,
+            })
+          ),
+          e(
+            "div",
+            { className: "teatop-cell-field" },
+            e("span", null, "$L"),
+            e(InputNumber, {
+              className: inputClass,
+              min: 0,
+              step: 1,
+              precision: 0,
+              controls: false,
+              size: "small",
+              status: displayErr ? "error" : undefined,
+              value: priceVal,
+              placeholder: "—",
+              "aria-label": "大杯價",
+              onChange: function (val) {
+                setPriceVal(val);
+              },
+              onBlur: commitFromState,
+              onPressEnter: commitFromState,
+            })
+          ),
+          e(
+            "span",
+            { className: "teatop-cell-err", role: "alert" },
+            displayErr
+          )
+        );
+      }
+
+      function RegionRankPriceApp(props) {
+        var revisionState = useState(0);
+        var revision = revisionState[0];
+        var bump = useCallback(function () {
+          revisionState[1](function (n) {
+            return n + 1;
+          });
+        }, []);
+
+        var allErrors = useMemo(
+          function () {
+            return validateAllRegions();
+          },
+          [revision, props.ready]
+        );
+
+        var modCount = Object.keys(overrides).length;
+        var errorKeys = Object.keys(allErrors);
+
+        var handleReset = useCallback(function () {
           overrides = Object.create(null);
           saveOverrides();
-          renderMatrix();
-        });
+          bump();
+        }, [bump]);
 
-        overrides = loadOverrides();
+        var tableData = useMemo(
+          function () {
+            return catalogItems.map(function (entry) {
+              return {
+                key: itemKeyForRow(entry),
+                entry: entry,
+              };
+            });
+          },
+          [props.ready]
+        );
 
-        Promise.all([
-          fetch(ASSET_ROOT + "data/menu.json", { cache: "no-cache" }),
-          fetch(ASSET_ROOT + "data/client-drink-catalog.json", { cache: "no-cache" }),
-        ])
-          .then(function (responses) {
-            if (!responses[0].ok) throw new Error("menu.json HTTP " + responses[0].status);
-            if (!responses[1].ok) {
-              throw new Error("client-drink-catalog.json HTTP " + responses[1].status);
-            }
-            return Promise.all([responses[0].json(), responses[1].json()]);
-          })
-          .then(function (payload) {
-            menuData = payload[0];
-            regionIds = menuData.regions || [];
-            catalogItems = dedupeCatalog(payload[1].items);
-            menuByZhMap = buildMenuByZh(menuData);
-            renderMatrix();
-          })
-          .catch(function (err) {
-            showLoadError(
-              "無法載入資料：" +
-                (err && err.message ? err.message : String(err)) +
-                "。請以 HTTP 開啟。"
-            );
-          });
+        var columns = useMemo(
+          function () {
+            var cols = [
+              {
+                title: "飲料",
+                key: "drink",
+                fixed: "left",
+                width: 160,
+                render: function (_text, record) {
+                  var menuItem = menuByZhMap[record.entry.nameZh] || null;
+                  return e(
+                    "div",
+                    null,
+                    e("div", { className: "teatop-drink-name-zh" }, record.entry.nameZh),
+                    e(
+                      "div",
+                      { className: "teatop-drink-name-en" },
+                      record.entry.nameEn || (menuItem && menuItem.nameEn) || ""
+                    )
+                  );
+                },
+              },
+            ];
+
+            regionIds.forEach(function (rid) {
+              var colErr = regionHasColumnError(rid, allErrors);
+              cols.push({
+                title: e(
+                  "span",
+                  {
+                    className: "teatop-region-col-title" + (colErr ? " has-col-error" : ""),
+                  },
+                  LABELS[rid] || rid
+                ),
+                key: "region-" + rid,
+                align: "center",
+                width: 110,
+                render: function (_text, record) {
+                  return e(RegionEditCell, {
+                    entry: record.entry,
+                    regionId: rid,
+                    allErrors: allErrors,
+                    revision: revision,
+                    onCommitted: bump,
+                  });
+                },
+              });
+            });
+
+            return cols;
+          },
+          [allErrors, revision, bump]
+        );
+
+        if (props.loadError) {
+          return e(
+            ConfigProvider,
+            {
+              theme: {
+                token: { colorPrimary: "#ec6f09", borderRadius: 8 },
+              },
+            },
+            e(
+              Layout,
+              { style: { minHeight: "100vh", background: "#f5f5f5" } },
+              e(
+                Header,
+                {
+                  style: {
+                    background: "#fff",
+                    padding: "0 24px",
+                    height: 64,
+                    lineHeight: "64px",
+                    borderBottom: "1px solid #f0f0f0",
+                  },
+                },
+                e("h1", { className: "teatop-page-header-title" }, "TEATOP 區域排行與價格 · 跨區對照")
+              ),
+              e(
+                Content,
+                { style: { padding: 24, maxWidth: 1400, margin: "0 auto", width: "100%" } },
+                e(Alert, { type: "error", message: props.loadError, showIcon: true })
+              )
+            )
+          );
+        }
+
+        return e(
+          ConfigProvider,
+          {
+            theme: {
+              token: { colorPrimary: "#ec6f09", borderRadius: 8 },
+            },
+          },
+          e(
+            Layout,
+            { style: { minHeight: "100vh", background: "#f5f5f5" } },
+            e(
+              Header,
+              {
+                style: {
+                  background: "#fff",
+                  padding: "0 24px",
+                  height: 64,
+                  lineHeight: "64px",
+                  borderBottom: "1px solid #f0f0f0",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
+                },
+              },
+              e("h1", { className: "teatop-page-header-title" }, "TEATOP 區域排行與價格 · 跨區對照")
+            ),
+            e(
+              Content,
+              { style: { padding: 24, maxWidth: 1400, margin: "0 auto", width: "100%" } },
+              e(
+                Typography.Paragraph,
+                { type: "secondary", style: { marginTop: 0 } },
+                "可編輯排名（1–10）與大杯價；變更存於本機瀏覽器，不會直接改動 ",
+                e("code", null, "menu.json"),
+                "。"
+              ),
+              errorKeys.length
+                ? e(Alert, {
+                    type: "error",
+                    showIcon: true,
+                    style: { marginBottom: 16 },
+                    message:
+                      "檢查未通過（" +
+                      errorKeys.length +
+                      " 格）：同一區域排名不可重複、最多 10 品；有排名須填價格。",
+                  })
+                : null,
+              !errorKeys.length
+                ? e(Alert, {
+                    type: "success",
+                    showIcon: true,
+                    style: { marginBottom: 16 },
+                    message:
+                      modCount > 0
+                        ? "目前有效；已修改 " + modCount + " 格（仅存於本機）。"
+                        : "目前有效；與 menu.json 預設一致。",
+                  })
+                : null,
+              e(
+                Card,
+                { bordered: true, bodyStyle: { padding: 16 } },
+                e(
+                  Space,
+                  {
+                    style: {
+                      width: "100%",
+                      marginBottom: 16,
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                    },
+                  },
+                  e(
+                    Typography.Text,
+                    { type: "secondary" },
+                    "列：客戶 20 品 · 空白排名＝該區不列入 TOP10"
+                  ),
+                  e(
+                    Button,
+                    { type: "primary", onClick: handleReset },
+                    "還原 menu.json 預設"
+                  )
+                ),
+                e(Table, {
+                  columns: columns,
+                  dataSource: tableData,
+                  pagination: false,
+                  bordered: true,
+                  size: "small",
+                  scroll: { x: "max-content" },
+                })
+              ),
+              e(
+                Footer,
+                {
+                  style: {
+                    textAlign: "left",
+                    background: "transparent",
+                    padding: "16px 0 0",
+                  },
+                },
+                e(
+                  Space,
+                  { split: e(Typography.Text, { type: "secondary" }, "·") },
+                  e(Typography.Link, { href: "index.html" }, "← 返回首頁"),
+                  e(Typography.Link, { href: "drink-asset-review.html" }, "素材對照表")
+                )
+              )
+            )
+          )
+        );
+      }
+
+      function RootApp() {
+        var readyState = useState(false);
+        var ready = readyState[0];
+        var setReady = readyState[1];
+        var loadErrorState = useState("");
+        var loadError = loadErrorState[0];
+        var setLoadError = loadErrorState[1];
+
+        React.useEffect(function () {
+          overrides = loadOverrides();
+          Promise.all([
+            fetch(ASSET_ROOT + "data/menu.json", { cache: "no-cache" }),
+            fetch(ASSET_ROOT + "data/client-drink-catalog.json", { cache: "no-cache" }),
+          ])
+            .then(function (responses) {
+              if (!responses[0].ok) throw new Error("menu.json HTTP " + responses[0].status);
+              if (!responses[1].ok) {
+                throw new Error("client-drink-catalog.json HTTP " + responses[1].status);
+              }
+              return Promise.all([responses[0].json(), responses[1].json()]);
+            })
+            .then(function (payload) {
+              menuData = payload[0];
+              regionIds = menuData.regions || [];
+              catalogItems = dedupeCatalog(payload[1].items);
+              menuByZhMap = buildMenuByZh(menuData);
+              setReady(true);
+            })
+            .catch(function (err) {
+              setLoadError(
+                "無法載入資料：" +
+                  (err && err.message ? err.message : String(err)) +
+                  "。請以 HTTP 開啟。"
+              );
+            });
+        }, []);
+
+        return e(RegionRankPriceApp, { ready: ready, loadError: loadError });
+      }
+
+      function mount() {
+        var rootEl = document.getElementById("root");
+        if (!rootEl) return;
+        ReactDOM.createRoot(rootEl).render(e(RootApp, null));
       }
 
       if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", boot);
+        document.addEventListener("DOMContentLoaded", mount);
       } else {
-        boot();
+        mount();
       }
     })();
   </script>
