@@ -2,17 +2,22 @@ import { Alert, Button, Card, Form, Input, Typography } from "antd";
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
+import { AuthLoadingScreen } from "../components/auth-loading";
 import { useAuth } from "../lib/auth-context";
 import { isFirebaseConfigured } from "../lib/firebase-config";
 
 export function LoginPage() {
-  const { user, signIn, mode } = useAuth();
+  const { user, signIn, mode, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const from = (location.state as { from?: string } | null)?.from ?? "/region-rank-price";
+
+  if (loading) {
+    return <AuthLoadingScreen />;
+  }
 
   if (user) {
     return <Navigate to={from} replace />;
