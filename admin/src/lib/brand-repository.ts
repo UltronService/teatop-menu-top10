@@ -50,7 +50,7 @@ async function readFirestore<T>(segment: string): Promise<T | null> {
 async function writeFirestore(segment: string, value: unknown): Promise<void> {
   const db = getFirestoreDb();
   if (!db) {
-    throw new Error("Firebase 未設定，無法寫入遠端");
+    throw new Error("無法連線至雲端儲存，請稍後再試");
   }
   await setDoc(doc(db, firestorePath(segment)), value as Record<string, unknown>, { merge: true });
 }
