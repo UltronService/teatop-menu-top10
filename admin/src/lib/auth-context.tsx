@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       if (mode === "local") {
         if (password.length < 6) {
-          throw new Error("本機模式：密碼至少 6 字元（僅示範用）");
+          throw new Error("密碼至少 6 字元");
         }
         const localUser = { uid: "local-demo", email: trimmedEmail };
         writeLocalSession(localUser);
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const auth = getFirebaseAuth();
       if (!auth) {
-        throw new Error("Firebase 尚未設定，請使用本機模式或填入 .env");
+        throw new Error("帳號服務尚未設定，請聯絡系統管理員");
       }
       try {
         await signInWithEmailAndPassword(auth, trimmedEmail, password);

@@ -1,12 +1,11 @@
-import { Alert, Button, Card, Form, Input, Typography } from "antd";
+import { Alert, Button, Card, Form, Input } from "antd";
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../lib/auth-context";
-import { isFirebaseConfigured } from "../lib/firebase-config";
 
 export function LoginPage() {
-  const { user, signIn, mode, loading } = useAuth();
+  const { user, signIn, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState("");
@@ -32,14 +31,6 @@ export function LoginPage() {
       }}
     >
       <Card title="TEATOP 客戶自助後台登入" style={{ width: 400, maxWidth: "100%" }}>
-        {!isFirebaseConfigured() ? (
-          <Alert
-            type="info"
-            showIcon
-            style={{ marginBottom: 16 }}
-            message="未設定 Firebase（.env 仍為 YOUR_*）。目前為本機草稿模式：任意電子郵件 + 至少 6 字元密碼即可登入。"
-          />
-        ) : null}
         {error ? (
           <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />
         ) : null}
@@ -76,9 +67,6 @@ export function LoginPage() {
             登入
           </Button>
         </Form>
-        <Typography.Paragraph type="secondary" style={{ marginTop: 16, marginBottom: 0 }}>
-          登入模式：{mode === "firebase" ? "Firebase Email/Password" : "本機示範（資料存於瀏覽器）"}
-        </Typography.Paragraph>
       </Card>
     </div>
   );

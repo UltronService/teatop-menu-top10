@@ -1,6 +1,7 @@
 import { Alert, Button, Card, InputNumber, Space, Table, Typography, message, type TableColumnsType } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AuthLoadingScreen } from "../components/auth-loading";
 import { RegionPreviewLinks } from "../components/region-preview-links";
 import { getAssetRoot } from "../lib/asset-root";
 import {
@@ -219,7 +220,7 @@ export function RegionRankPricePage() {
   const handleReset = () => {
     setOverrides({});
     setRevision((n) => n + 1);
-    message.info("已還原為 repo menu.json 基準（尚未自動儲存草稿）");
+    message.info("已還原為系統預設（請儲存草稿後才會寫入）");
   };
 
   const handlePublish = async () => {
@@ -237,7 +238,7 @@ export function RegionRankPricePage() {
       const payload: MenuDocument = { ...merged, version: nextVersion };
       const validation = validateMenuDocument(payload);
       if (!validation.ok) {
-        message.error(`menu schema 未通過：${validation.message}`);
+        message.error(`選單資料格式有誤：${validation.message}`);
         return;
       }
       await savePublishedMenu(payload);
@@ -248,7 +249,7 @@ export function RegionRankPricePage() {
       });
       setPublishedMenu(payload);
       setPublishMeta({ lastPublishedAt: new Date().toISOString() });
-      message.success("已發佈至 published/menu（本機或 Firestore）");
+      message.success("選單已發佈");
     } catch {
       message.error("發佈失敗");
     } finally {
@@ -316,7 +317,7 @@ export function RegionRankPricePage() {
     return <Alert type="error" showIcon message={`無法載入資料：${loadError}`} />;
   }
   if (!baseline) {
-    return null;
+    return <AuthLoadingScreen />;
   }
 
   const lastPub = publishMeta.lastPublishedAt
@@ -329,8 +330,7 @@ export function RegionRankPricePage() {
         區域排行與價格 · 跨區對照
       </Typography.Title>
       <Typography.Paragraph type="secondary">
-        編輯各區 TOP10 排名與大杯價；草稿存於 draft/menu，發佈寫入 published/menu（menu.json 形狀）。線上播放器 Phase 1 仍讀{" "}
-        <code>data/menu.json</code>，需另行同步。
+        編輯各區 TOP10 排名與大杯價格。請先儲存草稿，確認無誤後再發佈至門市播放器。
       </Typography.Paragraph>
       {hasUnpublishedDraft ? (
         <Alert type="warning" showIcon style={{ marginBottom: 16 }} message="有未發佈的草稿變更，請儲存草稿後再發佈。" />
@@ -339,7 +339,7 @@ export function RegionRankPricePage() {
         type="info"
         showIcon
         style={{ marginBottom: 16 }}
-        message={`最後發佈：${lastPub}${publishedMenu ? ` · menu version ${publishedMenu.version}` : ""}`}
+        message={`最後發佈：${lastPub}${publishedMenu ? ` · 版本 ${publishedMenu.version}` : ""}`}
       />
       {errorKeys.length ? (
         <Alert
@@ -356,7 +356,7 @@ export function RegionRankPricePage() {
           message={
             modCount > 0
               ? `目前有效；已修改 ${modCount} 格（請儲存草稿）。`
-              : "目前有效；與 menu.json 基準一致。"
+              : "目前有效；與系統預設一致。"
           }
         />
       )}
@@ -364,7 +364,7 @@ export function RegionRankPricePage() {
         <Space style={{ width: "100%", marginBottom: 16, justifyContent: "space-between" }} wrap>
           <Typography.Text type="secondary">列：客戶 20 品 · 空白排名＝該區不列入 TOP10</Typography.Text>
           <Space wrap>
-            <Button onClick={handleReset}>還原 menu.json 預設</Button>
+            <Button onClick={handleReset}>還原為系統預設</Button>
             <Button onClick={() => void handleSaveDraft()} loading={saving}>
               儲存草稿
             </Button>

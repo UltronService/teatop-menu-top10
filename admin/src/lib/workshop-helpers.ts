@@ -1,4 +1,5 @@
-import type { MenuDocument, MenuItem, RegionId } from "../types/menu";
+import type { CatalogEntry, MenuDocument, MenuItem, RegionId } from "../types/menu";
+import type { AssetWorkshopDocument } from "../types/workshop";
 
 export interface IconColumnDef {
   id: string;
@@ -149,5 +150,65 @@ export function buildWorkshopFromState(
     iconToggles,
     leafPicks,
     exportedAt: new Date().toISOString(),
+  };
+}
+
+export function isWorkshopStateEmpty(doc: AssetWorkshopDocument | null): boolean {
+  if (!doc) {
+    return true;
+  }
+  return Object.keys(doc.iconToggles).length === 0 && Object.keys(doc.leafPicks).length === 0;
+}
+
+export function buildCatalogWorkshopBaseline(
+  catalogItems: CatalogEntry[],
+  iconColumns: IconColumnDef[],
+  menu: MenuDocument,
+  regionId: RegionId,
+  assignmentsByXimenRank: Record<string, Record<string, IconDef>>,
+  shellByRank: Record<string, ShellRankEntry>,
+  leafCatalog: LeafCatalogItem[]
+): { iconToggles: Record<string, boolean>; leafPicks: Record<string, string> } {
+  const iconMap = iconAssignmentsByNameZh(menu, regionId, assignmentsByXimenRank);
+  const shellMap = shellByNameZh(menu, regionId, shellByRank);
+  const iconToggles: Record<string, boolean> = {};
+  const leafPicks: Record<string, string> = {};
+
+  for (const entry of catalogItems) {
+    const nameZh = entry.nameZh;
+    const rowIcons = iconMap[nameZh];
+    const shell = shellMap[nameZh] ?? null;
+    for (const col of iconColumns) {
+      iconToggles[toggleStorageKey(nameZh, col.id)] = Boolean(rowIcons?.[col.id]);
+    }
+    leafPicks[leafStorageKey(nameZh, "leftLeaf")] = initialLeafId(
+      nameZh,
+      "leftLeaf",
+      shell,
+      {},
+      leafCatalog
+    );
+    leafPicks[leafStorageKey(nameZh, "rightLeaf")] = initialLeafId(
+      nameZh,
+      "rightLeaf",
+      shell,
+      {},
+      leafCatalog
+    );
+  }
+
+  return { iconToggles, leafPicks };
+}
+
+export function mergeWorkshopWithBaseline(
+  draft: AssetWorkshopDocument | null,
+  baseline: { iconToggles: Record<string, boolean>; leafPicks: Record<string, string> }
+): { iconToggles: Record<string, boolean>; leafPicks: Record<string, string> } {
+  if (isWorkshopStateEmpty(draft)) {
+    return baseline;
+  }
+  return {
+    iconToggles: { ...baseline.iconToggles, ...draft!.iconToggles },
+    leafPicks: { ...baseline.leafPicks, ...draft!.leafPicks },
   };
 }

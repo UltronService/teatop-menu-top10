@@ -1,8 +1,7 @@
-import { Layout, Menu, Space, Tag, Typography } from "antd";
+import { Layout, Menu, Space, Typography } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../lib/auth-context";
-import { getDataBackendMode } from "../lib/brand-repository";
 
 const { Header, Content } = Layout;
 
@@ -14,8 +13,7 @@ const navItems = [
 export function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, mode, signOutUser } = useAuth();
-  const backend = getDataBackendMode();
+  const { user, signOutUser } = useAuth();
 
   const selected = navItems.find((item) => location.pathname.endsWith(item.key))?.key ?? "/region-rank-price";
 
@@ -44,10 +42,6 @@ export function AdminLayout() {
           style={{ flex: 1, minWidth: 0, border: "none" }}
         />
         <Space size="middle">
-          <Tag color={backend === "firebase" ? "green" : "gold"}>
-            {backend === "firebase" ? "Firebase" : "本機草稿"}
-          </Tag>
-          <Tag>{mode === "firebase" ? "Auth: Firebase" : "Auth: 本機"}</Tag>
           <Typography.Text type="secondary">{user?.email}</Typography.Text>
           <Typography.Link
             onClick={() => {
