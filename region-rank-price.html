@@ -477,6 +477,27 @@
         });
       }
 
+      function applyAllCellErrors(allErrors) {
+        catalogItems.forEach(function (entry) {
+          regionIds.forEach(function (rid) {
+            var itemKey = itemKeyForRow(entry);
+            var cell = document.querySelector(
+              'td[data-item-key="' + itemKey + '"][data-region-id="' + rid + '"]'
+            );
+            if (!cell) return;
+            var msg = allErrors[itemKey + "|" + rid] || "";
+            var ri = cell.querySelector(".rank-input");
+            var pi = cell.querySelector(".price-input");
+            var es = cell.querySelector(".cell-err");
+            if (ri) ri.classList.toggle("is-invalid", !!msg);
+            if (pi) pi.classList.toggle("is-invalid", !!msg);
+            if (es) es.textContent = msg;
+          });
+        });
+        refreshColumnHeaders(allErrors);
+        updateBanners(allErrors);
+      }
+
       function bindCellInputs(td, entry, regionId) {
         var itemKey = itemKeyForRow(entry);
         var menuItem = menuByZhMap[entry.nameZh] || null;
@@ -510,34 +531,8 @@
           }
           setOverride(itemKey, regionId, menuItem, rankParsed.value, priceParsed.value);
           syncModifiedClass();
-          var allErrors = validateAllRegions();
-          catalogItems.forEach(function (e2) {
-            regionIds.forEach(function (rid2) {
-              var ik = itemKeyForRow(e2);
-              var cell = document.querySelector(
-                'td[data-item-key="' + ik + '"][data-region-id="' + rid2 + '"]'
-              );
-              if (!cell) return;
-              var msg = allErrors[ik + "|" + rid2] || "";
-              var ri = cell.querySelector(".rank-input");
-              var pi = cell.querySelector(".price-input");
-              var es = cell.querySelector(".cell-err");
-              if (!msg) {
-                ri.classList.remove("is-invalid");
-                pi.classList.remove("is-invalid");
-                if (!es.textContent || es.textContent.indexOf("排名") >= 0 || es.textContent.indexOf("價格") >= 0 || es.textContent.indexOf("最多") >= 0) {
-                  es.textContent = "";
-                }
-              } else {
-                ri.classList.add("is-invalid");
-                pi.classList.add("is-invalid");
-                es.textContent = msg;
-              }
-            });
-          });
-          applyCellValidation(inputs, allErrors[itemKey + "|" + regionId] || "");
-          updateBanners(allErrors);
-          refreshColumnHeaders(allErrors);
+          applyCellValidation(inputs, "");
+          applyAllCellErrors(validateAllRegions());
         }
 
         rankInput.addEventListener("change", commit);
@@ -606,8 +601,7 @@
         });
 
         var allErrors = validateAllRegions();
-        updateBanners(allErrors);
-        refreshColumnHeaders(allErrors);
+        applyAllCellErrors(allErrors);
       }
 
       function dedupeCatalog(items) {
