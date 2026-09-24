@@ -21,13 +21,12 @@ import {
   dedupeCatalog,
   disabledRanksForCell,
   effectiveData,
-  formatRegionTop10GapMessage,
+  getPublishBlockers,
   getRankHoldersByRegion,
-  getRegionTop10Gaps,
   isModified,
-  isRegionTop10GapErrorKey,
   itemKeyForRow,
   mergeMenuFromBaseline,
+  normalizeRegionCell,
   parsePriceInput,
   parseRankInput,
   storageKey,
@@ -97,7 +96,11 @@ function RegionEditCell({
       if (rankParsed.value === base.rank && priceParsed.value === base.priceL) {
         onOverride(itemKey, regionId, null);
       } else {
-        onOverride(itemKey, regionId, { rank: rankParsed.value, priceL: priceParsed.value });
+        onOverride(
+          itemKey,
+          regionId,
+          normalizeRegionCell({ rank: rankParsed.value, priceL: priceParsed.value })
+        );
       }
       setLocalErr("");
     },
@@ -117,6 +120,8 @@ function RegionEditCell({
     [disabledRanks]
   );
 
+  const rankSelectKey = `${revision}:${disabledRanks.join(",")}`;
+
   const inputClass = modified ? "teatop-input-modified" : "";
 
   return (
@@ -124,6 +129,7 @@ function RegionEditCell({
       <div className="teatop-cell-field">
         <span>排名</span>
         <Select<number>
+          key={rankSelectKey}
           className={inputClass}
           allowClear
           size="small"
@@ -134,8 +140,12 @@ function RegionEditCell({
           popupMatchSelectWidth={false}
           onChange={(val) => {
             const nextRank = val ?? null;
+            const nextPrice = nextRank == null ? null : priceVal;
             setRankVal(nextRank);
-            commit(nextRank, priceVal);
+            if (nextRank == null) {
+              setPriceVal(null);
+            }
+            commit(nextRank, nextPrice);
           }}
         />
       </div>
@@ -220,20 +230,22 @@ export function RegionRankPricePage() {
     return getRankHoldersByRegion(catalogItems, menuByZh, regionIds, overrides);
   }, [baseline, catalogItems, menuByZh, regionIds, overrides, revision]);
 
-  const top10Gaps = useMemo(() => {
+  const publishBlockers = useMemo(() => {
     if (!baseline) {
-      return [];
+      return {
+        top10Gaps: [],
+        cellErrors: {},
+        top10GapMessage: "",
+        canPublish: false,
+      };
     }
-    return getRegionTop10Gaps(catalogItems, menuByZh, regionIds, overrides);
+    return getPublishBlockers(catalogItems, menuByZh, regionIds, overrides);
   }, [baseline, catalogItems, menuByZh, regionIds, overrides, revision]);
 
+  const { top10Gaps, top10GapMessage, canPublish } = publishBlockers;
   const modCount = countOverrideKeys(overrides);
-  const errorKeys = Object.keys(allErrors);
-  const cellErrorCount = errorKeys.filter((key) => !isRegionTop10GapErrorKey(key)).length;
-  const top10GapMessage = top10Gaps
-    .map((gap) => formatRegionTop10GapMessage(gap.regionId, gap.missingRanks))
-    .join("；");
-  const hasValidationErrors = errorKeys.length > 0;
+  const cellErrorCount = Object.keys(publishBlockers.cellErrors).length;
+  const hasValidationErrors = !canPublish;
   const hasUnpublishedDraft = modCount > 0;
 
   const handleOverride = useCallback(
@@ -244,7 +256,7 @@ export function RegionRankPricePage() {
         if (cell === null) {
           delete next[key];
         } else {
-          next[key] = cell;
+          next[key] = normalizeRegionCell(cell);
         }
         return next;
       });
@@ -275,11 +287,12 @@ export function RegionRankPricePage() {
     if (!baseline) {
       return;
     }
-    if (top10Gaps.length > 0) {
-      message.error(`無法發佈：${top10GapMessage}`);
-      return;
-    }
-    if (errorKeys.length > 0) {
+    const blockers = getPublishBlockers(catalogItems, menuByZh, regionIds, overrides);
+    if (!blockers.canPublish) {
+      if (blockers.top10GapMessage) {
+        message.error(`無法發佈：${blockers.top10GapMessage}`);
+        return;
+      }
       message.error("請先修正驗證錯誤再發佈");
       return;
     }
@@ -431,7 +444,7 @@ export function RegionRankPricePage() {
             <Button onClick={() => void handleSaveDraft()} loading={saving}>
               儲存草稿
             </Button>
-            <Button type="primary" onClick={() => void handlePublish()} loading={publishing} disabled={hasValidationErrors}>
+            <Button type="primary" onClick={() => void handlePublish()} loading={publishing} disabled={!canPublish}>
               發佈選單
             </Button>
           </Space>

@@ -14,12 +14,26 @@ export function storageKey(itemKey: string, regionId: RegionId): string {
   return `${itemKey}|${regionId}`;
 }
 
+export function itemKeyForMenuItem(item: MenuItem): string {
+  if (item.id) {
+    return item.id;
+  }
+  return `zh:${item.nameZh}`;
+}
+
 export function itemKeyForRow(entry: CatalogEntry, menuByZh: Record<string, MenuItem>): string {
   const menuItem = menuByZh[entry.nameZh];
-  if (menuItem?.id) {
-    return menuItem.id;
+  if (menuItem) {
+    return itemKeyForMenuItem(menuItem);
   }
   return `zh:${entry.nameZh}`;
+}
+
+export function normalizeRegionCell(cell: RegionCell): RegionCell {
+  if (cell.rank == null) {
+    return { rank: null, priceL: null };
+  }
+  return cell;
 }
 
 export function baseRegionData(menuItem: MenuItem | null, regionId: RegionId): RegionCell {
@@ -107,7 +121,7 @@ export function getRankHoldersByRegion(
     for (const entry of catalogItems) {
       const itemKey = itemKeyForRow(entry, menuByZh);
       const menuItem = menuByZh[entry.nameZh] ?? null;
-      const data = effectiveData(itemKey, regionId, menuItem, overrides);
+      const data = normalizeRegionCell(effectiveData(itemKey, regionId, menuItem, overrides));
       if (data.rank != null) {
         holders[regionId][data.rank] = itemKey;
       }
@@ -139,8 +153,8 @@ export function getRegionTop10Gaps(
   overrides: Record<string, RegionCell>
 ): Array<{ regionId: RegionId; missingRanks: number[] }> {
   const gaps: Array<{ regionId: RegionId; missingRanks: number[] }> = [];
+  const rankHolders = getRankHoldersByRegion(catalogItems, menuByZh, regionIds, overrides);
   for (const regionId of regionIds) {
-    const rankHolders = getRankHoldersByRegion(catalogItems, menuByZh, [regionId], overrides);
     const assigned = new Set(
       Object.keys(rankHolders[regionId] ?? {})
         .map(Number)
@@ -152,6 +166,34 @@ export function getRegionTop10Gaps(
     }
   }
   return gaps;
+}
+
+export interface PublishBlockers {
+  top10Gaps: Array<{ regionId: RegionId; missingRanks: number[] }>;
+  cellErrors: Record<string, string>;
+  top10GapMessage: string;
+  canPublish: boolean;
+}
+
+export function getPublishBlockers(
+  catalogItems: CatalogEntry[],
+  menuByZh: Record<string, MenuItem>,
+  regionIds: RegionId[],
+  overrides: Record<string, RegionCell>
+): PublishBlockers {
+  const allErrors = validateAllRegions(catalogItems, menuByZh, regionIds, overrides);
+  const cellErrors: Record<string, string> = {};
+  for (const [key, message] of Object.entries(allErrors)) {
+    if (!isRegionTop10GapErrorKey(key)) {
+      cellErrors[key] = message;
+    }
+  }
+  const top10Gaps = getRegionTop10Gaps(catalogItems, menuByZh, regionIds, overrides);
+  const top10GapMessage = top10Gaps
+    .map((gap) => formatRegionTop10GapMessage(gap.regionId, gap.missingRanks))
+    .join("；");
+  const canPublish = top10Gaps.length === 0 && Object.keys(cellErrors).length === 0;
+  return { top10Gaps, cellErrors, top10GapMessage, canPublish };
 }
 
 export function formatRegionTop10GapMessage(regionId: RegionId, missingRanks: number[]): string {
@@ -276,7 +318,7 @@ export function mergeMenuFromBaseline(
   const items = baseline.items.map((item) => {
     const regions: MenuItem["regions"] = { ...item.regions };
     for (const regionId of baseline.regions) {
-      const key = storageKey(item.id, regionId);
+      const key = storageKey(itemKeyForMenuItem(item), regionId);
       if (!Object.prototype.hasOwnProperty.call(overrides, key)) {
         continue;
       }
