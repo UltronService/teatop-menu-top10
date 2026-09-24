@@ -23,7 +23,7 @@ export function RegionPreviewLinks({ regionIds }: RegionPreviewLinksProps) {
 
   return (
     <Space wrap>
-      <Typography.Text type="secondary">區域播放器預覽（仍讀 repo 的 data/menu.json）：</Typography.Text>
+      <Typography.Text type="secondary">區域播放器預覽：</Typography.Text>
       <Select
         style={{ minWidth: 160 }}
         value={regionId}

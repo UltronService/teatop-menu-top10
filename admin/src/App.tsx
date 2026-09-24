@@ -1,8 +1,9 @@
 import { ConfigProvider } from "antd";
 import zhTW from "antd/locale/zh_TW";
-import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 
 import { AdminLayout } from "./components/admin-layout";
+import { HomeRedirect } from "./components/home-redirect";
 import { RequireAuth } from "./components/require-auth";
 import { AuthProvider } from "./lib/auth-context";
 import { DrinkAssetReviewPage } from "./pages/drink-asset-review-page";
@@ -30,8 +31,8 @@ export function App() {
               <Route path="/region-rank-price" element={<RegionRankPricePage />} />
               <Route path="/drink-asset-review" element={<DrinkAssetReviewPage />} />
             </Route>
-            <Route path="/" element={<Navigate to="/region-rank-price" replace />} />
-            <Route path="*" element={<Navigate to="/region-rank-price" replace />} />
+            <Route path="/" element={<HomeRedirect />} />
+            <Route path="*" element={<HomeRedirect />} />
           </Routes>
         </HashRouter>
       </AuthProvider>

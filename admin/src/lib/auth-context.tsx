@@ -9,6 +9,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -62,15 +63,35 @@ function mapFirebaseUser(user: User): AdminUser {
   return { uid: user.uid, email: user.email ?? "" };
 }
 
+const AUTH_READY_TIMEOUT_MS = 8000;
+const AUTH_LOADING_MAX_MS = 3000;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
   const mode: "firebase" | "local" = isFirebaseConfigured() ? "firebase" : "local";
+  const [user, setUser] = useState<AdminUser | null>(() =>
+    mode === "local" ? readLocalSession() : null
+  );
+  const [loading, setLoading] = useState(() => mode === "firebase");
+
+  useLayoutEffect(() => {
+    if (mode !== "local") {
+      return;
+    }
+    setUser(readLocalSession());
+    setLoading(false);
+  }, [mode]);
+
+  useEffect(() => {
+    const maxWaitId = window.setTimeout(() => {
+      setLoading(false);
+    }, AUTH_LOADING_MAX_MS);
+    return () => {
+      window.clearTimeout(maxWaitId);
+    };
+  }, []);
 
   useEffect(() => {
     if (mode === "local") {
-      setUser(readLocalSession());
-      setLoading(false);
       return;
     }
     const auth = getFirebaseAuth();
@@ -79,15 +100,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(mapFirebaseUser(firebaseUser));
-      } else {
-        setUser(null);
+    let settled = false;
+    const finish = (nextUser: AdminUser | null) => {
+      if (settled) {
+        return;
       }
+      settled = true;
+      setUser(nextUser);
       setLoading(false);
-    });
-    return () => unsub();
+    };
+    const timeoutId = window.setTimeout(() => {
+      finish(readLocalSession());
+    }, AUTH_READY_TIMEOUT_MS);
+    const unsub = onAuthStateChanged(
+      auth,
+      (firebaseUser) => {
+        finish(firebaseUser ? mapFirebaseUser(firebaseUser) : null);
+      },
+      () => {
+        finish(readLocalSession());
+      }
+    );
+    return () => {
+      settled = true;
+      window.clearTimeout(timeoutId);
+      unsub();
+    };
   }, [mode]);
 
   const signIn = useCallback(
@@ -101,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       if (mode === "local") {
         if (password.length < 6) {
-          throw new Error("本機模式：密碼至少 6 字元（僅示範用）");
+          throw new Error("密碼至少 6 字元");
         }
         const localUser = { uid: "local-demo", email: trimmedEmail };
         writeLocalSession(localUser);
@@ -110,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const auth = getFirebaseAuth();
       if (!auth) {
-        throw new Error("Firebase 尚未設定，請使用本機模式或填入 .env");
+        throw new Error("帳號服務尚未設定，請聯絡系統管理員");
       }
       try {
         await signInWithEmailAndPassword(auth, trimmedEmail, password);

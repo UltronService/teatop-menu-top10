@@ -1,3 +1,9 @@
+@keyframes teatop-admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 body {
   margin: 0;
   background: #f5f5f5;

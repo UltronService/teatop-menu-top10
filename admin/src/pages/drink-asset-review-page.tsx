@@ -1,6 +1,7 @@
 import { Alert, Button, Empty, Modal, Space, Table, Typography, message, type TableColumnsType } from "antd";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import { AuthLoadingScreen } from "../components/auth-loading";
 import { RegionPreviewLinks } from "../components/region-preview-links";
 import { resolveAssetUrl, getAssetRoot } from "../lib/asset-root";
 import { useAuth } from "../lib/auth-context";
@@ -13,6 +14,7 @@ import {
   saveWorkshopDraft,
 } from "../lib/brand-repository";
 import {
+  buildCatalogWorkshopBaseline,
   buildWorkshopFromState,
   iconDefForColumn,
   iconAssignmentsByNameZh,
@@ -20,6 +22,7 @@ import {
   initialToggleOn,
   leafStorageKey,
   menuByZh,
+  mergeWorkshopWithBaseline,
   shellByNameZh,
   toggleStorageKey,
   type IconColumnDef,
@@ -95,6 +98,10 @@ export function DrinkAssetReviewPage() {
   } | null>(null);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const baselineRef = useRef<{ iconToggles: Record<string, boolean>; leafPicks: Record<string, string> }>({
+    iconToggles: {},
+    leafPicks: {},
+  });
 
   useEffect(() => {
     const root = getAssetRoot();
@@ -120,19 +127,35 @@ export function DrinkAssetReviewPage() {
           iconColumnDefaults?: Record<string, IconDef>;
         };
         const anim = (await animRes.json()) as {
-          shellByRank: Record<string, ShellRankEntry>;
+          ranks?: Record<string, ShellRankEntry>;
+          shellByRank?: Record<string, ShellRankEntry>;
           leafCatalog: LeafCatalogItem[];
         };
+        const shellByRank = anim.ranks ?? anim.shellByRank ?? {};
+        const items = dedupeCatalog(catalog.items);
+        const columns = badge.iconColumns ?? [];
+        const assignments = badge.assignmentsByXimenRank ?? {};
+        const leaves = anim.leafCatalog ?? [];
+        const baseline = buildCatalogWorkshopBaseline(
+          items,
+          columns,
+          menuDoc,
+          REGION,
+          assignments,
+          shellByRank,
+          leaves
+        );
+        baselineRef.current = baseline;
+        const merged = mergeWorkshopWithBaseline(draft, baseline);
         setMenu(menuDoc);
-        setCatalogItems(dedupeCatalog(catalog.items));
-        setIconColumns(badge.iconColumns ?? []);
+        setCatalogItems(items);
+        setIconColumns(columns);
         setIconDefaults(badge.iconColumnDefaults ?? {});
-        setShellMap(shellByNameZh(menuDoc, REGION, anim.shellByRank ?? {}));
-        setIconMap(iconAssignmentsByNameZh(menuDoc, REGION, badge.assignmentsByXimenRank ?? {}));
-        setLeafCatalog(anim.leafCatalog ?? []);
-        const seed = draft ?? EMPTY_WORKSHOP_SEED;
-        setIconToggles(seed.iconToggles ?? {});
-        setLeafPicks(seed.leafPicks ?? {});
+        setShellMap(shellByNameZh(menuDoc, REGION, shellByRank));
+        setIconMap(iconAssignmentsByNameZh(menuDoc, REGION, assignments));
+        setLeafCatalog(leaves);
+        setIconToggles(merged.iconToggles);
+        setLeafPicks(merged.leafPicks);
         setPublishedWorkshop(published);
         setPublishMeta(meta);
       } catch (err) {
@@ -167,10 +190,10 @@ export function DrinkAssetReviewPage() {
     }
   };
 
-  const handleResetEmpty = () => {
-    setIconToggles({});
-    setLeafPicks({});
-    message.info("已還原為空 workshop seed（請儲存草稿）");
+  const handleResetBaseline = () => {
+    setIconToggles({ ...baselineRef.current.iconToggles });
+    setLeafPicks({ ...baselineRef.current.leafPicks });
+    message.info("已還原為西門基準（請儲存草稿後才會寫入）");
   };
 
   const handlePublish = async () => {
@@ -189,7 +212,7 @@ export function DrinkAssetReviewPage() {
       });
       setPublishedWorkshop(doc);
       setPublishMeta({ lastPublishedAt: doc.exportedAt });
-      message.success("已發佈至 published/assetWorkshop");
+      message.success("素材設定已發佈");
     } catch {
       message.error("發佈失敗");
     } finally {
@@ -345,7 +368,7 @@ export function DrinkAssetReviewPage() {
     return <Alert type="error" showIcon message={`無法載入：${loadError}`} />;
   }
   if (!menu) {
-    return null;
+    return <AuthLoadingScreen />;
   }
 
   const lastPub = publishMeta.lastPublishedAt
@@ -355,22 +378,22 @@ export function DrinkAssetReviewPage() {
   return (
     <>
       <Typography.Title level={3} style={{ marginTop: 0 }}>
-        飲料素材對照（西門 TOP1–5）
+        飲料素材對照（全品項）
       </Typography.Title>
       <Typography.Paragraph type="secondary">
-        圖示開關與左右葉選擇；草稿存於 draft/assetWorkshop。Phase 2 才會由播放器讀取 published/assetWorkshop。
+        設定各品項的圖示與左右裝飾葉。首次載入會套用西門參考基準；請儲存草稿並發佈後供門市播放器使用。
       </Typography.Paragraph>
       {dirty ? (
         <Alert type="warning" showIcon style={{ marginBottom: 16 }} message="有未發佈的素材變更。" />
       ) : null}
       <Alert type="info" showIcon style={{ marginBottom: 16 }} message={`最後發佈：${lastPub}`} />
       <Space style={{ marginBottom: 16 }} wrap>
-        <Button onClick={handleResetEmpty}>還原空 seed</Button>
+        <Button onClick={handleResetBaseline}>還原為西門基準</Button>
         <Button onClick={() => void handleSaveDraft()} loading={saving}>
           儲存草稿
         </Button>
         <Button type="primary" onClick={() => void handlePublish()} loading={publishing}>
-          發佈素材工坊
+          發佈素材設定
         </Button>
       </Space>
       <Table columns={columns} dataSource={tableData} pagination={false} bordered size="small" scroll={{ x: "max-content" }} />
