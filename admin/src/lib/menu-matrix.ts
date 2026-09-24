@@ -106,6 +106,62 @@ export const TOP10_RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
 export const REGION_TOP10_GAP_ERROR_PREFIX = "__region_top10__|";
 
+export const RANKED_MISSING_PRICE_MESSAGE = "有排名時須填價格";
+
+export function parseCellStorageKey(key: string): { itemKey: string; regionId: RegionId } | null {
+  const pipe = key.indexOf("|");
+  if (pipe < 0) {
+    return null;
+  }
+  return { itemKey: key.slice(0, pipe), regionId: key.slice(pipe + 1) as RegionId };
+}
+
+export function drinkNameZhForItemKey(
+  itemKey: string,
+  catalogItems: CatalogEntry[],
+  menuByZh: Record<string, MenuItem>
+): string {
+  for (const entry of catalogItems) {
+    if (itemKeyForRow(entry, menuByZh) === itemKey) {
+      return entry.nameZh;
+    }
+  }
+  for (const item of Object.values(menuByZh)) {
+    if (itemKeyForMenuItem(item) === itemKey) {
+      return item.nameZh;
+    }
+  }
+  return itemKey;
+}
+
+export function formatRankedMissingPriceMessage(regionId: RegionId, drinkNameZh: string): string {
+  const label = REGION_LABELS[regionId] ?? regionId;
+  return `${label}：${drinkNameZh} 有排名但未填價格`;
+}
+
+function buildCellErrorSummary(
+  cellErrors: Record<string, string>,
+  catalogItems: CatalogEntry[],
+  menuByZh: Record<string, MenuItem>
+): string[] {
+  const messages: string[] = [];
+  for (const [key, msg] of Object.entries(cellErrors)) {
+    const parsed = parseCellStorageKey(key);
+    if (!parsed) {
+      messages.push(msg);
+      continue;
+    }
+    const drinkName = drinkNameZhForItemKey(parsed.itemKey, catalogItems, menuByZh);
+    const regionLabel = REGION_LABELS[parsed.regionId] ?? parsed.regionId;
+    if (msg === RANKED_MISSING_PRICE_MESSAGE) {
+      messages.push(formatRankedMissingPriceMessage(parsed.regionId, drinkName));
+      continue;
+    }
+    messages.push(`${regionLabel}：${drinkName} ${msg}`);
+  }
+  return messages;
+}
+
 export function getRankHoldersByRegion(
   catalogItems: CatalogEntry[],
   menuByZh: Record<string, MenuItem>,
@@ -172,6 +228,7 @@ export interface PublishBlockers {
   top10Gaps: Array<{ regionId: RegionId; missingRanks: number[] }>;
   cellErrors: Record<string, string>;
   top10GapMessage: string;
+  blockerMessage: string;
   canPublish: boolean;
 }
 
@@ -192,8 +249,10 @@ export function getPublishBlockers(
   const top10GapMessage = top10Gaps
     .map((gap) => formatRegionTop10GapMessage(gap.regionId, gap.missingRanks))
     .join("；");
+  const cellErrorMessages = buildCellErrorSummary(cellErrors, catalogItems, menuByZh);
+  const blockerMessage = [...(top10GapMessage ? [top10GapMessage] : []), ...cellErrorMessages].join("；");
   const canPublish = top10Gaps.length === 0 && Object.keys(cellErrors).length === 0;
-  return { top10Gaps, cellErrors, top10GapMessage, canPublish };
+  return { top10Gaps, cellErrors, top10GapMessage, blockerMessage, canPublish };
 }
 
 export function formatRegionTop10GapMessage(regionId: RegionId, missingRanks: number[]): string {
@@ -260,7 +319,7 @@ function validateRegion(
   for (const entry of catalogItems) {
     const itemKey = itemKeyForRow(entry, menuByZh);
     const menuItem = menuByZh[entry.nameZh] ?? null;
-    const data = effectiveData(itemKey, regionId, menuItem, overrides);
+    const data = normalizeRegionCell(effectiveData(itemKey, regionId, menuItem, overrides));
     if (data.rank != null) {
       ranked.push({ itemKey, rank: data.rank });
     }
@@ -282,11 +341,11 @@ function validateRegion(
   for (const entry of catalogItems) {
     const itemKey = itemKeyForRow(entry, menuByZh);
     const menuItem = menuByZh[entry.nameZh] ?? null;
-    const data = effectiveData(itemKey, regionId, menuItem, overrides);
+    const data = normalizeRegionCell(effectiveData(itemKey, regionId, menuItem, overrides));
     const cellKey = storageKey(itemKey, regionId);
     if (data.rank != null && (data.priceL == null || !Number.isFinite(data.priceL))) {
       if (!errors[cellKey]) {
-        errors[cellKey] = "有排名時須填價格";
+        errors[cellKey] = RANKED_MISSING_PRICE_MESSAGE;
       }
     }
   }

@@ -84,7 +84,20 @@ function RegionEditCell({
         return;
       }
       const priceParsed = parsePriceInput(nextPrice == null ? "" : nextPrice, rankParsed.value != null);
+      const base = baseRegionData(menuItem, regionId);
+
+      const persistCell = (rank: number | null, priceL: number | null) => {
+        if (rank === base.rank && priceL === base.priceL) {
+          onOverride(itemKey, regionId, null);
+          return;
+        }
+        onOverride(itemKey, regionId, normalizeRegionCell({ rank, priceL }));
+      };
+
       if (!priceParsed.ok) {
+        if (rankParsed.value != null) {
+          persistCell(rankParsed.value, null);
+        }
         setLocalErr(priceParsed.message);
         return;
       }
@@ -92,16 +105,7 @@ function RegionEditCell({
         setLocalErr("無排名時不可填價格");
         return;
       }
-      const base = baseRegionData(menuItem, regionId);
-      if (rankParsed.value === base.rank && priceParsed.value === base.priceL) {
-        onOverride(itemKey, regionId, null);
-      } else {
-        onOverride(
-          itemKey,
-          regionId,
-          normalizeRegionCell({ rank: rankParsed.value, priceL: priceParsed.value })
-        );
-      }
+      persistCell(rankParsed.value, priceParsed.value);
       setLocalErr("");
     },
     [menuItem, regionId, itemKey, onOverride]
@@ -161,7 +165,13 @@ function RegionEditCell({
           status={displayErr ? "error" : undefined}
           value={priceVal}
           placeholder="—"
-          onChange={(val) => setPriceVal(val == null ? null : Number(val))}
+          onChange={(val) => {
+            const nextPrice = val == null ? null : Number(val);
+            setPriceVal(nextPrice);
+            if (rankVal != null && nextPrice == null) {
+              commit(rankVal, null);
+            }
+          }}
           onBlur={commitFromState}
           onPressEnter={commitFromState}
         />
@@ -236,15 +246,15 @@ export function RegionRankPricePage() {
         top10Gaps: [],
         cellErrors: {},
         top10GapMessage: "",
+        blockerMessage: "",
         canPublish: false,
       };
     }
     return getPublishBlockers(catalogItems, menuByZh, regionIds, overrides);
   }, [baseline, catalogItems, menuByZh, regionIds, overrides, revision]);
 
-  const { top10Gaps, top10GapMessage, canPublish } = publishBlockers;
+  const { top10Gaps, blockerMessage, canPublish } = publishBlockers;
   const modCount = countOverrideKeys(overrides);
-  const cellErrorCount = Object.keys(publishBlockers.cellErrors).length;
   const hasValidationErrors = !canPublish;
   const hasUnpublishedDraft = modCount > 0;
 
@@ -289,11 +299,7 @@ export function RegionRankPricePage() {
     }
     const blockers = getPublishBlockers(catalogItems, menuByZh, regionIds, overrides);
     if (!blockers.canPublish) {
-      if (blockers.top10GapMessage) {
-        message.error(`無法發佈：${blockers.top10GapMessage}`);
-        return;
-      }
-      message.error("請先修正驗證錯誤再發佈");
+      message.error(`無法發佈：${blockers.blockerMessage || "請先修正驗證錯誤"}`);
       return;
     }
     setPublishing(true);
@@ -414,13 +420,7 @@ export function RegionRankPricePage() {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={
-            top10GapMessage && cellErrorCount > 0
-              ? `無法發佈。${top10GapMessage}。另有 ${cellErrorCount} 格需修正（排名重複或有排名須填價格）。`
-              : top10GapMessage
-                ? `無法發佈。${top10GapMessage}。`
-                : `檢查未通過（${cellErrorCount} 格）：同一區域排名不可重複；有排名須填價格。`
-          }
+          message={blockerMessage ? `無法發佈。${blockerMessage}。` : "無法發佈。請先修正驗證錯誤。"}
         />
       ) : (
         <Alert
