@@ -1,4 +1,4 @@
-import { Alert, Button, Card, InputNumber, Space, Table, Typography, message, type TableColumnsType } from "antd";
+import { Alert, Button, Card, InputNumber, Select, Space, Table, Typography, message, type TableColumnsType } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AuthLoadingScreen } from "../components/auth-loading";
@@ -19,8 +19,13 @@ import {
   buildMenuByZh,
   countOverrideKeys,
   dedupeCatalog,
+  disabledRanksForCell,
   effectiveData,
+  formatRegionTop10GapMessage,
+  getRankHoldersByRegion,
+  getRegionTop10Gaps,
   isModified,
+  isRegionTop10GapErrorKey,
   itemKeyForRow,
   mergeMenuFromBaseline,
   parsePriceInput,
@@ -31,12 +36,18 @@ import {
 import { validateMenuDocument } from "../lib/menu-schema-validate";
 import type { CatalogEntry, MenuDocument, MenuItem, RegionCell, RegionId } from "../types/menu";
 
+const RANK_SELECT_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rank) => ({
+  value: rank,
+  label: String(rank),
+}));
+
 interface RegionEditCellProps {
   regionId: RegionId;
   menuItem: MenuItem | null;
   itemKey: string;
   overrides: Record<string, RegionCell>;
   allErrors: Record<string, string>;
+  disabledRanks: number[];
   revision: number;
   onOverride: (itemKey: string, regionId: RegionId, cell: RegionCell | null) => void;
 }
@@ -47,6 +58,7 @@ function RegionEditCell({
   itemKey,
   overrides,
   allErrors,
+  disabledRanks,
   revision,
   onOverride,
 }: RegionEditCellProps) {
@@ -65,29 +77,45 @@ function RegionEditCell({
   const errKey = storageKey(itemKey, regionId);
   const displayErr = localErr || allErrors[errKey] || "";
 
-  const commit = useCallback(() => {
-    const rankParsed = parseRankInput(rankVal == null ? "" : rankVal);
-    if (!rankParsed.ok) {
-      setLocalErr(rankParsed.message);
-      return;
-    }
-    const priceParsed = parsePriceInput(priceVal == null ? "" : priceVal, rankParsed.value != null);
-    if (!priceParsed.ok) {
-      setLocalErr(priceParsed.message);
-      return;
-    }
-    if (rankParsed.value == null && priceParsed.value != null) {
-      setLocalErr("無排名時不可填價格");
-      return;
-    }
-    const base = baseRegionData(menuItem, regionId);
-    if (rankParsed.value === base.rank && priceParsed.value === base.priceL) {
-      onOverride(itemKey, regionId, null);
-    } else {
-      onOverride(itemKey, regionId, { rank: rankParsed.value, priceL: priceParsed.value });
-    }
-    setLocalErr("");
-  }, [rankVal, priceVal, menuItem, regionId, itemKey, onOverride]);
+  const commit = useCallback(
+    (nextRank: number | null, nextPrice: number | null) => {
+      const rankParsed = parseRankInput(nextRank == null ? "" : nextRank);
+      if (!rankParsed.ok) {
+        setLocalErr(rankParsed.message);
+        return;
+      }
+      const priceParsed = parsePriceInput(nextPrice == null ? "" : nextPrice, rankParsed.value != null);
+      if (!priceParsed.ok) {
+        setLocalErr(priceParsed.message);
+        return;
+      }
+      if (rankParsed.value == null && priceParsed.value != null) {
+        setLocalErr("無排名時不可填價格");
+        return;
+      }
+      const base = baseRegionData(menuItem, regionId);
+      if (rankParsed.value === base.rank && priceParsed.value === base.priceL) {
+        onOverride(itemKey, regionId, null);
+      } else {
+        onOverride(itemKey, regionId, { rank: rankParsed.value, priceL: priceParsed.value });
+      }
+      setLocalErr("");
+    },
+    [menuItem, regionId, itemKey, onOverride]
+  );
+
+  const commitFromState = useCallback(() => {
+    commit(rankVal, priceVal);
+  }, [commit, rankVal, priceVal]);
+
+  const rankOptions = useMemo(
+    () =>
+      RANK_SELECT_OPTIONS.map((opt) => ({
+        ...opt,
+        disabled: disabledRanks.includes(opt.value),
+      })),
+    [disabledRanks]
+  );
 
   const inputClass = modified ? "teatop-input-modified" : "";
 
@@ -95,19 +123,20 @@ function RegionEditCell({
     <div className="teatop-cell-edit">
       <div className="teatop-cell-field">
         <span>排名</span>
-        <InputNumber
+        <Select<number>
           className={inputClass}
-          min={1}
-          max={10}
-          step={1}
-          controls={false}
+          allowClear
           size="small"
-          status={displayErr ? "error" : undefined}
-          value={rankVal}
           placeholder="—"
-          onChange={(val) => setRankVal(val == null ? null : Number(val))}
-          onBlur={commit}
-          onPressEnter={commit}
+          status={displayErr ? "error" : undefined}
+          value={rankVal ?? undefined}
+          options={rankOptions}
+          popupMatchSelectWidth={false}
+          onChange={(val) => {
+            const nextRank = val ?? null;
+            setRankVal(nextRank);
+            commit(nextRank, priceVal);
+          }}
         />
       </div>
       <div className="teatop-cell-field">
@@ -123,8 +152,8 @@ function RegionEditCell({
           value={priceVal}
           placeholder="—"
           onChange={(val) => setPriceVal(val == null ? null : Number(val))}
-          onBlur={commit}
-          onPressEnter={commit}
+          onBlur={commitFromState}
+          onPressEnter={commitFromState}
         />
       </div>
       <span className="teatop-cell-err" role="alert">{displayErr}</span>
@@ -184,8 +213,27 @@ export function RegionRankPricePage() {
     return validateAllRegions(catalogItems, menuByZh, regionIds, overrides);
   }, [baseline, catalogItems, menuByZh, regionIds, overrides, revision]);
 
+  const rankHolders = useMemo(() => {
+    if (!baseline) {
+      return {} as ReturnType<typeof getRankHoldersByRegion>;
+    }
+    return getRankHoldersByRegion(catalogItems, menuByZh, regionIds, overrides);
+  }, [baseline, catalogItems, menuByZh, regionIds, overrides, revision]);
+
+  const top10Gaps = useMemo(() => {
+    if (!baseline) {
+      return [];
+    }
+    return getRegionTop10Gaps(catalogItems, menuByZh, regionIds, overrides);
+  }, [baseline, catalogItems, menuByZh, regionIds, overrides, revision]);
+
   const modCount = countOverrideKeys(overrides);
   const errorKeys = Object.keys(allErrors);
+  const cellErrorCount = errorKeys.filter((key) => !isRegionTop10GapErrorKey(key)).length;
+  const top10GapMessage = top10Gaps
+    .map((gap) => formatRegionTop10GapMessage(gap.regionId, gap.missingRanks))
+    .join("；");
+  const hasValidationErrors = errorKeys.length > 0;
   const hasUnpublishedDraft = modCount > 0;
 
   const handleOverride = useCallback(
@@ -225,6 +273,10 @@ export function RegionRankPricePage() {
 
   const handlePublish = async () => {
     if (!baseline) {
+      return;
+    }
+    if (top10Gaps.length > 0) {
+      message.error(`無法發佈：${top10GapMessage}`);
       return;
     }
     if (errorKeys.length > 0) {
@@ -280,10 +332,12 @@ export function RegionRankPricePage() {
       },
     ];
     for (const rid of regionIds) {
-      const colHasErr = catalogItems.some((entry) => {
-        const itemKey = itemKeyForRow(entry, menuByZh);
-        return Boolean(allErrors[storageKey(itemKey, rid)]);
-      });
+      const colHasErr =
+        top10Gaps.some((gap) => gap.regionId === rid) ||
+        catalogItems.some((entry) => {
+          const itemKey = itemKeyForRow(entry, menuByZh);
+          return Boolean(allErrors[storageKey(itemKey, rid)]);
+        });
       cols.push({
         title: (
           <span className={colHasErr ? "teatop-region-col-title has-col-error" : "teatop-region-col-title"}>
@@ -303,6 +357,7 @@ export function RegionRankPricePage() {
               itemKey={itemKey}
               overrides={overrides}
               allErrors={allErrors}
+              disabledRanks={disabledRanksForCell(itemKey, rid, rankHolders)}
               revision={revision}
               onOverride={handleOverride}
             />
@@ -311,7 +366,7 @@ export function RegionRankPricePage() {
       });
     }
     return cols;
-  }, [regionIds, catalogItems, menuByZh, allErrors, overrides, revision, handleOverride]);
+  }, [regionIds, catalogItems, menuByZh, allErrors, overrides, revision, handleOverride, rankHolders, top10Gaps]);
 
   if (loadError) {
     return <Alert type="error" showIcon message={`無法載入資料：${loadError}`} />;
@@ -341,12 +396,18 @@ export function RegionRankPricePage() {
         style={{ marginBottom: 16 }}
         message={`最後發佈：${lastPub}${publishedMenu ? ` · 版本 ${publishedMenu.version}` : ""}`}
       />
-      {errorKeys.length ? (
+      {hasValidationErrors ? (
         <Alert
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={`檢查未通過（${errorKeys.length} 格）：同一區域排名不可重複、最多 10 品；有排名須填價格。`}
+          message={
+            top10GapMessage && cellErrorCount > 0
+              ? `無法發佈。${top10GapMessage}。另有 ${cellErrorCount} 格需修正（排名重複或有排名須填價格）。`
+              : top10GapMessage
+                ? `無法發佈。${top10GapMessage}。`
+                : `檢查未通過（${cellErrorCount} 格）：同一區域排名不可重複；有排名須填價格。`
+          }
         />
       ) : (
         <Alert
@@ -362,13 +423,15 @@ export function RegionRankPricePage() {
       )}
       <Card>
         <Space style={{ width: "100%", marginBottom: 16, justifyContent: "space-between" }} wrap>
-          <Typography.Text type="secondary">列：客戶 20 品 · 空白排名＝該區不列入 TOP10</Typography.Text>
+          <Typography.Text type="secondary">
+            列：客戶 20 品 · 各區須填滿排名 1–10 才能發佈 · 下拉選單中已被其他飲料使用的排名會無法選取
+          </Typography.Text>
           <Space wrap>
             <Button onClick={handleReset}>還原為系統預設</Button>
             <Button onClick={() => void handleSaveDraft()} loading={saving}>
               儲存草稿
             </Button>
-            <Button type="primary" onClick={() => void handlePublish()} loading={publishing} disabled={errorKeys.length > 0}>
+            <Button type="primary" onClick={() => void handlePublish()} loading={publishing} disabled={hasValidationErrors}>
               發佈選單
             </Button>
           </Space>
