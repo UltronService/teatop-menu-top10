@@ -42,8 +42,13 @@ body {
   color: rgba(0, 0, 0, 0.45);
 }
 
-.teatop-cell-field .ant-input-number {
+.teatop-cell-field .ant-input-number,
+.teatop-cell-field .ant-select {
   width: 72px;
+}
+
+.teatop-input-modified.ant-select .ant-select-selector {
+  border-color: #ec6f09 !important;
 }
 
 .teatop-cell-err {

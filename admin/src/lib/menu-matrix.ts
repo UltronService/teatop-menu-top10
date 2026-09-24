@@ -88,6 +88,81 @@ export function dedupeCatalog(items: CatalogEntry[]): CatalogEntry[] {
   return out;
 }
 
+export const TOP10_RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
+
+export const REGION_TOP10_GAP_ERROR_PREFIX = "__region_top10__|";
+
+export function getRankHoldersByRegion(
+  catalogItems: CatalogEntry[],
+  menuByZh: Record<string, MenuItem>,
+  regionIds: RegionId[],
+  overrides: Record<string, RegionCell>
+): Record<RegionId, Partial<Record<number, string>>> {
+  const holders: Record<RegionId, Partial<Record<number, string>>> = {} as Record<
+    RegionId,
+    Partial<Record<number, string>>
+  >;
+  for (const regionId of regionIds) {
+    holders[regionId] = {};
+    for (const entry of catalogItems) {
+      const itemKey = itemKeyForRow(entry, menuByZh);
+      const menuItem = menuByZh[entry.nameZh] ?? null;
+      const data = effectiveData(itemKey, regionId, menuItem, overrides);
+      if (data.rank != null) {
+        holders[regionId][data.rank] = itemKey;
+      }
+    }
+  }
+  return holders;
+}
+
+export function disabledRanksForCell(
+  itemKey: string,
+  regionId: RegionId,
+  rankHolders: Record<RegionId, Partial<Record<number, string>>>
+): number[] {
+  const byRank = rankHolders[regionId] ?? {};
+  const disabled: number[] = [];
+  for (const rank of TOP10_RANKS) {
+    const holder = byRank[rank];
+    if (holder != null && holder !== itemKey) {
+      disabled.push(rank);
+    }
+  }
+  return disabled;
+}
+
+export function getRegionTop10Gaps(
+  catalogItems: CatalogEntry[],
+  menuByZh: Record<string, MenuItem>,
+  regionIds: RegionId[],
+  overrides: Record<string, RegionCell>
+): Array<{ regionId: RegionId; missingRanks: number[] }> {
+  const gaps: Array<{ regionId: RegionId; missingRanks: number[] }> = [];
+  for (const regionId of regionIds) {
+    const rankHolders = getRankHoldersByRegion(catalogItems, menuByZh, [regionId], overrides);
+    const assigned = new Set(
+      Object.keys(rankHolders[regionId] ?? {})
+        .map(Number)
+        .filter((n) => Number.isInteger(n))
+    );
+    const missingRanks = TOP10_RANKS.filter((r) => !assigned.has(r));
+    if (missingRanks.length > 0) {
+      gaps.push({ regionId, missingRanks: [...missingRanks] });
+    }
+  }
+  return gaps;
+}
+
+export function formatRegionTop10GapMessage(regionId: RegionId, missingRanks: number[]): string {
+  const label = REGION_LABELS[regionId] ?? regionId;
+  return `${label}：缺少排名 ${missingRanks.join("、")}`;
+}
+
+export function isRegionTop10GapErrorKey(key: string): boolean {
+  return key.startsWith(REGION_TOP10_GAP_ERROR_PREFIX);
+}
+
 export function parseRankInput(raw: unknown): { ok: true; value: number | null } | { ok: false; message: string } {
   const s = String(raw == null ? "" : raw).trim();
   if (s === "") {
@@ -161,6 +236,25 @@ function validateRegion(
         errors[storageKey(itemKey, regionId)] = `排名 ${rank} 重複`;
       }
     }
+  }
+  for (const entry of catalogItems) {
+    const itemKey = itemKeyForRow(entry, menuByZh);
+    const menuItem = menuByZh[entry.nameZh] ?? null;
+    const data = effectiveData(itemKey, regionId, menuItem, overrides);
+    const cellKey = storageKey(itemKey, regionId);
+    if (data.rank != null && (data.priceL == null || !Number.isFinite(data.priceL))) {
+      if (!errors[cellKey]) {
+        errors[cellKey] = "有排名時須填價格";
+      }
+    }
+  }
+  const assignedRanks = new Set(ranked.map((row) => row.rank));
+  const missingRanks = TOP10_RANKS.filter((r) => !assignedRanks.has(r));
+  if (missingRanks.length > 0) {
+    errors[`${REGION_TOP10_GAP_ERROR_PREFIX}${regionId}`] = formatRegionTop10GapMessage(
+      regionId,
+      missingRanks
+    );
   }
   if (ranked.length > 10) {
     for (const entry of catalogItems) {
