@@ -48,7 +48,7 @@ Set `ARTIFACTS_DIR` to override the output directory.
 1. Load the **live** north URL in headless Chromium at 1920×1080 (`deviceScaleFactor: 1`).
 2. Wait for `data-ready`, fonts, and images.
 3. Reset CSS animations to cycle start (clone `L05Ename` to drop loop `animationend` handler).
-4. For each frame, seek all `document.getAnimations()` to `frameIndex / 30` seconds and screenshot (no real-time recording).
+4. For each output frame, open a **fresh** Chromium tab, reset animations to `t=0`, advance document time with CDP `Emulation.setVirtualTimePolicy` in `1000/30` ms steps (CSS + `script.js` timers), then take one CDP screenshot. (Reusing one tab and screenshotting every step desyncs animation time in headless Chromium.)
 5. Encode **834** frames with libx264 (yuv420p, `+faststart`). Compare frame 0 vs frame 834 (extra capture) via ffmpeg SSIM for loop seam.
 6. Raise CRF if output exceeds 45 MB.
 

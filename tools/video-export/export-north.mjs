@@ -4,20 +4,28 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import {
+  captureFrameAtIndex,
+  mapWithConcurrency,
+} from "./capture-frame.mjs";
+import {
   CYCLE_SECONDS,
   FRAME_COUNT,
-  FRAME_MS,
   FPS,
   LIVE_NORTH_URL,
-  VIEWPORT,
 } from "./timing.mjs";
+import {
+  countSceneChanges,
+  extractQaStills,
+  QA_SAMPLE_TIMES,
+  writeQaReport,
+} from "./qa-check.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ARTIFACTS =
-  process.env.ARTIFACTS_DIR || "/opt/cursor/artifacts";
+const ARTIFACTS = process.env.ARTIFACTS_DIR || "/opt/cursor/artifacts";
 const FRAMES_DIR = path.join(__dirname, "frames");
 const EXTRA_FRAMES = 1;
 const TOTAL_CAPTURE_FRAMES = FRAME_COUNT + EXTRA_FRAMES;
+const CAPTURE_CONCURRENCY = Number(process.env.CAPTURE_CONCURRENCY || "4");
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -33,109 +41,49 @@ function run(cmd, args, opts = {}) {
   return r.stdout;
 }
 
-async function waitForPageReady(page) {
-  await page.waitForSelector('.animation[data-ready="1"]', { timeout: 120_000 });
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-    const imgs = Array.from(document.images);
-    await Promise.all(
-      imgs.map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.addEventListener("load", resolve, { once: true });
-          img.addEventListener("error", resolve, { once: true });
-        });
-      })
-    );
-  });
-}
-
-async function resetCycleStart(page) {
-  await page.evaluate(() => {
-    const l05 = document.querySelector(".L05Ename");
-    if (l05) {
-      const clone = l05.cloneNode(true);
-      l05.parentNode?.replaceChild(clone, l05);
-    }
-    const nodes = document.querySelectorAll(".animation, .animation *");
-    for (const el of nodes) {
-      el.style.animation = "none";
-      el.style.webkitAnimation = "none";
-    }
-    void document.body.offsetWidth;
-    for (const el of nodes) {
-      el.style.animation = "";
-      el.style.webkitAnimation = "";
-    }
-    void document.body.offsetWidth;
-  });
-}
-
-async function seekAnimations(page, globalMs) {
-  await page.evaluate((ms) => {
-    const anims = document.getAnimations({ subtree: true });
-    for (const anim of anims) {
-      const effect = anim.effect;
-      if (!effect || typeof effect.getComputedTiming !== "function") continue;
-      const timing = effect.getComputedTiming();
-      const delay = Number(timing.delay) || 0;
-      const duration = Number(timing.duration) || 0;
-      const iterations = timing.iterations;
-
-      anim.pause();
-
-      if (ms < delay) {
-        anim.currentTime = 0;
-        continue;
-      }
-
-      const elapsed = ms - delay;
-      if (iterations === Infinity) {
-        anim.currentTime = duration > 0 ? elapsed % duration : elapsed;
-      } else {
-        const active = Number(timing.activeDuration) || duration;
-        anim.currentTime = Math.min(elapsed, active);
-      }
-    }
-  }, globalMs);
-}
-
-async function captureFrames(page, framesDir) {
+async function captureAllFrames(browser, framesDir) {
   ensureDir(framesDir);
-  const existing = fs.readdirSync(framesDir).filter((f) => f.endsWith(".png"));
-  for (const f of existing) fs.unlinkSync(path.join(framesDir, f));
-
-  for (let i = 0; i < TOTAL_CAPTURE_FRAMES; i++) {
-    if (i === FRAME_COUNT) {
-      await resetCycleStart(page);
-      await seekAnimations(page, 0);
-    } else {
-      const globalMs = i * FRAME_MS;
-      await seekAnimations(page, globalMs);
-    }
-    const name = `frame_${String(i).padStart(5, "0")}.png`;
-    await page.screenshot({
-      path: path.join(framesDir, name),
-      clip: { x: 0, y: 0, width: VIEWPORT.width, height: VIEWPORT.height },
-      animations: "allow",
-    });
-    if (i % 60 === 0) {
-      console.log(`Captured frame ${i}/${TOTAL_CAPTURE_FRAMES - 1}`);
-    }
+  for (const f of fs.readdirSync(framesDir).filter((n) => n.endsWith(".png"))) {
+    fs.unlinkSync(path.join(framesDir, f));
   }
+
+  const indices = Array.from({ length: TOTAL_CAPTURE_FRAMES }, (_, i) => i);
+  const qaFrameIndex = new Map(
+    QA_SAMPLE_TIMES.map((t) => [Math.round(t * FPS), t])
+  );
+  const qaByTime = {};
+  let done = 0;
+  await mapWithConcurrency(indices, CAPTURE_CONCURRENCY, async (frameIndex) => {
+    const name = `frame_${String(frameIndex).padStart(5, "0")}.png`;
+    const topSample = await captureFrameAtIndex(
+      browser,
+      frameIndex,
+      path.join(framesDir, name),
+      {
+        applyLoopSeamReset: frameIndex === FRAME_COUNT,
+        readTop: qaFrameIndex.has(frameIndex),
+      }
+    );
+    if (qaFrameIndex.has(frameIndex)) {
+      qaByTime[String(qaFrameIndex.get(frameIndex))] = topSample;
+    }
+    done += 1;
+    if (done % 30 === 0 || done === TOTAL_CAPTURE_FRAMES) {
+      console.log(`Captured ${done}/${TOTAL_CAPTURE_FRAMES}`);
+    }
+  });
+  return qaByTime;
 }
 
 function encodeVideo(framesDir, outPath, crf) {
-  const inputPattern = path.join(framesDir, "frame_%05d.png");
-  const limitedFrames = FRAME_COUNT;
   run("ffmpeg", [
     "-y",
     "-framerate",
     String(FPS),
     "-i",
-    inputPattern,
+    path.join(framesDir, "frame_%05d.png"),
     "-frames:v",
-    String(limitedFrames),
+    String(FRAME_COUNT),
     "-c:v",
     "libx264",
     "-pix_fmt",
@@ -163,24 +111,6 @@ function encodeWithSizeCap(framesDir, outPath) {
     encodeVideo(framesDir, outPath, crf);
   }
   return crf;
-}
-
-function extractStills(mp4Path, artifactsDir) {
-  const times = [0, 2.75, 8.25, 13.75, 19.25, 25];
-  const labels = ["00", "01", "02", "03", "04", "05"];
-  times.forEach((t, idx) => {
-    const out = path.join(artifactsDir, `north-frame-${labels[idx]}.png`);
-    run("ffmpeg", [
-      "-y",
-      "-ss",
-      String(t),
-      "-i",
-      mp4Path,
-      "-frames:v",
-      "1",
-      out,
-    ]);
-  });
 }
 
 function loopSeamMetric(framesDir) {
@@ -219,35 +149,31 @@ async function main() {
 
   const browser = await chromium.launch({
     headless: true,
-    args: ["--font-render-hinting=none"],
+    args: [
+      "--font-render-hinting=none",
+      "--disable-background-timer-throttling",
+    ],
   });
 
   try {
-    const context = await browser.newContext({
-      viewport: VIEWPORT,
-      deviceScaleFactor: 1,
-      locale: "zh-TW",
-      colorScheme: "light",
-    });
-    await context.addInitScript(() => {
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-      document.body.style.margin = "0";
-      document.body.style.cursor = "none";
-    });
-
-    const page = await context.newPage();
-    await page.goto(LIVE_NORTH_URL, { waitUntil: "networkidle", timeout: 120_000 });
-    await waitForPageReady(page);
-    await resetCycleStart(page);
-
-    await captureFrames(page, FRAMES_DIR);
+    const qaDuringCapture = await captureAllFrames(browser, FRAMES_DIR);
 
     const seam = loopSeamMetric(FRAMES_DIR);
-    console.log("Loop seam SSIM:", seam.ssim, seam.raw.split("\n").slice(-3).join("\n"));
+    console.log("Loop seam SSIM:", seam.ssim);
 
     const crfUsed = encodeWithSizeCap(FRAMES_DIR, mp4Path);
-    extractStills(mp4Path, ARTIFACTS);
+    extractQaStills(mp4Path, ARTIFACTS);
+    const scenes = countSceneChanges(mp4Path);
+
+    const qaReport = {
+      samplesDuringCapture: qaDuringCapture,
+      sceneChangesAbove002: scenes.count,
+      topBoundaryHits: scenes.topBoundaryHits,
+      expectedTops: { "2": 1, "8": 2, "13.5": 3, "19": 4, "24.5": 5 },
+    };
+    writeQaReport(ARTIFACTS, qaReport);
+    console.log("QA samples:", JSON.stringify(qaDuringCapture, null, 2));
+    console.log("Scene changes (gt 0.02):", scenes.count);
 
     writeFfprobe(mp4Path, ARTIFACTS, {
       sourceUrl: LIVE_NORTH_URL,
@@ -256,9 +182,23 @@ async function main() {
       frameCount: FRAME_COUNT,
       crf: crfUsed,
       loopSeamSsim: seam.ssim,
+      captureMethod:
+        "Per-frame fresh tab + CDP virtual-time advance (avoids screenshot/virtual-time desync on a single tab)",
+      captureConcurrency: CAPTURE_CONCURRENCY,
       cycleDerivation:
         "5×5.5s TOP slots; L05Ename fadeOut ends 27.3s; script.js setTimeout(500) → 27.8s",
+      qa: qaReport,
     });
+
+    const topsOk = QA_SAMPLE_TIMES.every((t) => {
+      const expected = qaReport.expectedTops[String(t)];
+      const got = qaDuringCapture[String(t)]?.top;
+      return got === expected;
+    });
+    if (!topsOk || scenes.count < 5 || scenes.topBoundaryHits < 4) {
+      console.error("QA failed");
+      process.exit(1);
+    }
 
     console.log(`Done: ${mp4Path}`);
   } finally {
