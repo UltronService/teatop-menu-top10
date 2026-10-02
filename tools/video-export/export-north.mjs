@@ -4,9 +4,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   buildContactSheet,
+  extractStillAtTime,
   fullQaReport,
   QA_SAMPLE_TIMES,
 } from "./qa-analyze.mjs";
+import {
+  analyzeVideoLayout,
+  captureLiveLayoutReference,
+  checkViewportMetrics,
+} from "./qa-layout.mjs";
 import {
   CYCLE_SECONDS,
   FRAME_COUNT,
@@ -15,7 +21,6 @@ import {
 } from "./timing.mjs";
 import { recordNorthCycleToMp4 } from "./xvfb-record.mjs";
 import { trimToCycleWindow } from "./trim-cycle.mjs";
-import { ensureLoopSeam } from "./seam-fix.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARTIFACTS = process.env.ARTIFACTS_DIR || "/opt/cursor/artifacts";
@@ -87,8 +92,23 @@ async function main() {
   ensureDir(TMP_QA);
   const mp4Path = path.join(ARTIFACTS, "teatop-north-top10-1080p.mp4");
   const rawPath = path.join(ARTIFACTS, "teatop-north-top10-raw.mp4");
+  const layoutRefPng = path.join(TMP_QA, "layout-reference-1920.png");
 
   const captureMeta = await recordNorthCycleToMp4(rawPath);
+  if (
+    captureMeta.layoutRefScreenshot &&
+    fs.existsSync(captureMeta.layoutRefScreenshot)
+  ) {
+    fs.copyFileSync(captureMeta.layoutRefScreenshot, layoutRefPng);
+  } else if (
+    captureMeta.preCycleRefPng &&
+    fs.existsSync(captureMeta.preCycleRefPng)
+  ) {
+    fs.copyFileSync(captureMeta.preCycleRefPng, layoutRefPng);
+  } else {
+    await captureLiveLayoutReference(layoutRefPng);
+  }
+  const viewportCheck = checkViewportMetrics(captureMeta.viewportMetrics);
   const trimMeta = trimToCycleWindow(rawPath, mp4Path);
   try {
     fs.unlinkSync(rawPath);
@@ -96,7 +116,6 @@ async function main() {
     spawnSync("rm", ["-f", rawPath]);
   }
   const crfUsed = reencodeIfOversize(mp4Path);
-  const seamMeta = ensureLoopSeam(mp4Path, 0.99, TMP_QA);
 
   if (captureMeta.postCycleRefPng) {
     fs.copyFileSync(
@@ -105,13 +124,21 @@ async function main() {
     );
   }
 
-  const qaReport = fullQaReport(
+  const layoutCheck = analyzeVideoLayout(
     mp4Path,
-    TMP_QA,
-    captureMeta.preCycleRefPng,
-    captureMeta.postCycleRefPng
+    layoutRefPng,
+    path.join(TMP_QA, "layout-frames")
   );
-  qaReport.seamPatch = seamMeta;
+
+  const qaReport = fullQaReport(mp4Path, TMP_QA, {
+    preCyclePngPath: captureMeta.preCycleRefPng,
+    postCyclePngPath: captureMeta.postCycleRefPng,
+    viewportMetrics: captureMeta.viewportMetrics,
+    viewportCheck,
+    layoutRefPng,
+    layoutCheck,
+  });
+
   fs.writeFileSync(
     path.join(ARTIFACTS, "qa-report.json"),
     `${JSON.stringify(qaReport, null, 2)}\n`
@@ -125,6 +152,7 @@ async function main() {
     }
   });
 
+  extractStillAtTime(mp4Path, 8, path.join(ARTIFACTS, "full-frame-8s.png"));
   buildContactSheet(mp4Path, path.join(ARTIFACTS, "contact-0-6s.png"));
 
   writeFfprobe(mp4Path, ARTIFACTS, {
@@ -133,15 +161,15 @@ async function main() {
     fps: FPS,
     frameCount: FRAME_COUNT,
     crf: crfUsed,
-      capture: captureMeta,
-      trim: trimMeta,
-      seam: seamMeta,
+    capture: captureMeta,
+    trim: trimMeta,
     qa: qaReport,
   });
 
   console.log("QA pass:", qaReport.pass);
   console.log("Loop SSIM:", qaReport.loopSeamSsim);
-  console.log("Segments:", qaReport.segmentCount);
+  console.log("Viewport:", qaReport.viewport);
+  console.log("Layout OK:", qaReport.layout?.ok);
 
   if (!qaReport.pass.all) {
     process.exit(1);

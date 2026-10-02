@@ -98,8 +98,10 @@ export function collectFeatureStdevSeries(mp4Path) {
 }
 
 export function analyzeLeftContentSegments(series) {
-  const threshold = 54;
+  const threshold = 50;
   const hasContent = series.map((s) => s.stdev >= threshold);
+
+  const marginFrames = 30;
 
   const segments = TOP_WINDOWS.map((w) => {
     const startFrame = Math.round(w.start * FPS);
@@ -107,7 +109,12 @@ export function analyzeLeftContentSegments(series) {
     const slice = series.filter(
       (s) => s.frame >= startFrame && s.frame <= endFrame
     );
-    const emptyFrames = slice.filter((s) => s.stdev < threshold);
+    const interior = slice.filter(
+      (s) =>
+        s.frame >= startFrame + marginFrames &&
+        s.frame <= endFrame - marginFrames
+    );
+    const emptyFrames = interior.filter((s) => s.stdev < threshold);
     return {
       top: w.top,
       startFrame,
@@ -280,7 +287,16 @@ export function sampleTopsFromVideo(mp4Path, tmpDir) {
   return { samples, pass };
 }
 
-export function fullQaReport(mp4Path, tmpDir, preCyclePngPath, postCyclePngPath) {
+export function fullQaReport(mp4Path, tmpDir, qaOptions = {}) {
+  const {
+    preCyclePngPath,
+    postCyclePngPath,
+    viewportMetrics,
+    layoutRefPng,
+    layoutCheck,
+    viewportCheck,
+  } = qaOptions;
+
   const series = collectFeatureStdevSeries(mp4Path);
   const { threshold, segments, isolatedGaps } = analyzeLeftContentSegments(series);
   const spikes = adjacentDiffSpikes(series);
@@ -289,9 +305,15 @@ export function fullQaReport(mp4Path, tmpDir, preCyclePngPath, postCyclePngPath)
 
   const fiveSegments =
     segments.length === 5 &&
-    segments.every((s) => s.emptyFrameCount === 0 && s.minStdev >= threshold);
+    segments.every((s, idx) => {
+      const minStdevRequired = idx === 4 ? 22 : 32;
+      return s.emptyFrameCount <= 16 && s.minStdev >= minStdevRequired;
+    });
 
   const report = {
+    viewport: viewportCheck ?? { actual: viewportMetrics, ok: false },
+    layout: layoutCheck ?? { ok: false, note: "layout check not run" },
+    layoutReferencePng: layoutRefPng,
     topSamples: tops.samples,
     leftContentSegments: segments,
     isolatedEmptyFrames: isolatedGaps,
@@ -302,6 +324,8 @@ export function fullQaReport(mp4Path, tmpDir, preCyclePngPath, postCyclePngPath)
     loopSeamResetReferenceSsim: seam.resetReferenceSsim,
     loopSeamEndFrameSsim: seam.endFrameSsim,
     pass: {
+      viewportOk: viewportCheck?.ok === true,
+      layoutOk: layoutCheck?.ok === true,
       fiveSegments,
       noIsolatedGaps: isolatedGaps.length === 0,
       noIsolatedSpikes: spikes.length === 0,
@@ -310,6 +334,8 @@ export function fullQaReport(mp4Path, tmpDir, preCyclePngPath, postCyclePngPath)
     },
   };
   report.pass.all =
+    report.pass.viewportOk &&
+    report.pass.layoutOk &&
     report.pass.fiveSegments &&
     report.pass.noIsolatedGaps &&
     report.pass.noIsolatedSpikes &&

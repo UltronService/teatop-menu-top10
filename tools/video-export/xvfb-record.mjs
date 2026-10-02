@@ -11,7 +11,7 @@ import {
 
 const DISPLAY = ":99";
 const RECORD_SECONDS = FRAME_COUNT / FPS;
-
+const PROFILE_DIR = "/tmp/teatop-kiosk-profile";
 function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -30,6 +30,19 @@ export async function startXvfbIfNeeded() {
     await sleep(500);
   }
   process.env.DISPLAY = DISPLAY;
+  await startOpenboxIfNeeded();
+}
+
+async function startOpenboxIfNeeded() {
+  const listed = spawnSync("pgrep", ["-x", "openbox"], { encoding: "utf8" });
+  if (listed.stdout.trim()) return;
+  const proc = spawn("openbox", [], {
+    env: { ...process.env, DISPLAY },
+    stdio: "ignore",
+    detached: true,
+  });
+  proc.unref();
+  await sleep(400);
 }
 
 export async function waitForPageReady(page) {
@@ -49,6 +62,27 @@ export async function waitForPageReady(page) {
   });
 }
 
+export async function readViewportMetrics(page) {
+  return page.evaluate(() => ({
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+    devicePixelRatio: window.devicePixelRatio,
+    outerWidth: window.outerWidth,
+    outerHeight: window.outerHeight,
+  }));
+}
+
+export async function assertFullscreenViewport(page) {
+  await page.waitForFunction(
+    () =>
+      window.innerWidth === 1920 &&
+      window.innerHeight === 1080 &&
+      window.devicePixelRatio === 1,
+    null,
+    { timeout: 30_000 }
+  );
+}
+
 export async function pauseAnimationsAtZero(page) {
   await page.evaluate(() => {
     for (const anim of document.getAnimations({ subtree: true })) {
@@ -56,21 +90,6 @@ export async function pauseAnimationsAtZero(page) {
       anim.currentTime = 0;
     }
   });
-}
-
-export async function waitForTop1Centered(page) {
-  await page.waitForFunction(
-    () => {
-      const el = document.querySelector(".Ltop01");
-      if (!el) return false;
-      const rect = el.getBoundingClientRect();
-      const panelW = (window.innerWidth * 9) / 16;
-      const cx = rect.left + rect.width / 2;
-      return rect.width > 40 && Math.abs(cx - panelW / 2) < 60;
-    },
-    null,
-    { timeout: 15_000 }
-  );
 }
 
 function kickAnimations(page) {
@@ -131,10 +150,16 @@ export async function resetCycleStart(page, detachLoopListener) {
   }, detachLoopListener);
 }
 
+function tryWmFullscreen() {
+  spawnSync("wmctrl", ["-r", ":ACTIVE:", "-b", "add,fullscreen"], {
+    encoding: "utf8",
+  });
+}
+
 function runFfmpegPngFromVideo(videoPath, pngPath) {
   const r = spawnSync(
     "ffmpeg",
-    ["-y", "-i", videoPath, "-frames:v", "1", pngPath],
+    ["-y", "-i", videoPath, "-frames:v", "1", "-update", "1", pngPath],
     { encoding: "utf8" }
   );
   if (r.status !== 0) {
@@ -216,36 +241,71 @@ function runFfmpegRecord(outPath, frameCount) {
   });
 }
 
-/**
- * Single tab on Xvfb, real-time playback while x11grab records 834 frames.
- */
-export async function recordNorthCycleToMp4(outPath) {
-  await startXvfbIfNeeded();
+async function setWindowFullscreen(page) {
+  const client = await page.context().newCDPSession(page);
+  const { windowId } = await client.send("Browser.getWindowForTarget");
+  await client.send("Browser.setWindowBounds", {
+    windowId,
+    bounds: { windowState: "fullscreen" },
+  });
+}
 
-  const browser = await chromium.launch({
+async function launchAppContext() {
+  fs.rmSync(PROFILE_DIR, { recursive: true, force: true });
+  return chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
+    viewport: VIEWPORT,
+    deviceScaleFactor: 1,
+    ignoreDefaultArgs: ["--enable-automation"],
     args: [
       `--app=${LIVE_NORTH_URL}`,
+      "--kiosk",
+      "--start-fullscreen",
       `--window-size=${VIEWPORT.width},${VIEWPORT.height}`,
       "--window-position=0,0",
+      "--force-device-scale-factor=1",
       "--no-first-run",
       "--disable-infobars",
       "--hide-scrollbars",
       "--disable-dev-shm-usage",
       "--no-sandbox",
+      "--disable-gpu",
+      "--disable-session-crashed-bubble",
+      "--disable-features=TranslateUI",
     ],
   });
+}
+
+/**
+ * Single tab on Xvfb kiosk, real-time playback while x11grab records.
+ */
+export async function recordNorthCycleToMp4(outPath) {
+  await startXvfbIfNeeded();
+
+  const context = await launchAppContext();
 
   try {
-    const context = browser.contexts()[0] ?? await browser.newContext();
-    const page = context.pages()[0] ?? await context.newPage();
-    if (!page.url().includes("regions/north")) {
+    let page = context.pages()[0];
+    if (!page) {
+      page = await context.newPage();
+      await page.goto(LIVE_NORTH_URL, {
+        waitUntil: "networkidle",
+        timeout: 120_000,
+      });
+    } else if (!page.url().includes("regions/north")) {
       await page.goto(LIVE_NORTH_URL, {
         waitUntil: "networkidle",
         timeout: 120_000,
       });
     }
     await waitForPageReady(page);
+    await setWindowFullscreen(page);
+    tryWmFullscreen();
+    await sleep(400);
+    await assertFullscreenViewport(page);
+
+    const viewportMetrics = await readViewportMetrics(page);
+
     await page.evaluate(() => {
       document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
@@ -270,7 +330,14 @@ export async function recordNorthCycleToMp4(outPath) {
     await kickAnimations(page);
     await sleep(80);
 
-    await runFfmpegRecord(outPath, FRAME_COUNT + 90);
+    const layoutRefScreenshot = path.join(
+      path.dirname(outPath),
+      "kiosk-layout-ref-2.5s.png"
+    );
+    const recordPromise = runFfmpegRecord(outPath, FRAME_COUNT + 90);
+    await sleep(2500);
+    await page.screenshot({ path: layoutRefScreenshot, fullPage: false });
+    await recordPromise;
 
     const postCycleRefPng = path.join(path.dirname(outPath), "post-cycle-x11grab.png");
     const postRefVid = path.join(path.dirname(outPath), "post-cycle-x11grab.mp4");
@@ -281,13 +348,15 @@ export async function recordNorthCycleToMp4(outPath) {
     runFfmpegPngFromVideo(postRefVid, postCycleRefPng);
 
     return {
-      method: "xvfb-x11grab-realtime-single-tab-cycle-sync",
+      method: "xvfb-kiosk-x11grab-cycle-sync",
       display: DISPLAY,
       recordSeconds: RECORD_SECONDS,
+      viewportMetrics,
+      layoutRefScreenshot,
       preCycleRefPng,
       postCycleRefPng,
     };
   } finally {
-    await browser.close();
+    await context.close();
   }
 }

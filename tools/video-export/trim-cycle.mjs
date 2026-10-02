@@ -43,7 +43,7 @@ function buildCandidateStarts(series) {
   const maxStart = series.length - FRAME_COUNT;
   const base = firstStableIndex(series);
   const candidates = new Set([0, base]);
-  for (let d = -20; d <= 20; d += 1) {
+  for (let d = -60; d <= 60; d += 1) {
     const a = base + d;
     if (a >= 0 && a <= maxStart) candidates.add(a);
   }
@@ -105,8 +105,8 @@ export function trimToCycleWindow(rawPath, outPath) {
   let pickSearch = "best-output-seam";
 
   const tryPath = `${outPath}.trim-try.mp4`;
-  const maxTries = Math.min(ranked.length, 8);
-  for (let t = 0; t < maxTries; t += 1) {
+  let bestTops = null;
+  for (let t = 0; t < ranked.length; t += 1) {
     const pick = ranked[t];
     encodeCycleWindow(rawPath, tryPath, pick.startFrame, pick.endFrame);
     outputSeam = ssimBetweenFrames(
@@ -115,21 +115,29 @@ export function trimToCycleWindow(rawPath, outPath) {
       FRAME_COUNT - 1,
       tmpDir
     );
-    chosen = pick;
     const midStdev = midCycleStdev(tryPath);
     const topsLikely = midStdev >= 58;
-    if (
-      (outputSeam >= SSIM_MIN && topsLikely) ||
-      t === maxTries - 1
-    ) {
+    if (topsLikely && (!bestTops || outputSeam > bestTops.outputSeam)) {
+      bestTops = { pick, outputSeam };
+    }
+    if (outputSeam >= SSIM_MIN && topsLikely) {
+      chosen = pick;
       fs.renameSync(tryPath, outPath);
-      pickSearch =
-        outputSeam >= SSIM_MIN && topsLikely
-          ? "output-seam-pass"
-          : "best-output-seam";
+      pickSearch = "output-seam-pass";
       break;
     }
     if (fs.existsSync(tryPath)) fs.unlinkSync(tryPath);
+  }
+  if (!fs.existsSync(outPath) && bestTops) {
+    encodeCycleWindow(
+      rawPath,
+      outPath,
+      bestTops.pick.startFrame,
+      bestTops.pick.endFrame
+    );
+    chosen = bestTops.pick;
+    outputSeam = bestTops.outputSeam;
+    pickSearch = "best-tops-seam";
   }
 
   const startPng = path.join(path.dirname(outPath), "cycle-start-from-raw.png");
