@@ -17,7 +17,7 @@ shopt -s dotglob nullglob
 for item in "$ROOT"/*; do
   base="$(basename "$item")"
   case "$base" in
-    _site | .git | admin | node_modules) continue ;;
+    _site | .git | .cursor | admin | node_modules) continue ;;
   esac
   cp -a "$item" "$SITE/$base"
 done
