@@ -86,13 +86,14 @@ const rows = [
   { id: 4, name: "?icon=off 七區不顯示小圖示", pass: passed },
   { id: 5, name: "?icon=on 顯示小圖示", pass: passed },
   { id: 6, name: "default/off 隱藏、僅 icon=on 顯示（查詢解析）", pass: passed },
-  { id: 7, name: "隱藏後無 ::after 空位＋七區 R 欄像素 diff 0", pass: passed },
+  { id: 7, name: "icon=on vs 預設/off：七區 RCname top/left 差 0", pass: passed },
 ];
 
 const report = `# hide-icons QA REPORT
 
 - npm test: ${passed ? "PASS" : "FAIL"}
-- Asset: \`data/player-asset-version.json\` version 1 → \`?v=1\` on css/js
+- Asset: \`data/player-asset-version.json\` version 2 → \`?v=2\` on css/js
+- 像素 baseline 先前只存 off 版，無法抓 top 位移；#7 改比 \`?icon=on\` vs off 的 RCname rect。
 
 ## 通過／不通過
 

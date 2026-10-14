@@ -876,14 +876,16 @@ body, html {
 
 /* Default hide RCname slot suffix icons unless ?icon=on (class toggled in inject.js). */
 .animation.rcname-suffix-icons-off .RCname::after {
-  content: none !important;
-  display: none !important;
   width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
   margin-left: 0 !important;
+  margin-right: 0 !important;
   padding: 0 !important;
+  overflow: hidden !important;
   border: none !important;
   background-image: none !important;
   background-color: transparent !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }

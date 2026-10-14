@@ -1,13 +1,11 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { chromium } from "playwright";
-import { PNG } from "pngjs";
-import pixelmatch from "pixelmatch";
 
 const require = createRequire(import.meta.url);
 const iconMode = require("../js/name-suffix-icon-mode.cjs");
@@ -83,14 +81,46 @@ async function pseudoAfterMetrics(page, selector) {
       content: style.content,
       display: style.display,
       width: style.width,
+      height: style.height,
       marginLeft: style.marginLeft,
       backgroundImage: style.backgroundImage,
+      opacity: style.opacity,
+      visibility: style.visibility,
     };
   }, selector);
 }
 
-async function cnameRect(page, selector) {
-  return page.locator(selector).boundingBox();
+async function freezeAnimations(page) {
+  await page.evaluate(() => {
+    document.querySelectorAll(".animation, .animation *").forEach((el) => {
+      el.style.animation = "none";
+    });
+  });
+}
+
+async function cnameRectsByRank(page) {
+  return page.evaluate(() => {
+    const out = {};
+    for (let rank = 1; rank <= 10; rank++) {
+      const nn = String(rank).padStart(2, "0");
+      const el = document.querySelector(".R" + nn + "Cname");
+      if (!el) {
+        continue;
+      }
+      const rect = el.getBoundingClientRect();
+      out[nn] = { top: rect.top, left: rect.left };
+    }
+    return out;
+  });
+}
+
+function assertHiddenAfterMetrics(metrics, label) {
+  assert.ok(metrics, label);
+  assert.notEqual(metrics.display, "none", `${label} display must stay inline for line box`);
+  assert.notEqual(metrics.content, "none", `${label} content must stay for line box`);
+  assert.equal(metrics.width, "0px", `${label} width`);
+  assert.equal(metrics.marginLeft, "0px", `${label} margin-left`);
+  assert.equal(metrics.backgroundImage, "none", `${label} background-image`);
 }
 
 test("1) default (?icon absent): seven regions hide RCname ::after icons", async () => {
@@ -104,10 +134,7 @@ test("1) default (?icon absent): seven regions hide RCname ::after icons", async
       const animClass = await page.locator(".animation").getAttribute("class");
       assert.match(animClass || "", /rcname-suffix-icons-off/);
       assert.doesNotMatch(animClass || "", /rcname-suffix-icons-on/);
-      const metrics = await pseudoAfterMetrics(page, ".R03Cname");
-      assert.ok(metrics);
-      assert.equal(metrics.content, "none");
-      assert.equal(metrics.width, "0px");
+      assertHiddenAfterMetrics(await pseudoAfterMetrics(page, ".R03Cname"), `${region} R03`);
       await page.close();
     }
   } finally {
@@ -120,6 +147,10 @@ test("2) icon CSS rules and imgur assets remain in style.css", () => {
   assert.match(STYLE, /\.R03Cname::after/);
   assert.match(STYLE, /i\.imgur\.com\/jefyVWB\.png/);
   assert.match(STYLE, /\.animation\.rcname-suffix-icons-off \.RCname::after/);
+  assert.doesNotMatch(
+    STYLE,
+    /\.animation\.rcname-suffix-icons-off \.RCname::after[\s\S]*display:\s*none/
+  );
 });
 
 test("3) hub index.html is unchanged for icon mode (no player inject class)", async () => {
@@ -148,10 +179,7 @@ test("4) ?icon=off: seven regions hide RCname ::after icons", async () => {
       const animClass = await page.locator(".animation").getAttribute("class");
       assert.match(animClass || "", /rcname-suffix-icons-off/);
       assert.doesNotMatch(animClass || "", /rcname-suffix-icons-on/);
-      const metrics = await pseudoAfterMetrics(page, ".R03Cname");
-      assert.ok(metrics);
-      assert.equal(metrics.content, "none");
-      assert.equal(metrics.width, "0px");
+      assertHiddenAfterMetrics(await pseudoAfterMetrics(page, ".R03Cname"), `${region} R03`);
       await page.close();
     }
   } finally {
@@ -186,57 +214,44 @@ test("6) query parser: default/off hide, only icon=on shows", () => {
   assert.equal(iconMode.shouldShowRcnameSuffixIcons("?icon=invalid"), false);
 });
 
-test("7) hidden mode: no layout shift vs icon=on (7 regions, tolerance 0)", async () => {
+test("7) icon=on vs default/off: RCname top/left identical (7 regions, tolerance 0)", async () => {
   const { server, baseUrl } = await startStaticServer();
   const browser = await chromium.launch();
-  const fixtureDir = path.join(ROOT, "tests/fixtures/hide-icons-r-off");
+  const shiftLog = [];
   try {
     for (const region of REGIONS) {
-      const offPage = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
-      await offPage.goto(`${baseUrl}/regions/${region}/`, { waitUntil: "networkidle" });
-      await offPage.waitForSelector(".animation[data-ready='1']");
-      await offPage.evaluate(() => {
-        document.querySelectorAll(".animation, .animation *").forEach((el) => {
-          el.style.animation = "none";
+      for (const hiddenQuery of ["", "?icon=off"]) {
+        const onPage = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+        const offPage = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+        await onPage.goto(`${baseUrl}/regions/${region}/?icon=on`, { waitUntil: "networkidle" });
+        await offPage.goto(`${baseUrl}/regions/${region}/${hiddenQuery}`, {
+          waitUntil: "networkidle",
         });
-      });
-      for (let rank = 1; rank <= 10; rank++) {
-        const nn = String(rank).padStart(2, "0");
-        const sel = `.R${nn}Cname`;
-        const hasIconRule = await offPage.evaluate((n) => {
-          return Boolean(document.querySelector(".R" + n + "Cname"));
-        }, nn);
-        if (!hasIconRule) {
-          continue;
+        await onPage.waitForSelector(".animation[data-ready='1']");
+        await offPage.waitForSelector(".animation[data-ready='1']");
+        await freezeAnimations(onPage);
+        await freezeAnimations(offPage);
+        const onRects = await cnameRectsByRank(onPage);
+        const offRects = await cnameRectsByRank(offPage);
+        for (const nn of Object.keys(onRects)) {
+          const on = onRects[nn];
+          const off = offRects[nn];
+          assert.ok(off, `${region} ${nn} missing hidden rect`);
+          const dTop = Math.round(on.top) - Math.round(off.top);
+          const dLeft = Math.round(on.left) - Math.round(off.left);
+          shiftLog.push({ region, query: hiddenQuery || "(default)", rank: nn, dTop, dLeft });
+          assert.equal(dTop, 0, `${region} ${hiddenQuery} R${nn} top shift ${dTop}px`);
+          assert.equal(dLeft, 0, `${region} ${hiddenQuery} R${nn} left shift ${dLeft}px`);
         }
-        const offAfter = await pseudoAfterMetrics(offPage, sel);
-        assert.equal(offAfter.width, "0px", `${region} ${sel} ::after width`);
-        assert.equal(offAfter.marginLeft, "0px", `${region} ${sel} ::after margin`);
+        await onPage.close();
+        await offPage.close();
       }
-      const shotPath = path.join(fixtureDir, `${region}.png`);
-      const shotBuf = await offPage.locator(".R").screenshot();
-      const current = PNG.sync.read(shotBuf);
-      if (!existsSync(shotPath)) {
-        mkdirSync(fixtureDir, { recursive: true });
-        writeFileSync(shotPath, PNG.sync.write(current));
-      }
-      assert.ok(existsSync(shotPath), `missing baseline ${shotPath}`);
-      const baseline = PNG.sync.read(readFileSync(shotPath));
-      assert.equal(current.width, baseline.width);
-      assert.equal(current.height, baseline.height);
-      const diffPixels = pixelmatch(
-        current.data,
-        baseline.data,
-        null,
-        current.width,
-        current.height,
-        { threshold: 0 }
-      );
-      assert.equal(diffPixels, 0, `${region} R panel pixel diff`);
-      await offPage.close();
     }
   } finally {
     await browser.close();
     server.close();
+  }
+  if (process.env.DEBUG_SHIFT_LOG) {
+    console.log(JSON.stringify(shiftLog, null, 2));
   }
 });
