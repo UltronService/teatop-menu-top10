@@ -83,9 +83,10 @@ const rows = [
   { id: 1, name: "七區預設不顯示品名後小圖示", pass: passed },
   { id: 2, name: "style.css 保留原 ::after 與圖檔 URL", pass: passed },
   { id: 3, name: "首頁 index 未掛播放器 icon 模式", pass: passed },
-  { id: 4, name: "?icon=on 顯示小圖示", pass: passed },
-  { id: 5, name: "僅 icon=on 開啟（查詢解析）", pass: passed },
-  { id: 6, name: "隱藏後無 ::after 空位＋七區 R 欄像素 diff 0", pass: passed },
+  { id: 4, name: "?icon=off 七區不顯示小圖示", pass: passed },
+  { id: 5, name: "?icon=on 顯示小圖示", pass: passed },
+  { id: 6, name: "default/off 隱藏、僅 icon=on 顯示（查詢解析）", pass: passed },
+  { id: 7, name: "隱藏後無 ::after 空位＋七區 R 欄像素 diff 0", pass: passed },
 ];
 
 const report = `# hide-icons QA REPORT

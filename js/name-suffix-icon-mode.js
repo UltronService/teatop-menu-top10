@@ -1,5 +1,5 @@
 /**
- * RCname suffix icon visibility (?icon=on to show; default hide via CSS class).
+ * RCname suffix icon visibility: default and ?icon=off hide; ?icon=on shows.
  */
 var teatopNameSuffixIconMode = (function () {
   "use strict";

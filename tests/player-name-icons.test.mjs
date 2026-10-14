@@ -137,7 +137,30 @@ test("3) hub index.html is unchanged for icon mode (no player inject class)", as
   }
 });
 
-test("4) ?icon=on shows suffix icons on RCname", async () => {
+test("4) ?icon=off: seven regions hide RCname ::after icons", async () => {
+  const { server, baseUrl } = await startStaticServer();
+  const browser = await chromium.launch();
+  try {
+    for (const region of REGIONS) {
+      const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+      await page.goto(`${baseUrl}/regions/${region}/?icon=off`, { waitUntil: "networkidle" });
+      await page.waitForSelector(".animation[data-ready='1']");
+      const animClass = await page.locator(".animation").getAttribute("class");
+      assert.match(animClass || "", /rcname-suffix-icons-off/);
+      assert.doesNotMatch(animClass || "", /rcname-suffix-icons-on/);
+      const metrics = await pseudoAfterMetrics(page, ".R03Cname");
+      assert.ok(metrics);
+      assert.equal(metrics.content, "none");
+      assert.equal(metrics.width, "0px");
+      await page.close();
+    }
+  } finally {
+    await browser.close();
+    server.close();
+  }
+});
+
+test("5) ?icon=on shows suffix icons on RCname", async () => {
   const { server, baseUrl } = await startStaticServer();
   const browser = await chromium.launch();
   try {
@@ -156,13 +179,14 @@ test("4) ?icon=on shows suffix icons on RCname", async () => {
   }
 });
 
-test("5) query parser: only icon=on enables icons", () => {
+test("6) query parser: default/off hide, only icon=on shows", () => {
   assert.equal(iconMode.shouldShowRcnameSuffixIcons(""), false);
   assert.equal(iconMode.shouldShowRcnameSuffixIcons("?icon=off"), false);
   assert.equal(iconMode.shouldShowRcnameSuffixIcons("?icon=on"), true);
+  assert.equal(iconMode.shouldShowRcnameSuffixIcons("?icon=invalid"), false);
 });
 
-test("6) hidden mode: no layout shift vs icon=on (7 regions, tolerance 0)", async () => {
+test("7) hidden mode: no layout shift vs icon=on (7 regions, tolerance 0)", async () => {
   const { server, baseUrl } = await startStaticServer();
   const browser = await chromium.launch();
   const fixtureDir = path.join(ROOT, "tests/fixtures/hide-icons-r-off");
