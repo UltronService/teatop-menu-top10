@@ -1,0 +1,14 @@
+{
+  "name": "teatop-menu-top10",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/player-name-icons.test.mjs",
+    "test:report": "node tests/generate-hide-icons-report.mjs"
+  },
+  "devDependencies": {
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.49.1",
+    "pngjs": "^7.0.0"
+  }
+}

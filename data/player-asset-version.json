@@ -1,0 +1,4 @@
+{
+  "version": 1,
+  "description": "Cache-bust query for regions/*/ player css/js (style.css, inject.js, name-suffix-icon-mode.js)."
+}

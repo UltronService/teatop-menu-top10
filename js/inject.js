@@ -218,6 +218,13 @@
 
     var anim = q(".animation");
     if (anim) {
+      var iconApi = null;
+      if (typeof window !== "undefined" && window.teatopNameSuffixIconMode) {
+        iconApi = window.teatopNameSuffixIconMode;
+      }
+      if (iconApi && typeof iconApi.applyRcnameSuffixIconMode === "function") {
+        iconApi.applyRcnameSuffixIconMode(anim, location.search);
+      }
       anim.style.visibility = "visible";
       anim.setAttribute("data-ready", "1");
     }
