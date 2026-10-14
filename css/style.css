@@ -873,3 +873,19 @@ body, html {
 .R05Cname, .R05Ename {
   animation: filtero 0.05s linear 22.5s 1 forwards, filtero 0.05s linear 27.3s 1 reverse forwards;
 }
+
+/* Default hide RCname slot suffix icons unless ?icon=on (class toggled in inject.js). */
+.animation.rcname-suffix-icons-off .RCname::after {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: none !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
